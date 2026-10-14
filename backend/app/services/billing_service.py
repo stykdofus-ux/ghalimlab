@@ -30,9 +30,9 @@ def get_or_create_tarification_params(db: Session) -> ParametreTarification:
             devise="DH",
             tva_applicable=0.0,
             frais_prelevement=0.0,
-            nom_laboratoire="Laboratoire d'Analyses Médicales GhalimLab",
+            nom_laboratoire="Laboratoire d'analyses médicales GhalimLab",
             sous_titre="Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie",
-            directeur="Dr. M. GHALIM - Biologiste Médical Diplômé d'État",
+            directeur="Dr. Kawtar GHALIM",
             adresse="124 Avenue Hassan II, Casablanca, Maroc",
             telephone="+212 5 22 45 67 89",
             email="contact@ghalimlab.ma",
@@ -56,7 +56,10 @@ def get_or_create_tarification_params(db: Session) -> ParametreTarification:
         # Assurer que les nouveaux champs d'identité et de branding sont initialisés
         updated = False
         if not getattr(params, "directeur", None):
-            params.directeur = "Dr. M. GHALIM - Biologiste Médical Diplômé d'État"
+            params.directeur = "Dr. Kawtar GHALIM"
+            updated = True
+        if not getattr(params, "nom_laboratoire", None):
+            params.nom_laboratoire = "Laboratoire d'analyses médicales GhalimLab"
             updated = True
         if not getattr(params, "sous_titre", None):
             params.sous_titre = "Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie"

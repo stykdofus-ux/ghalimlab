@@ -15,15 +15,53 @@ from backend.app.schemas import DemandeCreate
 router = APIRouter(prefix="/api/demandes", tags=["Demandes & Prélèvements"])
 
 
-def generate_unique_barcode(db: Session) -> str:
-    """Génère un code-barres unique de prélèvement au format PREL-2026-XXXX."""
-    annee = datetime.date.today().year
-    for _ in range(100):
-        seq = random.randint(100, 9999)
-        candidate = f"PREL-{annee}-{seq:04d}"
-        if not db.query(Demande).filter(Demande.code_barres == candidate).first():
-            return candidate
-    return f"PREL-{annee}-{int(datetime.datetime.now().timestamp())}"
+def generate_unique_barcode(db: Session, date_ref: Optional[datetime.date] = None) -> str:
+    """
+    Génère un code-barres / identifiant unique au format : YYMMDDNNN
+    Exemple : 261015001
+    - YY : 2 chiffres année (ex: 26)
+    - MM : 2 chiffres mois (ex: 10)
+    - DD : 2 chiffres jour (ex: 15)
+    - NNN : numéro séquentiel du prélèvement du jour (001, 002, 003...)
+    """
+    if date_ref is None:
+        date_ref = datetime.date.today()
+
+    prefix = date_ref.strftime("%y%m%d")
+
+    # Chercher parmi les Demandes existantes pour ce jour
+    demandes_codes = db.query(Demande.code_barres).filter(Demande.code_barres.like(f"{prefix}%")).all()
+    # Chercher également parmi les tubes pour cohérence globale
+    tubes_codes = db.query(EchantillonTube.code_tube).filter(EchantillonTube.code_tube.like(f"{prefix}%")).all()
+
+    all_codes = [c[0] for c in demandes_codes if c[0]] + [c[0] for c in tubes_codes if c[0]]
+
+    max_seq = 0
+    for code in all_codes:
+        if code.startswith(prefix):
+            remainder = code[len(prefix):]
+            digits = ""
+            for ch in remainder:
+                if ch.isdigit():
+                    digits += ch
+                else:
+                    break
+            if digits:
+                try:
+                    num = int(digits)
+                    if num > max_seq:
+                        max_seq = num
+                except ValueError:
+                    pass
+
+    next_seq = max_seq + 1
+    return f"{prefix}{next_seq:03d}"
+
+
+@router.get("/prochain-code")
+def get_prochain_code_barres(db: Session = Depends(get_db)):
+    """Retourne le prochain code-barres / identifiant disponible au format YYMMDDNNN."""
+    return {"prochain_code": generate_unique_barcode(db)}
 
 
 @router.get("")

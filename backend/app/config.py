@@ -24,11 +24,11 @@ API_HOST = os.getenv("API_HOST", "0.0.0.0")
 API_PORT = int(os.getenv("PORT", os.getenv("API_PORT", "8000")))
 
 # Métadonnées du Laboratoire d'Analyses Médicales
-LABO_NOM = "Laboratoire d'Analyses Médicales GhalimLab"
+LABO_NOM = "Laboratoire d'analyses médicales GhalimLab"
 LABO_SOUS_TITRE = "Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie"
 LABO_ADRESSE = "124 Avenue Hassan II, Casablanca, Maroc"
 LABO_TEL = "+212 5 22 45 67 89"
 LABO_EMAIL = "contact@ghalimlab.ma"
 LABO_SITE = "www.ghalimlab.ma"
-LABO_DIRECTEUR = "Dr. M. GHALIM - Biologiste Médical Diplômé d'État"
+LABO_DIRECTEUR = "Dr. Kawtar GHALIM"
 LABO_AGREMENT = "Agrément Ministère de la Santé N° 8492/BM"

@@ -29,7 +29,7 @@ def ensure_db_schema_up_to_date(target_engine):
             existing_cols = {col["name"] for col in inspector.get_columns("parametres_tarification")}
             columns_to_add = {
                 "sous_titre": "VARCHAR(200) DEFAULT 'Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie'",
-                "directeur": "VARCHAR(150) DEFAULT 'Dr. M. GHALIM - Biologiste Médical Diplômé d''État'",
+                "directeur": "VARCHAR(150) DEFAULT 'Dr. Kawtar GHALIM'",
                 "adresse": "VARCHAR(255) DEFAULT '124 Avenue Hassan II, Casablanca, Maroc'",
                 "telephone": "VARCHAR(50) DEFAULT '+212 5 22 45 67 89'",
                 "email": "VARCHAR(100) DEFAULT 'contact@ghalimlab.ma'",
@@ -49,6 +49,18 @@ def ensure_db_schema_up_to_date(target_engine):
                             conn.commit()
                         except Exception:
                             pass
+                # Mettre à jour les informations du laboratoire par défaut si non personnalisées
+                try:
+                    conn.execute(text("""
+                        UPDATE parametres_tarification 
+                        SET nom_laboratoire = 'Laboratoire d''analyses médicales GhalimLab',
+                            directeur = 'Dr. Kawtar GHALIM',
+                            sous_titre = 'Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie'
+                        WHERE directeur LIKE '%M. GHALIM%' OR directeur IS NULL OR nom_laboratoire IS NULL OR nom_laboratoire = 'GhalimLab'
+                    """))
+                    conn.commit()
+                except Exception:
+                    pass
 
         # Migration du système d'identification des tubes vers YYMMDDNNN (ex: 261015001)
         if "echantillons_tubes" in inspector.get_table_names():

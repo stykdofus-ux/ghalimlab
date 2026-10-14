@@ -78,7 +78,15 @@ def test_api_create_demande_with_barcode():
     assert response.status_code == 201
     data = response.json()
     assert "code_barres" in data
-    assert data["code_barres"].startswith("PREL-")
+    # Format YYMMDDNNN
+    assert len(data["code_barres"]) >= 9
+    assert data["code_barres"].isdigit()
+
+    # Tester l'endpoint /api/demandes/prochain-code
+    code_resp = client.get("/api/demandes/prochain-code")
+    assert code_resp.status_code == 200
+    assert len(code_resp.json()["prochain_code"]) == 9
+    assert code_resp.json()["prochain_code"].isdigit()
 
 
 def test_api_validation_and_pdf_generation():

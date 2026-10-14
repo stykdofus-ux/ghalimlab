@@ -34,12 +34,10 @@ def ingest_astm_payload(db: Session, parsed_data: Dict[str, Any]) -> Dict[str, A
         # 1. Soit par le code-barres du prélèvement (ex: PREL-2026-001)
         # 2. Soit directement par le code du tube scanné par l'automate (ex: 261015001)
         demande = db.query(Demande).filter(Demande.code_barres == barcode).first()
-        matched_tube = None
+        matched_tube = db.query(EchantillonTube).filter(EchantillonTube.code_tube == barcode).first()
 
-        if not demande:
-            matched_tube = db.query(EchantillonTube).filter(EchantillonTube.code_tube == barcode).first()
-            if matched_tube and matched_tube.demande:
-                demande = matched_tube.demande
+        if not demande and matched_tube and matched_tube.demande:
+            demande = matched_tube.demande
 
         if not demande:
             log_entry = AutomateLog(

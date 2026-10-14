@@ -91,7 +91,7 @@
                 <div class="form-group">
                     <label class="form-label">Code-barres / Identifiant Échantillon (Sample ID)</label>
                     <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="code_barres" class="form-control" placeholder="Auto-généré si vide (ex: PREL-2026-...)">
+                        <input type="text" id="code_barres" class="form-control" placeholder="Auto-généré si vide (ex: 261015001)">
                         <button type="button" class="btn btn-secondary btn-sm" onclick="genererCodeBarres()">
                             🎲 Générer
                         </button>
@@ -211,10 +211,24 @@ function togglePatientMode(mode) {
     }
 }
 
-function genererCodeBarres() {
-    const year = new Date().getFullYear();
-    const rand = Math.floor(1000 + Math.random() * 9000);
-    document.getElementById("code_barres").value = `PREL-${year}-${rand}`;
+async function genererCodeBarres() {
+    try {
+        const resp = await fetch('/api/demandes/prochain-code');
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data && data.prochain_code) {
+                document.getElementById("code_barres").value = data.prochain_code;
+                return;
+            }
+        }
+    } catch(e) {
+        console.warn("Erreur fetch prochain-code, utilisation fallback local", e);
+    }
+    const now = new Date();
+    const yy = String(now.getFullYear()).slice(-2);
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    document.getElementById("code_barres").value = `${yy}${mm}${dd}001`;
 }
 
 async function soumettreDemande(event) {

@@ -66,15 +66,15 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
                     <div>
                         <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Nom du Laboratoire * :</label>
-                        <input type="text" id="identite_nom" value="{{ params.nom_laboratoire }}" class="form-control" required placeholder="ex: Laboratoire d'Analyses Médicales GhalimLab">
+                        <input type="text" id="identite_nom" value="{{ params.nom_laboratoire }}" class="form-control" required placeholder="ex: Laboratoire d'analyses médicales GhalimLab">
                     </div>
                     <div>
                         <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Spécialité / Sous-titre :</label>
-                        <input type="text" id="identite_sous_titre" value="{{ params.sous_titre|default('') }}" class="form-control" placeholder="ex: Biologie Médicale - Hématologie, Biochimie...">
+                        <input type="text" id="identite_sous_titre" value="{{ params.sous_titre|default('') }}" class="form-control" placeholder="ex: Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie">
                     </div>
                     <div>
                         <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Biologiste Directeur / Responsable * :</label>
-                        <input type="text" id="identite_directeur" value="{{ params.directeur|default('') }}" class="form-control" required placeholder="ex: Dr. M. GHALIM - Biologiste Médical">
+                        <input type="text" id="identite_directeur" value="{{ params.directeur|default('') }}" class="form-control" required placeholder="ex: Dr. Kawtar GHALIM">
                     </div>
                     <div>
                         <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Agrément Ministère de la Santé :</label>
