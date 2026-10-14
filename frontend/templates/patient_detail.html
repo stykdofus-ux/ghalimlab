@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Dossier Patient - {{ patient.nom }} {{ patient.prenom }} - GhalimLab LIMS{% endblock %}
+{% block page_heading %}Dossier Médical du Patient{% endblock %}
+
+{% block content %}
+<!-- Fiche d'Identité Patient -->
+<div class="card" style="border-left: 4px solid var(--primary);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <span class="badge" style="background:#e0f2fe; color:#0369a1; font-size: 0.9rem; padding: 0.35rem 0.75rem;">
+                    CIN : {{ patient.cin }}
+                </span>
+                <span class="badge" style="background:#f1f5f9; color:#334155;">
+                    {{ patient.age }} ans &bull; {{ 'Homme (M)' if patient.sexe == 'M' else 'Femme (F)' }}
+                </span>
+            </div>
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin-bottom: 0.35rem;">
+                {{ patient.nom.upper() }} {{ patient.prenom }}
+            </h2>
+            <div style="font-size: 0.85rem; color: #475569; display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <span><strong>Date de Naissance :</strong> {{ patient.date_naissance }}</span>
+                <span><strong>Téléphone :</strong> {{ patient.telephone or 'Néant' }}</span>
+                <span><strong>N° Sécurité Sociale / CNSS :</strong> {{ patient.numero_securite_sociale or 'Néant' }}</span>
+                <span><strong>Adresse :</strong> {{ patient.adresse or 'Non renseignée' }}</span>
+            </div>
+        </div>
+
+        <div>
+            <a href="/demande/nouvelle" class="btn btn-primary btn-sm">
+                ➕ Nouveau Prélèvement pour ce Patient
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 1 : DOCUMENTS & BULLETINS SCANNÉS -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>📑</span> Bulletins & Documents Scannés (Ordonnances, Scanners, Antériorités)
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-upload-doc').style.display='block'">
+            📤 Ajouter un Document Scanné (Secrétariat)
+        </button>
+    </div>
+
+    <!-- Modal d'upload pour la secrétaire médicale -->
+    <div id="modal-upload-doc" style="display: none; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0284c7;">
+                📤 Numérisation & Ajout d'un Document Scanné
+            </h4>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-upload-doc').style.display='none'">Fermer</button>
+        </div>
+
+        <form id="form-upload-patient-doc" onsubmit="televerserDocument(event, {{ patient.id }})">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Sélectionner le fichier scanné (PDF, JPG, PNG) *</label>
+                    <input type="file" id="doc-file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nature du Document *</label>
+                    <select id="doc-type" class="form-control">
+                        <option value="Ordonnance">Ordonnance Médicale Scannée</option>
+                        <option value="Résultat d'Imagerie / Scanner">Résultat d'Imagerie / Scanner</option>
+                        <option value="Bilan Antérieur">Bilan Biologique Antérieur</option>
+                        <option value="Prise en charge">Prise en charge Assurance / CNSS</option>
+                        <option value="Autre">Autre Document Médical</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Titre / Description du document</label>
+                    <input type="text" id="doc-titre" class="form-control" placeholder="ex: Scanner Thoraco-Abdominal Clinique Al Amal">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Associer à un prélèvement spécifique (optionnel)</label>
+                    <select id="doc-demande-id" class="form-control">
+                        <option value="">-- Aucun (Document général patient) --</option>
+                        {% for d in demandes %}
+                        <option value="{{ d.id }}">Dossier {{ d.code_barres }} ({{ d.date_reception.strftime('%d/%m/%Y') }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Observations & Notes cliniques</label>
+                <textarea id="doc-notes" class="form-control" rows="2" placeholder="Prescription originale vérifiée, scanner apporté par le patient, etc."></textarea>
+            </div>
+
+            <div style="text-align: right; margin-top: 1rem;">
+                <button type="submit" id="btn-submit-upload" class="btn btn-primary btn-sm">
+                    ✓ Téléverser et enregistrer dans le dossier
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Grille des documents scannés existants -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+        {% for doc in documents %}
+        <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; background: white; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <span class="badge" style="{% if doc.type_document == 'Ordonnance' %}background:#e0f2fe; color:#0369a1;{% elif doc.type_document == 'Résultat d\'Imagerie / Scanner' %}background:#fef3c7; color:#b45309;{% else %}background:#dcfce7; color:#15803d;{% endif %} font-size: 0.72rem;">
+                        {{ doc.type_document }}
+                    </span>
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">
+                        {{ doc.date_televersement.strftime('%d/%m/%Y') }}
+                    </small>
+                </div>
+
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 0.35rem;">
+                    {{ doc.titre }}
+                </h4>
+
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                    Fichier : <strong>{{ doc.nom_fichier_original }}</strong> ({{ (doc.taille_octets / 1024)|round(1) }} Ko)<br/>
+                    Ajouté par : {{ doc.ajoute_par }}
+                    {% if doc.demande %}
+                    <br/>Lié au prélèvement : <span class="barcode-pill" style="font-size: 0.7rem;">{{ doc.demande.code_barres }}</span>
+                    {% endif %}
+                </div>
+
+                {% if doc.notes %}
+                <p style="font-size: 0.78rem; background: #f8fafc; padding: 0.4rem 0.6rem; border-radius: 4px; color: #475569; margin-bottom: 0.75rem;">
+                    <em>{{ doc.notes }}</em>
+                </p>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                <a href="/api/documents/{{ doc.id }}/view" target="_blank" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center; font-size: 0.78rem;">
+                    👁️ Consulter
+                </a>
+                <a href="/api/documents/{{ doc.id }}/download" class="btn btn-secondary btn-sm" title="Télécharger" style="font-size: 0.78rem;">
+                    ⬇️
+                </a>
+                <button type="button" class="btn btn-danger btn-sm" onclick="supprimerDocument({{ doc.id }})" title="Supprimer" style="font-size: 0.78rem; padding: 0.35rem 0.5rem;">
+                    🗑️
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 2.5rem; background: #f8fafc; border-radius: 8px;">
+            📑 Aucun document scanné n'est actuellement rattaché à ce patient.<br/>
+            La secrétaire médicale peut téléverser une ordonnance ou un compte-rendu scanné via le bouton ci-dessus.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- SECTION 2 : HISTORIQUE DES PRÉLÈVEMENTS & DEMANDES DU PATIENT -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>📋</span> Historique des Prélèvements
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date Réception</th>
+                    <th>Code-barres</th>
+                    <th>Prescripteur</th>
+                    <th>Bilan Demandé</th>
+                    <th>Statut</th>
+                    <th>Résultats</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in demandes %}
+                <tr>
+                    <td>{{ d.date_reception.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>
+                        <span class="barcode-pill">{{ d.code_barres }}</span>
+                    </td>
+                    <td>{{ d.prescripteur or 'Dr Externe' }}</td>
+                    <td><small>{{ d.bilan_demande }}</small></td>
+                    <td>
+                        {% if d.statut == 'Validé' %}
+                            <span class="badge badge-valide">✓ Validé</span>
+                        {% elif d.statut == 'Résultats reçus' %}
+                            <span class="badge badge-recus">📥 Résultats reçus</span>
+                        {% else %}
+                            <span class="badge badge-attente">⏳ En attente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span style="font-weight: 600;">{{ d.resultats|length }} paramètre(s)</span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <a href="/validation/{{ d.id }}" class="btn btn-primary btn-sm" style="font-size: 0.75rem;">
+                                Dossier Médical
+                            </a>
+                            <a href="/api/rapports/{{ d.id }}/pdf" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
+                                📄 PDF
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        Aucun prélèvement enregistré pour ce patient.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function televerserDocument(e, patientId) {
+    e.preventDefault();
+    const btn = document.getElementById("btn-submit-upload");
+    const fileInput = document.getElementById("doc-file");
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showToast("Veuillez sélectionner un fichier scanné.", "error");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = "⏳ Téléversement en cours...";
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    formData.append("patient_id", patientId);
+    
+    const demandeId = document.getElementById("doc-demande-id").value;
+    if (demandeId) formData.append("demande_id", demandeId);
+
+    const titre = document.getElementById("doc-titre").value.trim();
+    if (titre) formData.append("titre", titre);
+
+    formData.append("type_document", document.getElementById("doc-type").value);
+    formData.append("notes", document.getElementById("doc-notes").value);
+    formData.append("ajoute_par", "Mme Salma (Secrétaire Médicale)");
+
+    try {
+        const resp = await fetch("/api/documents/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        if (resp.ok) {
+            showToast("Document scanné ajouté au dossier avec succès !", "success");
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            const err = await resp.json();
+            showToast(`Erreur : ${err.detail || "Échec d'enregistrement"}`, "error");
+            btn.disabled = false;
+            btn.innerHTML = "✓ Téléverser et enregistrer dans le dossier";
+        }
+    } catch (err) {
+        showToast(`Erreur : ${err.message}`, "error");
+        btn.disabled = false;
+        btn.innerHTML = "✓ Téléverser et enregistrer dans le dossier";
+    }
+}
+
+async function supprimerDocument(docId) {
+    if (!confirm("Voulez-vous vraiment supprimer ce document scanné ?")) return;
+
+    try {
+        const resp = await fetch(`/api/documents/${docId}`, {
+            method: "DELETE"
+        });
+        if (resp.ok) {
+            showToast("Document supprimé.", "info");
+            setTimeout(() => window.location.reload(), 800);
+        }
+    } catch (e) {
+        showToast(e.message, "error");
+    }
+}
+</script>
+{% endblock %}

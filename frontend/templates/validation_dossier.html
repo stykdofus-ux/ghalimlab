@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+
+{% block title %}Validation Biologique - {{ demande.code_barres }} - GhalimLab LIMS{% endblock %}
+{% block page_heading %}Validation Biologique & Technique du Dossier{% endblock %}
+
+{% block content %}
+<!-- Bandeau d'informations Patient et Prélèvement -->
+<div class="card" style="border-left: 4px solid var(--primary);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <span class="barcode-pill" style="font-size: 1.1rem; padding: 0.3rem 0.75rem;">
+                    {{ demande.code_barres }}
+                </span>
+                {% if demande.statut == 'Validé' %}
+                    <span class="badge badge-valide" style="font-size: 0.85rem; padding: 0.35rem 0.75rem;">✓ DOSSIER VALIDÉ</span>
+                {% elif demande.statut == 'Résultats reçus' %}
+                    <span class="badge badge-recus" style="font-size: 0.85rem; padding: 0.35rem 0.75rem;">📥 RÉSULTATS REÇUS</span>
+                {% else %}
+                    <span class="badge badge-attente" style="font-size: 0.85rem; padding: 0.35rem 0.75rem;">⏳ EN ATTENTE AUTOMATE</span>
+                {% endif %}
+
+                {% set nb_docs = demande.patient.documents_scannes|length %}
+                {% if nb_docs > 0 %}
+                    <a href="#section-documents-scannes" class="badge" style="background: #e0f2fe; color: #0369a1; text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.75rem;" title="Cliquez pour consulter les ordonnances et scanners">
+                        📑 {{ nb_docs }} Document(s) Scanné(s)
+                    </a>
+                {% else %}
+                    <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.8rem;">
+                        📑 0 document scanné
+                    </span>
+                {% endif %}
+
+                {% set nb_tubes = demande.tubes|length %}
+                <a href="/echantillons-serotheque?search={{ demande.code_barres }}" class="badge" style="background: #fdf2f8; color: #be185d; text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.75rem;" title="Consulter la traçabilité des tubes et sérothèque">
+                    🧪 {{ nb_tubes }} Tube{{ 's' if nb_tubes > 1 else '' }} / Sérothèque
+                </a>
+            </div>
+
+            <h2 style="font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem;">
+                {{ demande.patient.nom.upper() }} {{ demande.patient.prenom }}
+            </h2>
+            <div style="font-size: 0.85rem; color: #475569; display: flex; gap: 1.25rem; flex-wrap: wrap;">
+                <span><strong>Âge :</strong> {{ demande.patient.age }} ans (Né(e) le {{ demande.patient.date_naissance }})</span>
+                <span><strong>Sexe :</strong> {{ 'Masculin' if demande.patient.sexe == 'M' else 'Féminin' }}</span>
+                <span><strong>CIN :</strong> {{ demande.patient.cin }}</span>
+                <span><strong>CNSS :</strong> {{ demande.patient.numero_securite_sociale or 'Néant' }}</span>
+                <span><strong>Tél :</strong> {{ demande.patient.telephone or 'Néant' }}</span>
+                <span><a href="/patient/{{ demande.patient.id }}" style="color: #0284c7; font-weight: 600;">➔ Voir Fiche Patient Complète</a></span>
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <div style="font-size: 0.85rem; color: #475569; margin-bottom: 0.35rem;">
+                <strong>Date Réception :</strong> {{ demande.date_reception.strftime('%d/%m/%Y à %H:%M') }}
+            </div>
+            <div style="font-size: 0.85rem; color: #475569; margin-bottom: 0.5rem;">
+                <strong>Prescripteur :</strong> {{ demande.prescripteur or 'Dr Externe' }}
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
+                <a href="/api/rapports/demande/{{ demande.id }}/etiquettes/pdf" target="_blank" class="btn btn-secondary btn-sm" style="background: #fdf2f8; color: #be185d; border-color: #fbcfe8;">
+                    🏷️ Imprimer Étiquettes Tubes
+                </a>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-upload-scan-direct').style.display='block'">
+                    📤 Scanner / Ajouter un Bulletin
+                </button>
+                <a href="/api/rapports/{{ demande.id }}/pdf" target="_blank" class="btn btn-primary btn-sm">
+                    📄 Imprimer le Compte-Rendu PDF
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Si en attente, proposer la simulation automate directe -->
+    {% if demande.statut == 'En attente' %}
+    <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; background: #fffbeb; padding: 0.75rem; border-radius: 6px;">
+        <div style="font-size: 0.85rem; color: #b45309;">
+            ℹ Ce prélèvement attend les mesures de l'automate. Vous pouvez déclencher un envoi de test ASTM :
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <button id="btn-sim-sysmex" class="btn btn-secondary btn-sm" onclick="triggerSimulation('sysmex', '{{ demande.code_barres }}')">
+                🩸 Transmettre Sysmex (NFS)
+            </button>
+            <button id="btn-sim-cobas" class="btn btn-secondary btn-sm" onclick="triggerSimulation('cobas', '{{ demande.code_barres }}')">
+                🧪 Transmettre Cobas (Biochimie)
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- SECTION : BULLETINS ET DOCUMENTS SCANNÉS (CONSULTATION BIOLOGISTE & AJOUT SECRÉTAIRE) -->
+<div class="card" id="section-documents-scannes" style="background: #ffffff;">
+    <div class="card-header">
+        <div class="card-title">
+            <span>📑</span> Bulletins & Documents Scannés du Patient
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-upload-scan-direct').style.display='block'">
+            ➕ Ajouter un Document / Bulletin Scanné
+        </button>
+    </div>
+
+    <!-- Modal d'upload de document scanné directement sur le dossier -->
+    <div id="modal-upload-scan-direct" style="display: none; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: #0284c7;">
+                📤 Numérisation & Ajout d'un Bulletin ou Document Scanné
+            </h4>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-upload-scan-direct').style.display='none'">Fermer</button>
+        </div>
+
+        <form id="form-upload-direct" onsubmit="televerserScanDemande(event, {{ demande.patient.id }}, {{ demande.id }})">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Fichier scanné (PDF, JPEG, PNG, WEBP) *</label>
+                    <input type="file" id="scan-file-direct" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nature du Document *</label>
+                    <select id="scan-type-direct" class="form-control">
+                        <option value="Ordonnance">Ordonnance Médicale Scannée</option>
+                        <option value="Résultat d'Imagerie / Scanner">Résultat d'Imagerie / Scanner</option>
+                        <option value="Bilan Antérieur">Bilan Biologique Antérieur</option>
+                        <option value="Prise en charge">Prise en charge Assurance / CNSS</option>
+                        <option value="Autre">Autre Document</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Titre / Intitulé du document</label>
+                    <input type="text" id="scan-titre-direct" class="form-control" placeholder="ex: Ordonnance Dr. Chakir">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes cliniques / Observations de la secrétaire</label>
+                    <input type="text" id="scan-notes-direct" class="form-control" placeholder="Original vérifié, document numérisé à l'accueil">
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 0.75rem;">
+                <button type="submit" id="btn-submit-scan-direct" class="btn btn-primary btn-sm">
+                    ✓ Enregistrer et attacher au dossier
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Liste / Grille des documents scannés rattachés -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+        {% for doc in demande.patient.documents_scannes %}
+        <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; background: #fafafa; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <span class="badge" style="{% if doc.type_document == 'Ordonnance' %}background:#e0f2fe; color:#0369a1;{% elif doc.type_document == 'Résultat d\'Imagerie / Scanner' %}background:#fef3c7; color:#b45309;{% else %}background:#dcfce7; color:#15803d;{% endif %} font-size: 0.75rem;">
+                        {{ doc.type_document }}
+                    </span>
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">{{ doc.date_televersement.strftime('%d/%m/%Y') }}</small>
+                </div>
+
+                <h4 style="font-size: 0.92rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">
+                    {{ doc.titre }}
+                </h4>
+
+                <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 0.5rem;">
+                    Fichier : <strong>{{ doc.nom_fichier_original }}</strong> ({{ (doc.taille_octets / 1024)|round(1) }} Ko)<br/>
+                    Ajouté par : {{ doc.ajoute_par }}
+                </div>
+
+                {% if doc.notes %}
+                <p style="font-size: 0.75rem; background: white; border: 1px solid #e2e8f0; padding: 0.35rem 0.5rem; border-radius: 4px; color: #475569; margin-bottom: 0.65rem;">
+                    <em>{{ doc.notes }}</em>
+                </p>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                <a href="/api/documents/{{ doc.id }}/view" target="_blank" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center; font-size: 0.78rem;">
+                    👁️ Consulter le Scan
+                </a>
+                <a href="/api/documents/{{ doc.id }}/download" class="btn btn-secondary btn-sm" title="Télécharger" style="font-size: 0.78rem;">
+                    ⬇️
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 1.75rem; background: #f8fafc; border-radius: 8px; font-size: 0.85rem;">
+            📑 <em>Aucun document scanné n'est actuellement rattaché à ce patient.</em><br/>
+            Le secrétariat ou le biologiste peut ajouter une ordonnance, un résultat de scanner ou un compte-rendu antérieur en cliquant sur le bouton ci-dessus.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Tableau des Paramètres et Résultats -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>🔬</span> Résultats d'Analyses & Intervalles de Référence (Âge: {{ demande.patient.age }} ans / Sexe: {{ demande.patient.sexe }})
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            {% if demande.statut != 'Validé' %}
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-ajout-manuel').style.display='block'">
+                ➕ Saisie Manuelle
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Catégorie</th>
+                    <th>Paramètre Analysé</th>
+                    <th>Valeur Mesurée</th>
+                    <th>Unité</th>
+                    <th>Valeurs de Référence (Normales)</th>
+                    <th>Alerte Biologique</th>
+                    <th>Automate Source</th>
+                    <th>Commentaire</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in demande.resultats %}
+                {% set p = r.parametre %}
+                {% set ref_min, ref_max, ref_label = p.get_reference_range(demande.patient.age, demande.patient.sexe) %}
+                <tr>
+                    <td><small style="color: var(--text-muted);">{{ p.categorie }}</small></td>
+                    <td>
+                        <strong>{{ p.nom }}</strong> <small>({{ p.code }})</small>
+                    </td>
+                    <td>
+                        <strong style="font-size: 1.05rem;">{{ r.valeur }}</strong>
+                    </td>
+                    <td>{{ p.unite or '-' }}</td>
+                    <td>
+                        {% if ref_min is not none and ref_max is not none %}
+                            <span>{{ ref_min }} - {{ ref_max }}</span>
+                            <small style="color: var(--text-muted); display: block; font-size: 0.72rem;">({{ ref_label }})</small>
+                        {% else %}
+                            <span style="color: var(--text-muted);">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.drapeau == 'ELEVE' %}
+                            <span class="badge badge-flag-high">▲ ÉLEVÉ</span>
+                        {% elif r.drapeau == 'BAS' %}
+                            <span class="badge badge-flag-low">▼ BAS</span>
+                        {% else %}
+                            <span class="badge badge-flag-normal">✓ NORMAL</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span style="font-size: 0.8rem; color: #475569;">{{ r.automate_source or 'Manuel' }}</span>
+                    </td>
+                    <td>
+                        <small>{{ r.commentaire or '-' }}</small>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                        Aucun résultat reçu pour ce prélèvement. Connectez l'automate Sysmex/Cobas ou utilisez la saisie manuelle.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal / Panneau de Saisie Manuelle -->
+<div id="modal-ajout-manuel" class="card" style="display: none; background: #f8fafc; border: 1px solid var(--border-color);">
+    <div class="card-header">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: #0284c7;">
+            ➕ Saisie Manuelle ou Rectification d'un Résultat
+        </h4>
+        <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('modal-ajout-manuel').style.display='none'">Fermer</button>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Sélectionner l'analyse :</label>
+            <select id="nouveau_parametre_id" class="form-control">
+                {% for cp in catalogue %}
+                <option value="{{ cp.id }}">{{ cp.nom }} ({{ cp.code }}) - {{ cp.categorie }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Valeur mesurée :</label>
+            <input type="text" id="nouvelle_valeur" class="form-control" placeholder="ex: 12.5">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Source :</label>
+            <select id="source_automate" class="form-control">
+                <option value="Manuel">Saisie Manuelle</option>
+                <option value="Sysmex XN-1000">Sysmex XN-1000</option>
+                <option value="Cobas 6000 c501">Cobas 6000 c501</option>
+            </select>
+        </div>
+    </div>
+    <div style="text-align: right;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="ajouterResultatManuel({{ demande.id }})">
+            Enregistrer le paramètre
+        </button>
+    </div>
+</div>
+
+<!-- Section Décision & Validation du Biologiste -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>✍️</span> Conclusion et Validation Biologique
+        </div>
+        <div>
+            {% if demande.statut == 'Validé' %}
+            <span style="font-size: 0.85rem; color: #16a34a; font-weight: 600;">
+                ✓ Validé le {{ demande.date_validation.strftime('%d/%m/%Y à %H:%M') }} par {{ demande.valide_par }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Commentaire & Interprétation Biologique :</label>
+        <textarea id="conclusion_biologique" class="form-control" rows="3" placeholder="Insérez vos remarques cliniques, observations sur les anomalies ou recommandations de contrôle...">{{ demande.conclusion_biologique or '' }}</textarea>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Biologiste Validateur :</label>
+            <input type="text" id="valide_par" class="form-control" value="{{ demande.valide_par or labo_directeur }}">
+        </div>
+        <div class="form-group" style="display: flex; align-items: flex-end; justify-content: flex-end; gap: 0.75rem;">
+            {% if demande.statut == 'Validé' %}
+                <button type="button" class="btn btn-secondary" onclick="devaliderDossier({{ demande.id }})">
+                    🔓 Déverrouiller le dossier
+                </button>
+                <a href="/api/rapports/{{ demande.id }}/pdf" target="_blank" class="btn btn-primary">
+                    📄 Télécharger le Rapport Officiel (PDF)
+                </a>
+            {% else %}
+                <button type="button" id="btn-valider-dossier" class="btn btn-success" onclick="validerDossierBiologique({{ demande.id }})" style="font-size: 1rem; padding: 0.65rem 1.4rem;">
+                    ✓ Valider le dossier médical
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function televerserScanDemande(e, patientId, demandeId) {
+    e.preventDefault();
+    const btn = document.getElementById("btn-submit-scan-direct");
+    const fileInput = document.getElementById("scan-file-direct");
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showToast("Veuillez sélectionner un document scanné.", "error");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = "⏳ Téléversement...";
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    formData.append("patient_id", patientId);
+    formData.append("demande_id", demandeId);
+
+    const titre = document.getElementById("scan-titre-direct").value.trim();
+    if (titre) formData.append("titre", titre);
+
+    formData.append("type_document", document.getElementById("scan-type-direct").value);
+    formData.append("notes", document.getElementById("scan-notes-direct").value);
+    formData.append("ajoute_par", "Secrétariat / Biologiste");
+
+    try {
+        const resp = await fetch("/api/documents/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        if (resp.ok) {
+            showToast("Document scanné rattaché au dossier avec succès !", "success");
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            const err = await resp.json();
+            showToast(`Erreur : ${err.detail}`, "error");
+            btn.disabled = false;
+            btn.innerHTML = "✓ Enregistrer et attacher au dossier";
+        }
+    } catch (err) {
+        showToast(err.message, "error");
+        btn.disabled = false;
+        btn.innerHTML = "✓ Enregistrer et attacher au dossier";
+    }
+}
+</script>
+{% endblock %}

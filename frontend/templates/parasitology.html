@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Parasitologie & Mycologie - GhalimLab LIMS{% endblock %}
+{% block page_heading %}Module Spécialisé : Parasitologie & Mycologie{% endblock %}
+
+{% block content %}
+<div class="card" style="border-left: 4px solid #d97706;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #b45309;">
+                🔬 Section Parasitologie Médicale & Mycologie
+            </h3>
+            <p style="font-size: 0.85rem; color: #475569;">
+                Module extensible dédié aux Examens Parasitologiques des Selles (EPS),
+                recherche d'hématozoaires (Goutte épaisse / Frottis pour Paludisme), Scotch-test de Graham et cultures mycologiques sur milieu de Sabouraud.
+            </p>
+        </div>
+        <div>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-nouvel-eps').style.display='block'">
+                ➕ Saisir un Examen Parasitologique
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Saisie EPS -->
+<div id="modal-nouvel-eps" class="card" style="display: none; background: #f8fafc; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+    <div class="card-header">
+        <h4 style="font-size: 1rem; font-weight: 700; color: #b45309;">
+            Saisie d'un Examen Parasitologique / Mycologique
+        </h4>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-nouvel-eps').style.display='none'">Fermer</button>
+    </div>
+
+    <form id="form-para" onsubmit="soumettreParasitologie(event)">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Dossier / Prélèvement lié :</label>
+                <select id="para-demande-id" class="form-control" required>
+                    {% for d in demandes %}
+                    <option value="{{ d.id }}">{{ d.code_barres }} - {{ d.patient.nom }} {{ d.patient.prenom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Type d'Analyse :</label>
+                <select id="para-type" class="form-control">
+                    <option value="EPS (Examen Parasitologique des Selles)">EPS (Examen Parasitologique des Selles)</option>
+                    <option value="Frottis Sanguin & Goutte Épaisse (Paludisme)">Frottis Sanguin & Goutte Épaisse (Paludisme)</option>
+                    <option value="Scotch-Test de Graham (Oxyurose)">Scotch-Test de Graham (Oxyurose)</option>
+                    <option value="Prélèvement Mycologique Unguéal / Cutané">Prélèvement Mycologique Unguéal / Cutané</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Consistance / Aspect :</label>
+                <input type="text" id="para-consistance" class="form-control" value="Pâteuse, couleur brune" placeholder="Moulée, Pâteuse, Liquide...">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Examen Direct & Colorations :</label>
+                <input type="text" id="para-direct" class="form-control" value="Absence de kystes, de trophozoïtes et d'œufs d'helminthes">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Technique de Concentration :</label>
+                <input type="text" id="para-conc" class="form-control" value="Méthode de Ritchie simplifiée (Formaline-Éther)">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Parasite Identifié :</label>
+                <input type="text" id="para-identifie" class="form-control" placeholder="ex: Kystes d'Entamoeba coli, Giardia lamblia ou Néant">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Culture Sabouraud (Mycologie) :</label>
+                <select id="para-sabouraud" class="form-control">
+                    <option value="Absence de pousse mycologique après 21 jours">Absence de pousse après 21 jours (Négative)</option>
+                    <option value="Positif à Candida albicans">Positif à Candida albicans</option>
+                    <option value="Positif à Trichophyton rubrum (Dermatophyte)">Positif à Trichophyton rubrum</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Conclusion Parasitologique :</label>
+            <textarea id="para-conclusion" class="form-control" rows="2">Examen parasitologique des selles négatif pour les protozoaires et les helminthes pathogènes.</textarea>
+        </div>
+
+        <div style="text-align: right; margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary btn-sm">
+                ✓ Enregistrer l'analyse parasitologique
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Liste des examens enregistrés -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>📋</span> Dossiers Parasitologiques & Mycologiques Récents
+        </div>
+    </div>
+
+    <div id="para-list-container">
+        <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            Chargement des examens...
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function chargerExamensPara() {
+    const container = document.getElementById("para-list-container");
+    try {
+        const resp = await fetch("/api/parasitologie");
+        if (!resp.ok) return;
+        const examens = await resp.json();
+
+        if (examens.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 2rem; color: #64748b;">Aucun examen parasitologique pour le moment. Utilisez le formulaire ci-dessus pour en créer un.</div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Dossier</th>
+                            <th>Patient</th>
+                            <th>Type Analyse</th>
+                            <th>Consistance</th>
+                            <th>Parasite Identifié</th>
+                            <th>Conclusion</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${examens.map(e => `
+                            <tr>
+                                <td><span class="barcode-pill">${e.code_barres}</span></td>
+                                <td><strong>${e.patient_nom}</strong></td>
+                                <td>${e.type_analyse}</td>
+                                <td>${e.consistance}</td>
+                                <td><strong>${e.parasite_identifie || 'Absence'}</strong></td>
+                                <td><small>${e.conclusion || '-'}</small></td>
+                                <td>
+                                    <a href="/validation/${e.demande_id}" class="btn btn-primary btn-sm" style="font-size: 0.75rem;">
+                                        Voir Dossier
+                                    </a>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } catch (err) {
+        container.innerHTML = `<div style="color: #ef4444; padding: 1rem;">Erreur : ${err.message}</div>`;
+    }
+}
+
+async function soumettreParasitologie(e) {
+    e.preventDefault();
+    try {
+        const payload = {
+            demande_id: parseInt(document.getElementById("para-demande-id").value),
+            type_analyse: document.getElementById("para-type").value,
+            consistance: document.getElementById("para-consistance").value,
+            examen_direct: document.getElementById("para-direct").value,
+            technique_concentration: document.getElementById("para-conc").value,
+            parasite_identifie: document.getElementById("para-identifie").value || null,
+            culture_sabouraud: document.getElementById("para-sabouraud").value,
+            conclusion: document.getElementById("para-conclusion").value
+        };
+
+        const resp = await fetch("/api/parasitologie", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (resp.ok) {
+            showToast("Examen parasitologique enregistré avec succès !", "success");
+            document.getElementById("modal-nouvel-eps").style.display = "none";
+            chargerExamensPara();
+        } else {
+            const err = await resp.json();
+            showToast(`Erreur : ${err.detail}`, "error");
+        }
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+chargerExamensPara();
+</script>
+{% endblock %}

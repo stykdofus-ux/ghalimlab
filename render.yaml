@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ghalimlab-lims
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run_server.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: API_HOST
+        value: 0.0.0.0

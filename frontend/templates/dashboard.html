@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord - GhalimLab LIMS{% endblock %}
+{% block page_heading %}Tableau de Bord de Biologie Médicale{% endblock %}
+
+{% block content %}
+<!-- Grille des KPIs -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">📁</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_demandes }}</div>
+            <div class="stat-label">Total Prélèvements</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber">⏳</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.en_attente }}</div>
+            <div class="stat-label">En attente d'automate</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">📥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.recus }}</div>
+            <div class="stat-label">Résultats reçus à valider</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.valides }}</div>
+            <div class="stat-label">Dossiers Validés</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue" style="background:#f0f9ff; color:#0284c7;">📑</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_documents|default(0) }}</div>
+            <div class="stat-label">Bulletins & Scans Reçus</div>
+        </div>
+    </div>
+    <a href="/echantillons-serotheque" class="stat-card" style="text-decoration: none; color: inherit; cursor: pointer;">
+        <div class="stat-icon" style="background:#fdf2f8; color:#db2777;">🧪</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_tubes|default(0) }}</div>
+            <div class="stat-label">Tubes & Sérothèque</div>
+        </div>
+    </a>
+</div>
+
+<!-- Bannière d'accès rapide aux automates -->
+<div class="card" style="background: linear-gradient(135deg, #f0fdfa, #e0f2fe); border-color: #99f6e4;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f766e; margin-bottom: 0.25rem;">
+                ⚡ Moteur d'Intégration Automates ASTM E1381/E1394
+            </h3>
+            <p style="font-size: 0.85rem; color: #334155;">
+                Serveur socket TCP en écoute continue sur le <strong>Port {{ astm_port }}</strong>. 
+                Compatible <strong>Sysmex (XN/XS)</strong> et <strong>Roche Cobas</strong>.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <button id="btn-sim-sysmex" class="btn btn-secondary btn-sm" onclick="triggerSimulation('sysmex', 'PREL-2026-002')">
+                🩸 Simuler Sysmex (NFS)
+            </button>
+            <button id="btn-sim-cobas" class="btn btn-secondary btn-sm" onclick="triggerSimulation('cobas', 'PREL-2026-002')">
+                🧪 Simuler Cobas (Biochimie)
+            </button>
+            <a href="/automates" class="btn btn-primary btn-sm">
+                Console Complète ➔
+            </a>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Derniers Prélèvements -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>📋</span> Prélèvements Récents
+            </div>
+            <a href="/worklist" class="btn btn-secondary btn-sm">Voir toute la worklist</a>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Code-barres</th>
+                        <th>Patient</th>
+                        <th>Bilan</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in recentes_demandes %}
+                    <tr>
+                        <td>
+                            <span class="barcode-pill">{{ d.code_barres }}</span>
+                        </td>
+                        <td>
+                            <strong>{{ d.patient.nom }}</strong> {{ d.patient.prenom }}<br/>
+                            <small style="color: var(--text-muted);">{{ d.patient.age }} ans ({{ d.patient.sexe }}) - CIN: {{ d.patient.cin }}</small>
+                        </td>
+                        <td>{{ d.bilan_demande }}</td>
+                        <td>
+                            {% if d.statut == 'Validé' %}
+                                <span class="badge badge-valide">✓ Validé</span>
+                            {% elif d.statut == 'Résultats reçus' %}
+                                <span class="badge badge-recus">📥 Résultats reçus</span>
+                            {% else %}
+                                <span class="badge badge-attente">⏳ En attente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/validation/{{ d.id }}" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">
+                                Validation & Rapport
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            Aucun prélèvement enregistré pour le moment.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Télémétrie Automates Récents -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>⚡</span> Activité Automates
+            </div>
+            <a href="/automates" class="btn btn-secondary btn-sm">Détails</a>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for log in recent_logs %}
+            <div style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: #fafafa;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                    <strong style="font-size: 0.85rem; color: #0284c7;">{{ log.automate_nom }}</strong>
+                    <span style="font-size: 0.72rem; color: #64748b;">{{ log.timestamp.strftime('%H:%M:%S') }}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #334155; margin-bottom: 0.2rem;">
+                    Code-barres : <span class="barcode-pill" style="font-size: 0.72rem;">{{ log.code_barres_detecte or 'N/A' }}</span>
+                </div>
+                <div style="font-size: 0.75rem; color: #10b981;">
+                    ✓ {{ log.details }}
+                </div>
+            </div>
+            {% else %}
+            <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem 0;">
+                En attente de transmission d'automates.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

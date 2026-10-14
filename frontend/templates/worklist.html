@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Worklist - Liste de Travail - GhalimLab LIMS{% endblock %}
+{% block page_heading %}Liste de Travail Technique (Worklist){% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+        <!-- Onglets de filtre statut -->
+        <div style="display: flex; gap: 0.5rem; background: #f1f5f9; padding: 0.25rem; border-radius: 8px;">
+            <a href="/worklist?statut=Tous" class="btn btn-sm {% if statut_actif == 'Tous' %}btn-primary{% else %}btn-secondary{% endif %}">
+                Tous
+            </a>
+            <a href="/worklist?statut=En attente" class="btn btn-sm {% if statut_actif == 'En attente' %}btn-primary{% else %}btn-secondary{% endif %}">
+                ⏳ En attente
+            </a>
+            <a href="/worklist?statut=Résultats reçus" class="btn btn-sm {% if statut_actif == 'Résultats reçus' %}btn-primary{% else %}btn-secondary{% endif %}">
+                📥 Résultats reçus
+            </a>
+            <a href="/worklist?statut=Validé" class="btn btn-sm {% if statut_actif == 'Validé' %}btn-primary{% else %}btn-secondary{% endif %}">
+                ✅ Validés
+            </a>
+        </div>
+
+        <!-- Recherche -->
+        <form method="GET" action="/worklist" style="display: flex; gap: 0.5rem;">
+            <input type="hidden" name="statut" value="{{ statut_actif }}">
+            <input type="text" name="search" class="form-control" placeholder="Code-barres, patient, CIN..." value="{{ search_term }}" style="width: 250px;">
+            <button type="submit" class="btn btn-secondary btn-sm">Rechercher</button>
+            {% if search_term %}
+            <a href="/worklist?statut={{ statut_actif }}" class="btn btn-sm" style="color: #64748b;">Effacer</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date Réception</th>
+                    <th>Code-barres</th>
+                    <th>Patient (Identité & Âge)</th>
+                    <th>Prescripteur</th>
+                    <th>Analyses Demandées</th>
+                    <th>Résultats</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in demandes %}
+                <tr>
+                    <td>{{ d.date_reception.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>
+                        <span class="barcode-pill">{{ d.code_barres }}</span>
+                    </td>
+                    <td>
+                        <a href="/patient/{{ d.patient.id }}" style="color: #0f172a; text-decoration: none;">
+                            <strong>{{ d.patient.nom }} {{ d.patient.prenom }}</strong>
+                        </a><br/>
+                        <span style="font-size: 0.78rem; color: var(--text-muted);">
+                            {{ d.patient.age }} ans &bull; Sexe : {{ d.patient.sexe }} &bull; CIN : {{ d.patient.cin }}
+                        </span>
+                        {% set nb_docs = d.patient.documents_scannes|length %}
+                        {% if nb_docs > 0 %}
+                        <br/>
+                        <a href="/validation/{{ d.id }}#section-documents-scannes" class="badge" style="background: #e0f2fe; color: #0369a1; text-decoration: none; margin-top: 3px; font-size: 0.7rem;" title="Ordonnances, examens et scanners numérisés">
+                            📑 {{ nb_docs }} document(s) scanné(s)
+                        </a>
+                        {% endif %}
+                        {% set nb_tubes = d.tubes|length %}
+                        {% if nb_tubes > 0 %}
+                        <a href="/echantillons-serotheque?search={{ d.code_barres }}" class="badge" style="background: #fdf2f8; color: #be185d; text-decoration: none; margin-top: 3px; font-size: 0.7rem;" title="Tubes d'échantillons & Sérothèque">
+                            🧪 {{ nb_tubes }} tube(s)
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td>{{ d.prescripteur or 'Dr Externe' }}</td>
+                    <td><small>{{ d.bilan_demande }}</small></td>
+                    <td>
+                        {% set total_res = d.resultats|length %}
+                        {% set nb_anomalies = d.resultats|selectattr('hors_norme')|list|length %}
+                        {% if total_res > 0 %}
+                            <span style="font-weight: 600;">{{ total_res }} paramètre(s)</span><br/>
+                            {% if nb_anomalies > 0 %}
+                                <span class="badge badge-flag-high" style="font-size: 0.7rem;">{{ nb_anomalies }} hors norme</span>
+                            {% else %}
+                                <span class="badge badge-flag-normal" style="font-size: 0.7rem;">Normaux</span>
+                            {% endif %}
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">0 (En attente automate)</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.statut == 'Validé' %}
+                            <span class="badge badge-valide">✓ Validé</span>
+                        {% elif d.statut == 'Résultats reçus' %}
+                            <span class="badge badge-recus">📥 Résultats reçus</span>
+                        {% else %}
+                            <span class="badge badge-attente">⏳ En attente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.4rem;">
+                            <a href="/validation/{{ d.id }}" class="btn btn-primary btn-sm" style="font-size: 0.78rem;">
+                                Validation
+                            </a>
+                            <a href="/api/rapports/demande/{{ d.id }}/etiquettes/pdf" target="_blank" class="btn btn-secondary btn-sm" title="Imprimer les étiquettes code-barres thermiques 50x25mm" style="font-size: 0.78rem; padding: 0.25rem 0.45rem;">
+                                🏷️
+                            </a>
+                            <a href="/api/rapports/{{ d.id }}/pdf" target="_blank" class="btn btn-secondary btn-sm" title="Télécharger le compte-rendu PDF" style="font-size: 0.78rem;">
+                                📄 PDF
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">
+                        Aucun dossier trouvé pour ces critères.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Fichier Patients - GhalimLab LIMS{% endblock %}
+{% block page_heading %}Fichier Général des Patients{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>👥</span> Liste des Patients Enregistrés
+        </div>
+        <a href="/demande/nouvelle" class="btn btn-primary btn-sm">
+            ➕ Nouveau Patient / Dossier
+        </a>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>CIN / Identifiant</th>
+                    <th>Nom & Prénom</th>
+                    <th>Date Naissance (Âge)</th>
+                    <th>Sexe</th>
+                    <th>Téléphone</th>
+                    <th>N° CNSS / Mutuelle</th>
+                    <th>Historique Prélèvements</th>
+                    <th>Documents Scannés</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in patients %}
+                <tr>
+                    <td><strong>{{ p.cin }}</strong></td>
+                    <td>
+                        <a href="/patient/{{ p.id }}" style="color: #0f172a; text-decoration: none;">
+                            <strong>{{ p.nom }}</strong> {{ p.prenom }}
+                        </a><br/>
+                        <small style="color: var(--text-muted);">{{ p.adresse or 'Adresse non renseignée' }}</small>
+                    </td>
+                    <td>{{ p.date_naissance }} ({{ p.age }} ans)</td>
+                    <td>
+                        {% if p.sexe == 'M' %}
+                            <span class="badge" style="background:#e0f2fe; color:#0369a1;">Homme (M)</span>
+                        {% else %}
+                            <span class="badge" style="background:#fce7f3; color:#be185d;">Femme (F)</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ p.telephone or '-' }}</td>
+                    <td>{{ p.numero_securite_sociale or '-' }}</td>
+                    <td>
+                        <span class="badge badge-recus">{{ p.demandes|length }} prélèvement(s)</span>
+                    </td>
+                    <td>
+                        {% set nb_docs = p.documents_scannes|length %}
+                        {% if nb_docs > 0 %}
+                            <span class="badge" style="background: #e0f2fe; color: #0369a1;">📑 {{ nb_docs }} doc(s)</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">0</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.35rem;">
+                            <a href="/patient/{{ p.id }}" class="btn btn-primary btn-sm" style="font-size: 0.75rem;">
+                                📑 Fiche & Scans
+                            </a>
+                            <a href="/worklist?search={{ p.cin }}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
+                                Prélèvements
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        Aucun patient enregistré.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

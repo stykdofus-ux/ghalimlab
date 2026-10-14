@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block page_heading %}
+🧪 Traçabilité Pré-analytique & Sérothèque (Échantillons / Tubes)
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+    <!-- En-tête & KPIs -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.35rem;">
+                Suivi des Tubes & Sérothèque
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                Gestion de la chaîne de traçabilité des prélèvements : échantillonnage, étiquetage code-barres thermique, contrôle de conformité et archivage sous température contrôlée.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="/worklist" class="btn btn-secondary">
+                📋 Voir la Worklist
+            </a>
+            <a href="/demande/nouvelle" class="btn btn-primary">
+                ➕ Nouveau Prélèvement
+            </a>
+        </div>
+    </div>
+
+    <!-- Cartes KPI -->
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="stat-card">
+            <div class="stat-label">Total Tubes Enregistrés</div>
+            <div class="stat-value" style="color: var(--primary);">{{ stats.total }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Échantillons identifiés</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Non Prélevés</div>
+            <div class="stat-value" style="color: #64748b;">{{ stats.attente }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">En attente de prélèvement</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Sur Plateau / Automate</div>
+            <div class="stat-value" style="color: #d97706;">{{ stats.plateau }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Prélevés, reçus ou en cours</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Archivés en Sérothèque</div>
+            <div class="stat-value" style="color: #059669;">{{ stats.serotheque }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Stockage frigo / -20°C</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Anomalies / Non conformes</div>
+            <div class="stat-value" style="color: #dc2626;">{{ stats.non_conformes }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Hémolysés / Rejetés</div>
+        </div>
+    </div>
+
+    <!-- Filtres et Recherche -->
+    <div class="card" style="padding: 1.25rem;">
+        <form method="GET" action="/echantillons-serotheque" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-right: 0.5rem;">Statut :</span>
+                {% set statuts = ['Tous', 'Non prélevé', 'Prélevé', 'Reçu au Laboratoire', 'Centrifugé', 'En cours sur automate', 'Analysé', 'Archivé en sérothèque', 'Rejeté / Hémolysé'] %}
+                {% for st in statuts %}
+                    <a href="/echantillons-serotheque?statut={{ st }}&conformite={{ conformite_actif }}&search={{ search_term }}" 
+                       class="btn btn-sm {% if statut_actif == st %}btn-primary{% else %}btn-secondary{% endif %}"
+                       style="border-radius: 20px; font-size: 0.8rem; padding: 0.25rem 0.75rem;">
+                       {{ st }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; align-items: center; min-width: 280px;">
+                <input type="text" name="search" value="{{ search_term }}" placeholder="Rechercher code tube, patient, CIN..." class="form-control form-control-sm" style="flex: 1;">
+                <input type="hidden" name="statut" value="{{ statut_actif }}">
+                <input type="hidden" name="conformite" value="{{ conformite_actif }}">
+                <button type="submit" class="btn btn-primary btn-sm">🔍</button>
+                {% if search_term or statut_actif != 'Tous' %}
+                    <a href="/echantillons-serotheque" class="btn btn-secondary btn-sm" title="Réinitialiser">✖</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Liste des Tubes -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
+            <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
+                🧪 Échantillons & Racks ({{ tubes|length }} tube{{ 's' if tubes|length > 1 else '' }})
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                💡 Les étiquettes sont prêtes pour imprimante thermique standard 50x25mm (Code128).
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f1f5f9; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+                        <th style="padding: 0.85rem 1rem;">Code Tube</th>
+                        <th style="padding: 0.85rem 1rem;">Type de Tube</th>
+                        <th style="padding: 0.85rem 1rem;">Patient & Dossier</th>
+                        <th style="padding: 0.85rem 1rem;">Analyses Assignées</th>
+                        <th style="padding: 0.85rem 1rem;">Statut & Traçabilité</th>
+                        <th style="padding: 0.85rem 1rem;">Sérothèque / Emplacement</th>
+                        <th style="padding: 0.85rem 1rem; text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tube in tubes %}
+                    {% set p = tube.demande.patient %}
+                    <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">
+                        <!-- Code Tube & Code-barres -->
+                        <td style="padding: 0.85rem 1rem; white-space: nowrap;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="font-family: monospace; font-weight: 700; color: var(--primary); font-size: 0.95rem;">
+                                    {{ tube.code_tube }}
+                                </div>
+                                <a href="/api/rapports/tube/{{ tube.id }}/etiquette/pdf" target="_blank" class="badge" style="background: #e0f2fe; color: #0369a1; text-decoration: none; font-size: 0.72rem; padding: 2px 6px;" title="Imprimer l'étiquette 50x25mm">
+                                    🏷️ Étiquette
+                                </a>
+                            </div>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Créé le {{ tube.date_creation.strftime('%d/%m/%Y %H:%M') if tube.date_creation else '-' }}</small>
+                        </td>
+
+                        <!-- Type de Tube avec Bouchon -->
+                        <td style="padding: 0.85rem 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                {% if tube.couleur_bouchon == 'violet' %}
+                                    <span style="width: 14px; height: 14px; border-radius: 50%; background: #9333ea; border: 2px solid #7e22ce; display: inline-block;" title="Bouchon Violet (EDTA)"></span>
+                                {% elif tube.couleur_bouchon == 'jaune' %}
+                                    <span style="width: 14px; height: 14px; border-radius: 50%; background: #eab308; border: 2px solid #ca8a04; display: inline-block;" title="Bouchon Jaune (Sec avec Gel)"></span>
+                                {% elif tube.couleur_bouchon == 'bleu' %}
+                                    <span style="width: 14px; height: 14px; border-radius: 50%; background: #0284c7; border: 2px solid #0369a1; display: inline-block;" title="Bouchon Bleu (Citrate)"></span>
+                                {% elif tube.couleur_bouchon == 'vert' %}
+                                    <span style="width: 14px; height: 14px; border-radius: 50%; background: #16a34a; border: 2px solid #15803d; display: inline-block;" title="Bouchon Vert (Héparine)"></span>
+                                {% elif tube.couleur_bouchon == 'rouge' %}
+                                    <span style="width: 14px; height: 14px; border-radius: 50%; background: #dc2626; border: 2px solid #b91c1c; display: inline-block;" title="Bouchon Rouge / Stérile"></span>
+                                {% elif tube.couleur_bouchon == 'gris' %}
+                                    <span style="width: 14px; height: 14px; border-radius: 50%; background: #64748b; border: 2px solid #475569; display: inline-block;" title="Bouchon Gris (Fluorure)"></span>
+                                {% else %}
+                                    <span style="width: 14px; height: 14px; border-radius: 50%; background: #cbd5e1; border: 2px solid #94a3b8; display: inline-block;"></span>
+                                {% endif %}
+                                <span style="font-weight: 600; color: var(--text-main);">{{ tube.type_tube }}</span>
+                            </div>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">Vol : {{ tube.volume_ml }} mL | Bouchon {{ tube.couleur_bouchon }}</small>
+                        </td>
+
+                        <!-- Patient & Dossier -->
+                        <td style="padding: 0.85rem 1rem;">
+                            <div style="font-weight: 700; color: var(--text-main);">
+                                <a href="/patient/{{ p.id }}" style="color: inherit; text-decoration: none;">
+                                    {{ p.nom }} {{ p.prenom }}
+                                </a>
+                            </div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">
+                                <span>{{ p.age }} ans ({{ p.sexe }})</span> • 
+                                <a href="/validation/{{ tube.demande_id }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                                    {{ tube.demande.code_barres }}
+                                </a>
+                            </div>
+                        </td>
+
+                        <!-- Analyses -->
+                        <td style="padding: 0.85rem 1rem; max-width: 220px;">
+                            <div style="font-size: 0.82rem; color: var(--text-main); font-weight: 500;">
+                                {{ tube.analyses_associees or tube.demande.bilan_demande }}
+                            </div>
+                        </td>
+
+                        <!-- Statut & Traçabilité -->
+                        <td style="padding: 0.85rem 1rem;">
+                            {% if tube.statut_tube == 'Archivé en sérothèque' %}
+                                <span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 600;">
+                                    ❄️ Archivé en Sérothèque
+                                </span>
+                            {% elif tube.statut_tube == 'Analysé' %}
+                                <span class="badge" style="background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; font-weight: 600;">
+                                    ✓ Analysé
+                                </span>
+                            {% elif tube.statut_tube == 'En cours sur automate' %}
+                                <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; font-weight: 600;">
+                                    ⚡ Sur Automate
+                                </span>
+                            {% elif tube.statut_tube == 'Centrifugé' %}
+                                <span class="badge" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; font-weight: 600;">
+                                    🔄 Centrifugé
+                                </span>
+                            {% elif tube.statut_tube == 'Reçu au Laboratoire' %}
+                                <span class="badge" style="background: #ccfbf1; color: #0f766e; border: 1px solid #99f6e4; font-weight: 600;">
+                                    📥 Reçu au Plateau
+                                </span>
+                            {% elif tube.statut_tube == 'Prélevé' %}
+                                <span class="badge" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 600;">
+                                    💉 Prélevé
+                                </span>
+                            {% elif tube.statut_tube == 'Rejeté / Hémolysé' %}
+                                <span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; font-weight: 600;">
+                                    ⚠️ Rejeté / Non conforme
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0;">
+                                    ⏳ Non prélevé
+                                </span>
+                            {% endif %}
+
+                            {% if tube.conformite_preanalytique != 'Conforme' %}
+                                <div style="color: #dc2626; font-size: 0.72rem; font-weight: 700; margin-top: 2px;">
+                                    ⚠️ {{ tube.conformite_preanalytique }}
+                                </div>
+                            {% endif %}
+
+                            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                                {% if tube.date_prelevement %}
+                                    Prélevé : {{ tube.date_prelevement.strftime('%d/%m %H:%M') }}
+                                {% endif %}
+                                {% if tube.preleve_par %}
+                                    par {{ tube.preleve_par }}
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Sérothèque -->
+                        <td style="padding: 0.85rem 1rem;">
+                            {% if tube.emplacement_serotheque %}
+                                <div style="display: flex; align-items: center; gap: 0.35rem; font-weight: 600; color: #0f766e; font-size: 0.85rem;">
+                                    <span>🧊</span>
+                                    <span>{{ tube.emplacement_serotheque }}</span>
+                                </div>
+                                <small style="color: var(--text-muted); font-size: 0.72rem; display: block;">
+                                    Archivé le {{ tube.date_archivage.strftime('%d/%m/%Y') if tube.date_archivage else '-' }}
+                                </small>
+                            {% else %}
+                                <span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Non archivé</span>
+                            {% endif %}
+                            <button onclick="ouvrirModalSerotheque({{ tube.id }}, '{{ tube.code_tube }}', '{{ tube.emplacement_serotheque or '' }}')" 
+                                    class="btn btn-sm" 
+                                    style="padding: 1px 6px; font-size: 0.72rem; margin-top: 4px; background: #f1f5f9; border: 1px solid var(--border-color); color: var(--text-main);">
+                                📍 {% if tube.emplacement_serotheque %}Changer emplacement{% else %}Assigner Rack{% endif %}
+                            </button>
+                        </td>
+
+                        <!-- Actions rapides -->
+                        <td style="padding: 0.85rem 1rem; text-align: right; white-space: nowrap;">
+                            <div style="display: inline-flex; gap: 0.35rem; align-items: center;">
+                                {% if tube.statut_tube == 'Non prélevé' %}
+                                    <button onclick="changerStatutTube({{ tube.id }}, 'prelever')" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;" title="Marquer comme prélevé">
+                                        💉 Prélever
+                                    </button>
+                                {% elif tube.statut_tube == 'Prélevé' %}
+                                    <button onclick="changerStatutTube({{ tube.id }}, 'receptionner')" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; background: #0f766e; border-color: #0f766e;" title="Réceptionner au plateau technique">
+                                        📥 Réceptionner
+                                    </button>
+                                {% elif tube.statut_tube == 'Reçu au Laboratoire' %}
+                                    <button onclick="changerStatutTube({{ tube.id }}, 'centrifuger')" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.2rem 0.5rem;" title="Centrifuger l'échantillon">
+                                        🔄 Centrifuger
+                                    </button>
+                                {% elif tube.statut_tube == 'Centrifugé' %}
+                                    <button onclick="changerStatutTube({{ tube.id }}, 'automate')" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; background: #d97706; border-color: #d97706;" title="Placer sur rack automate">
+                                        ⚡ Automate
+                                    </button>
+                                {% elif tube.statut_tube == 'En cours sur automate' %}
+                                    <button onclick="changerStatutTube({{ tube.id }}, 'analyser')" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; background: #059669; border-color: #059669;" title="Analyse terminée">
+                                        ✓ Terminé
+                                    </button>
+                                {% endif %}
+
+                                <a href="/api/rapports/tube/{{ tube.id }}/etiquette/pdf" target="_blank" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.2rem 0.45rem;" title="Imprimer Étiquette Code-barres">
+                                    🖨️
+                                </a>
+
+                                <button onclick="rejeterTube({{ tube.id }})" class="btn btn-sm" style="font-size: 0.75rem; padding: 0.2rem 0.45rem; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5;" title="Signaler non-conformité / Hémolyse">
+                                    ⚠️
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                            Aucun tube d'échantillon ne correspond aux critères sélectionnés.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Assigner Emplacement Sérothèque -->
+<div id="modalSerotheque" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+    <div style="background: white; border-radius: var(--radius); width: 100%; max-width: 450px; padding: 1.5rem; box-shadow: var(--shadow-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">
+                🧊 Emplacement Sérothèque
+            </h3>
+            <button onclick="fermerModalSerotheque()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Assigner un emplacement de conservation frigorifique pour le tube <b id="modalCodeTube" style="color: var(--primary);"></b> :
+        </p>
+
+        <form id="formSerotheque" onsubmit="soumettreSerotheque(event)">
+            <input type="hidden" id="modalTubeId" name="tube_id">
+            
+            <div style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Emplacement (Ex: Frigo 1 - Rack A3 - Pos 12) :
+                </label>
+                <input type="text" id="modalEmplacement" class="form-control" placeholder="Frigo Sérothèque 1 - Rack A1 - Pos 08" required>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Racks fréquents recommandés :
+                </label>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    <button type="button" onclick="choisirPreset('Frigo Sérothèque 1 - Rack A1')" class="btn btn-sm btn-secondary" style="font-size: 0.75rem;">Frigo 1 - Rack A1</button>
+                    <button type="button" onclick="choisirPreset('Frigo Sérothèque 2 - Rack B2')" class="btn btn-sm btn-secondary" style="font-size: 0.75rem;">Frigo 2 - Rack B2</button>
+                    <button type="button" onclick="choisirPreset('Congélateur -20°C - Rack C1')" class="btn btn-sm btn-secondary" style="font-size: 0.75rem;">Congél -20°C</button>
+                    <button type="button" onclick="choisirPreset('Chambre Froide Bactério - Bac B1')" class="btn btn-sm btn-secondary" style="font-size: 0.75rem;">Bactério Bac B1</button>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" onclick="fermerModalSerotheque()" class="btn btn-secondary">Annuler</button>
+                <button type="submit" class="btn btn-primary">Valider & Archiver</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function changerStatutTube(tubeId, action) {
+    try {
+        const resp = await fetch(`/api/tubes/${tubeId}/action/${action}`, {
+            method: 'POST'
+        });
+        if (resp.ok) {
+            window.location.reload();
+        } else {
+            const err = await resp.json();
+            alert('Erreur: ' + (err.detail || 'Impossible de mettre à jour le statut'));
+        }
+    } catch (e) {
+        alert('Erreur réseau lors de la mise à jour');
+    }
+}
+
+async function rejeterTube(tubeId) {
+    const motif = prompt('Veuillez indiquer le motif de non-conformité (ex: Hémolyse sévère, Tube coagulé, Volume insuffisant) :');
+    if (!motif) return;
+
+    try {
+        const resp = await fetch(`/api/tubes/${tubeId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                statut_tube: 'Rejeté / Hémolysé',
+                conformite_preanalytique: motif
+            })
+        });
+        if (resp.ok) {
+            window.location.reload();
+        } else {
+            alert('Erreur lors du signalement');
+        }
+    } catch (e) {
+        alert('Erreur réseau');
+    }
+}
+
+function ouvrirModalSerotheque(tubeId, codeTube, emplacementActuel) {
+    document.getElementById('modalTubeId').value = tubeId;
+    document.getElementById('modalCodeTube').innerText = codeTube;
+    document.getElementById('modalEmplacement').value = emplacementActuel || '';
+    const modal = document.getElementById('modalSerotheque');
+    modal.style.display = 'flex';
+}
+
+function fermerModalSerotheque() {
+    const modal = document.getElementById('modalSerotheque');
+    modal.style.display = 'none';
+}
+
+function choisirPreset(val) {
+    document.getElementById('modalEmplacement').value = val + ' - Pos ' + Math.floor(Math.random() * 20 + 1);
+}
+
+async function soumettreSerotheque(e) {
+    e.preventDefault();
+    const tubeId = document.getElementById('modalTubeId').value;
+    const emplacement = document.getElementById('modalEmplacement').value;
+
+    try {
+        const resp = await fetch(`/api/tubes/${tubeId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                emplacement_serotheque: emplacement,
+                statut_tube: 'Archivé en sérothèque'
+            })
+        });
+
+        if (resp.ok) {
+            fermerModalSerotheque();
+            window.location.reload();
+        } else {
+            const err = await resp.json();
+            alert('Erreur: ' + (err.detail || 'Impossible d\'enregistrer'));
+        }
+    } catch (err) {
+        alert('Erreur réseau');
+    }
+}
+</script>
+{% endblock %}

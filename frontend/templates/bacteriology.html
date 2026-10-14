@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Bactériologie & Virologie - GhalimLab LIMS{% endblock %}
+{% block page_heading %}Module Spécialisé : Bactériologie & Virologie{% endblock %}
+
+{% block content %}
+<div class="card" style="border-left: 4px solid var(--secondary);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f766e;">
+                🧫 Section Bactériologie Médicale & Antibiogrammes
+            </h3>
+            <p style="font-size: 0.85rem; color: #475569;">
+                Module extensible dédié aux Examens Cytobactériologiques des Urines (ECBU), 
+                prélèvements génitaux, hémocultures, identification biochimique des germes et antibiogrammes normalisés (EUCAST / CA-SFM).
+            </p>
+        </div>
+        <div>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('modal-nouvel-ecbu').style.display='block'">
+                ➕ Saisir un ECBU / Examen Bactériologique
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Saisie ECBU -->
+<div id="modal-nouvel-ecbu" class="card" style="display: none; background: #f8fafc; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+    <div class="card-header">
+        <h4 style="font-size: 1rem; font-weight: 700; color: #0f766e;">
+            Saisie d'un Examen Cytobactériologique & Antibiogramme
+        </h4>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-nouvel-ecbu').style.display='none'">Fermer</button>
+    </div>
+
+    <form id="form-bact" onsubmit="soumettreBacteriologie(event)">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Dossier / Prélèvement lié :</label>
+                <select id="bact-demande-id" class="form-control" required>
+                    {% for d in demandes %}
+                    <option value="{{ d.id }}">{{ d.code_barres }} - {{ d.patient.nom }} {{ d.patient.prenom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nature du Prélèvement :</label>
+                <select id="bact-type" class="form-control">
+                    <option value="ECBU (Urine du 2ème jet)">ECBU (Urine du 2ème jet)</option>
+                    <option value="Prélèvement Vaginal / Cervico-utérin">Prélèvement Vaginal / Cervico-utérin</option>
+                    <option value="Écouvillon Urétraux">Écouvillon Urétraux</option>
+                    <option value="Écouvillon de Gorge / Angine">Écouvillon de Gorge / Angine</option>
+                    <option value="Pus / Prélèvement de plaie">Pus / Prélèvement de plaie</option>
+                    <option value="Hémoculture">Hémoculture</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Aspect Macroscopique :</label>
+                <input type="text" id="bact-aspect" class="form-control" value="Trouble, odeur fétide" placeholder="Limpide, Trouble, Hématique...">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Cytologie Leucocytes :</label>
+                <input type="text" id="bact-leuco" class="form-control" value="85 000 / mL (< 10 000)" placeholder="Numération / mL">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Cytologie Hématies :</label>
+                <input type="text" id="bact-hemat" class="form-control" value="12 000 / mL (< 5 000)" placeholder="Numération / mL">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Coloration de Gram :</label>
+                <input type="text" id="bact-gram" class="form-control" value="Nombreux Bacilles Gram Négatif (BGN)">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Résultat Culture :</label>
+                <select id="bact-culture" class="form-control">
+                    <option value="Positive">Culture Positive</option>
+                    <option value="Stérile">Stérile après 48h</option>
+                    <option value="Flore polymorphe (Contamination)">Flore polymorphe (Contamination)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Germe Identifié :</label>
+                <input type="text" id="bact-germe" class="form-control" value="Escherichia coli" placeholder="ex: Escherichia coli, Klebsiella pneumoniae">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Numération des Colonies :</label>
+                <input type="text" id="bact-num" class="form-control" value="> 10^5 UFC/mL">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Conclusion Bactériologique :</label>
+            <textarea id="bact-conclusion" class="form-control" rows="2">Infection urinaire confirmée. Antibiogramme compatible avec traitement ciblé.</textarea>
+        </div>
+
+        <div style="text-align: right; margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary btn-sm">
+                ✓ Enregistrer l'analyse bactériologique
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Liste des examens bactériologiques enregistrés -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <span>📋</span> Dossiers Bactériologiques Récents
+        </div>
+    </div>
+
+    <div id="bact-list-container">
+        <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+            Chargement des examens bactériologiques...
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function chargerExamensBact() {
+    const container = document.getElementById("bact-list-container");
+    try {
+        const resp = await fetch("/api/bacteriologie");
+        if (!resp.ok) return;
+        const examens = await resp.json();
+
+        if (examens.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 2rem; color: #64748b;">Aucun examen bactériologique pour le moment.</div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Dossier</th>
+                            <th>Patient</th>
+                            <th>Prélèvement</th>
+                            <th>Culture</th>
+                            <th>Germe Identifié</th>
+                            <th>Numération</th>
+                            <th>Antibiogramme</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${examens.map(e => `
+                            <tr>
+                                <td><span class="barcode-pill">${e.code_barres}</span></td>
+                                <td><strong>${e.patient_nom}</strong></td>
+                                <td>${e.type_prelevement}</td>
+                                <td>
+                                    <span class="badge ${e.culture_resultat === 'Positive' ? 'badge-flag-high' : 'badge-valide'}">
+                                        ${e.culture_resultat}
+                                    </span>
+                                </td>
+                                <td><strong style="color: #b91c1c;">${e.germe_identifie || 'Néant'}</strong></td>
+                                <td>${e.numeration_colonies || '-'}</td>
+                                <td>
+                                    <span class="badge badge-recus">${e.nb_antibiotiques} antibiotique(s)</span>
+                                </td>
+                                <td>
+                                    <a href="/validation/${e.demande_id}" class="btn btn-primary btn-sm" style="font-size: 0.75rem;">
+                                        Voir Dossier
+                                    </a>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } catch (err) {
+        container.innerHTML = `<div style="color: #ef4444; padding: 1rem;">Erreur de chargement : ${err.message}</div>`;
+    }
+}
+
+async function soumettreBacteriologie(e) {
+    e.preventDefault();
+    try {
+        const payload = {
+            demande_id: parseInt(document.getElementById("bact-demande-id").value),
+            type_prelevement: document.getElementById("bact-type").value,
+            aspect_macroscopique: document.getElementById("bact-aspect").value,
+            cytologie_leucocytes: document.getElementById("bact-leuco").value,
+            cytologie_hematies: document.getElementById("bact-hemat").value,
+            coloration_gram: document.getElementById("bact-gram").value,
+            culture_resultat: document.getElementById("bact-culture").value,
+            germe_identifie: document.getElementById("bact-germe").value,
+            numeration_colonies: document.getElementById("bact-num").value,
+            conclusion: document.getElementById("bact-conclusion").value,
+            antibiogrammes: [
+                { antibiotique_nom: "Amoxicilline", famille: "Bêta-lactamines", diametre_zone: 10, cmi: 32, sensibilite: "R" },
+                { antibiotique_nom: "Amoxicilline + Ac. Clavulanique", famille: "Bêta-lactamines", diametre_zone: 24, cmi: 4, sensibilite: "S" },
+                { antibiotique_nom: "Ciprofloxacine", famille: "Fluoroquinolones", diametre_zone: 28, cmi: 0.25, sensibilite: "S" },
+                { antibiotique_nom: "Gentamicine", famille: "Aminosides", diametre_zone: 22, cmi: 1.0, sensibilite: "S" },
+                { antibiotique_nom: "Fosfomycine", famille: "Phosphoniques", diametre_zone: 32, cmi: 2.0, sensibilite: "S" }
+            ]
+        };
+
+        const resp = await fetch("/api/bacteriologie", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (resp.ok) {
+            showToast("Examen bactériologique et antibiogramme enregistrés !", "success");
+            document.getElementById("modal-nouvel-ecbu").style.display = "none";
+            chargerExamensBact();
+        } else {
+            const err = await resp.json();
+            showToast(`Erreur : ${err.detail}`, "error");
+        }
+    } catch (err) {
+        showToast(err.message, "error");
+    }
+}
+
+chargerExamensBact();
+</script>
+{% endblock %}

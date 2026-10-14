@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GhalimLab - Gestion de Laboratoire d'Analyses Médicales{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔬</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Barre latérale / Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo-icon">GL</div>
+                <div class="sidebar-title">
+                    <h1>GhalimLab LIMS</h1>
+                    <span>Biologie Médicale</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item {% if request.url.path == '/' %}active{% endif %}">
+                    <span class="icon">📊</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/worklist" class="nav-item {% if '/worklist' in request.url.path %}active{% endif %}">
+                    <span class="icon">📋</span>
+                    <span>Liste de Travail</span>
+                </a>
+                <a href="/demande/nouvelle" class="nav-item {% if '/demande/nouvelle' in request.url.path %}active{% endif %}">
+                    <span class="icon">➕</span>
+                    <span>Nouveau Prélèvement</span>
+                </a>
+                <a href="/patients-annuaire" class="nav-item {% if '/patients-annuaire' in request.url.path %}active{% endif %}">
+                    <span class="icon">👥</span>
+                    <span>Fichier Patients</span>
+                </a>
+
+                <div class="nav-section-title">Échantillonnage & Plateau</div>
+                <a href="/echantillons-serotheque" class="nav-item {% if '/echantillons-serotheque' in request.url.path %}active{% endif %}">
+                    <span class="icon">🧪</span>
+                    <span>Tubes & Sérothèque</span>
+                </a>
+                <a href="/automates" class="nav-item {% if '/automates' in request.url.path %}active{% endif %}">
+                    <span class="icon">⚡</span>
+                    <span>Supervision ASTM (Port {{ astm_port|default(5000) }})</span>
+                </a>
+
+
+                <div class="nav-section-title">Sections Spécialisées</div>
+                <a href="/bacteriologie" class="nav-item {% if '/bacteriologie' in request.url.path %}active{% endif %}">
+                    <span class="icon">🧫</span>
+                    <span>Bactériologie & Virologie</span>
+                </a>
+                <a href="/parasitologie" class="nav-item {% if '/parasitologie' in request.url.path %}active{% endif %}">
+                    <span class="icon">🔬</span>
+                    <span>Parasitologie & Mycologie</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div>ASTM E1381/1394</div>
+                <div class="astm-indicator">
+                    <span class="pulse-dot"></span> Écoute active
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenu Central -->
+        <div class="main-wrapper">
+            <!-- Header du haut -->
+            <header class="top-navbar">
+                <div class="top-navbar-title">
+                    {% block page_heading %}Laboratoire d'Analyses Médicales GhalimLab{% endblock %}
+                </div>
+                <div class="top-navbar-actions">
+                    <a href="/demande/nouvelle" class="btn btn-primary btn-sm">
+                        <span>➕</span> Nouveau Dossier
+                    </a>
+                    <a href="/automates" class="btn btn-secondary btn-sm">
+                        <span>⚡</span> Test Automate
+                    </a>
+                </div>
+            </header>
+
+            <!-- Zone de contenu -->
+            <main class="page-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

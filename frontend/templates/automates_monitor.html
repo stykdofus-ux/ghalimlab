@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Supervision & Simulation Automates ASTM - GhalimLab LIMS{% endblock %}
+{% block page_heading %}Console de Supervision des Automates de Laboratoire (ASTM / HL7){% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">⚡</div>
+        <div class="stat-info">
+            <div class="stat-value" id="astm-port-val">{{ astm_port }}</div>
+            <div class="stat-label">Port d'écoute TCP (ASTM E1381)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">🔌</div>
+        <div class="stat-info">
+            <div class="stat-value" id="astm-conn-val">-</div>
+            <div class="stat-label">Connexions Automates</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">📦</div>
+        <div class="stat-info">
+            <div class="stat-value" id="astm-frames-val">-</div>
+            <div class="stat-label">Trames ASTM Reçues & Validées</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber">🤖</div>
+        <div class="stat-info">
+            <div class="stat-value" id="astm-last-auto" style="font-size: 1.1rem; line-height: 1.8;">Sysmex / Cobas</div>
+            <div class="stat-label">Dernier Automate Connecté</div>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.5rem;">
+    <!-- Panneau de Test / Simulation Automate -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>🧪</span> Simulateur d'Émission Automate ASTM
+            </div>
+            <span class="badge badge-recus">ASTM E1381 / E1394</span>
+        </div>
+
+        <p style="font-size: 0.85rem; color: #475569; margin-bottom: 1.25rem;">
+            Ce banc de test ouvre un véritable socket TCP vers le port <strong>{{ astm_port }}</strong>,
+            effectue le handshake <code>&lt;ENQ&gt; &rarr; &lt;ACK&gt;</code>, transmet chaque trame avec son 
+            checksum ASTM modulo 256, puis clôture la transmission avec <code>&lt;EOT&gt;</code>.
+        </p>
+
+        <form id="form-simulation" onsubmit="lancerSimulation(event)">
+            <div class="form-group">
+                <label class="form-label">Type d'Automate à Simuler :</label>
+                <select id="sim-automate-type" class="form-control">
+                    <option value="sysmex">Sysmex XN-1000 (Hémogramme / NFS - 10 paramètres)</option>
+                    <option value="cobas">Roche Cobas 6000 c501 (Biochimie - Glycémie, Bilan Rénal, CRP, etc.)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Prélèvement / Code-barres cible :</label>
+                <select id="sim-barcode-select" class="form-control">
+                    {% for d in demandes %}
+                    <option value="{{ d.code_barres }}">
+                        {{ d.code_barres }} - {{ d.patient.nom }} {{ d.patient.prenom }} ({{ d.statut }})
+                    </option>
+                    {% else %}
+                    <option value="PREL-2026-002">PREL-2026-002 (Échantillon par défaut)</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <button type="submit" id="btn-run-sim" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    🚀 Émettre la Trame ASTM vers le Serveur LIMS
+                </button>
+            </div>
+        </form>
+
+        <div id="sim-result-box" style="margin-top: 1.25rem; display: none;">
+            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0284c7; margin-bottom: 0.5rem;">
+                Journal d'Échange TCP ASTM :
+            </h5>
+            <div id="sim-logs" style="background: #0f172a; color: #38bdf8; font-family: monospace; font-size: 0.78rem; padding: 0.75rem; border-radius: 6px; max-height: 160px; overflow-y: auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Télémétrie en temps réel du serveur -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>📡</span> Journal de Télémétrie Socket ASTM (Port {{ astm_port }})
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="rafraichirTelemetrie()">
+                🔄 Rafraîchir
+            </button>
+        </div>
+
+        <div class="log-console" id="telemetry-console">
+            <div class="log-entry INFO">
+                <span class="log-time">[Démarrage]</span>
+                <span>En attente de paquets sur le socket TCP...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historique d'Audit des Réceptions Automates -->
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="card-header">
+        <div class="card-title">
+            <span>📑</span> Historique des Réceptions Automates Enregistrées en Base
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Horodatage</th>
+                    <th>Automate</th>
+                    <th>Code-barres Détecté</th>
+                    <th>Mesures Reçues</th>
+                    <th>Statut Réception</th>
+                    <th>Détails & Rapport</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.timestamp.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                    <td><strong>{{ log.automate_nom }}</strong></td>
+                    <td>
+                        <span class="barcode-pill">{{ log.code_barres_detecte or 'N/A' }}</span>
+                    </td>
+                    <td><strong>{{ log.nb_resultats_reçus }}</strong> paramètre(s)</td>
+                    <td>
+                        {% if log.statut == 'Succès' %}
+                            <span class="badge badge-valide">✓ Succès</span>
+                        {% else %}
+                            <span class="badge badge-flag-high">⚠ {{ log.statut }}</span>
+                        {% endif %}
+                    </td>
+                    <td><small>{{ log.details }}</small></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        Aucun journal d'automate enregistré.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function rafraichirTelemetrie() {
+    try {
+        const resp = await fetch("/api/automates/status");
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        document.getElementById("astm-conn-val").innerText = data.total_connections;
+        document.getElementById("astm-frames-val").innerText = data.total_frames_received;
+        if (data.last_automate) {
+            document.getElementById("astm-last-auto").innerText = data.last_automate;
+        }
+
+        const consoleBox = document.getElementById("telemetry-console");
+        if (data.recent_logs && data.recent_logs.length > 0) {
+            consoleBox.innerHTML = data.recent_logs.map(l => `
+                <div class="log-entry ${l.level}">
+                    <span class="log-time">[${l.timestamp}]</span>
+                    <span>${l.message}</span>
+                </div>
+            `).join("");
+        }
+    } catch (e) {
+        console.error("Erreur télémétrie :", e);
+    }
+}
+
+async function lancerSimulation(e) {
+    e.preventDefault();
+    const btn = document.getElementById("btn-run-sim");
+    btn.disabled = true;
+    btn.innerHTML = "⏳ Émission ASTM en cours...";
+
+    const autoType = document.getElementById("sim-automate-type").value;
+    const barcode = document.getElementById("sim-barcode-select").value;
+
+    const resultBox = document.getElementById("sim-result-box");
+    const logsBox = document.getElementById("sim-logs");
+    resultBox.style.display = "block";
+    logsBox.innerHTML = "Connexion au port ASTM...";
+
+    try {
+        const resp = await fetch("/api/automates/simulate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                automate: autoType,
+                code_barres: barcode
+            })
+        });
+
+        const data = await resp.json();
+        if (resp.ok && data.status === "success") {
+            logsBox.innerHTML = data.transmission_logs.map(l => `&gt; ${l}`).join("<br>");
+            showToast(`Transmission ${autoType.toUpperCase()} réussie (${data.frames_envoyees} trames) !`, "success");
+            rafraichirTelemetrie();
+        } else {
+            logsBox.innerHTML = `<span style="color:#f87171;">ERREUR : ${data.detail || data.error}</span>`;
+            showToast(`Erreur : ${data.detail || data.error}`, "error");
+        }
+    } catch (err) {
+        logsBox.innerHTML = `<span style="color:#f87171;">Erreur réseau : ${err.message}</span>`;
+        showToast(err.message, "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = "🚀 Émettre la Trame ASTM vers le Serveur LIMS";
+    }
+}
+
+// Auto-rafraîchissement toutes les 3 secondes
+setInterval(rafraichirTelemetrie, 3000);
+rafraichirTelemetrie();
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Environnements virtuels
+venv/
+env/
+.venv/
+ENV/
+
+# Tests & caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Base de données locale de dev
+ghalimlab.db
+
+# Documents téléversés en local (sauf .gitkeep)
+uploads/documents/*
+!uploads/documents/.gitkeep
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
