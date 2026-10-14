@@ -7,13 +7,13 @@ et l'étiquetage des anomalies (Élevé / Bas / Normal).
 import datetime
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
-from backend.app.models.core import Demande, AnalyseParameter, Resultat, AutomateLog
+from backend.app.models.core import Demande, AnalyseParameter, Resultat, AutomateLog, EchantillonTube
 
 
 def ingest_astm_payload(db: Session, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Ingère en base de données un message ASTM préalablement parsé.
-    Associe chaque mesure au prélèvement (Demande) via le Code-barres.
+    Associe chaque mesure au prélèvement (Demande) via le Code-barres ou le Code Tube (YYMMDDNNN).
     """
     automate_nom = parsed_data.get("automate", "Automate ASTM")
     orders = parsed_data.get("orders", [])
@@ -30,8 +30,16 @@ def ingest_astm_payload(db: Session, parsed_data: Dict[str, Any]) -> Dict[str, A
             messages.append("Ordre sans code-barres ignoré.")
             continue
 
-        # Recherche de la demande correspondante en base de données
+        # Recherche de la demande correspondante en base de données :
+        # 1. Soit par le code-barres du prélèvement (ex: PREL-2026-001)
+        # 2. Soit directement par le code du tube scanné par l'automate (ex: 261015001)
         demande = db.query(Demande).filter(Demande.code_barres == barcode).first()
+        matched_tube = None
+
+        if not demande:
+            matched_tube = db.query(EchantillonTube).filter(EchantillonTube.code_tube == barcode).first()
+            if matched_tube and matched_tube.demande:
+                demande = matched_tube.demande
 
         if not demande:
             log_entry = AutomateLog(
@@ -39,13 +47,19 @@ def ingest_astm_payload(db: Session, parsed_data: Dict[str, Any]) -> Dict[str, A
                 code_barres_detecte=barcode,
                 nb_resultats_reçus=len(results),
                 statut="Code-barres Inconnu",
-                details=f"Code-barres {barcode} introuvable dans le système. Prélèvement non enregistré.",
+                details=f"Code-barres ou Code Tube {barcode} introuvable dans le système. Prélèvement non enregistré.",
                 trame_brute=str(parsed_data.get("raw_records", []))[:1000]
             )
             db.add(log_entry)
             db.commit()
-            messages.append(f"Code-barres '{barcode}' introuvable.")
+            messages.append(f"Code-barres / Tube '{barcode}' introuvable.")
             continue
+
+        # Mise à jour du statut du tube si scanné directement
+        if matched_tube:
+            matched_tube.statut_tube = "Analysé"
+            matched_tube.automate_id = automate_nom
+            matched_tube.date_passage_automate = datetime.datetime.now()
 
         patient = demande.patient
         age = patient.age

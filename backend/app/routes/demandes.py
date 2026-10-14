@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
 
 from backend.app.database import get_db
-from backend.app.models.core import Demande, Patient, AnalyseParameter, Resultat
+from backend.app.models.core import Demande, Patient, AnalyseParameter, Resultat, EchantillonTube
 from backend.app.schemas import DemandeCreate
 
 router = APIRouter(prefix="/api/demandes", tags=["Demandes & Prélèvements"])
@@ -29,7 +29,7 @@ def generate_unique_barcode(db: Session) -> str:
 @router.get("")
 def get_demandes(
     statut: Optional[str] = Query(None, description="Filtrer par statut: 'En attente', 'Résultats reçus', 'Validé'"),
-    search: Optional[str] = Query(None, description="Recherche par code-barres, nom patient, CIN"),
+    search: Optional[str] = Query(None, description="Recherche par code-barres, nom patient, CIN ou code tube"),
     db: Session = Depends(get_db)
 ):
     query = db.query(Demande).join(Demande.patient)
@@ -41,6 +41,7 @@ def get_demandes(
         s = f"%{search.strip()}%"
         query = query.filter(
             (Demande.code_barres.ilike(s)) |
+            (Demande.tubes.any(EchantillonTube.code_tube.ilike(s))) |
             (Patient.nom.ilike(s)) |
             (Patient.prenom.ilike(s)) |
             (Patient.cin.ilike(s))

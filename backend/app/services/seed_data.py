@@ -644,12 +644,13 @@ def seed_database(db: Session):
         d4 = db.query(Demande).filter(Demande.code_barres == "PREL-2026-004").first()
 
         now = datetime.datetime.now()
+        pfx = now.strftime("%y%m%d")
 
         if d1:
             # Tubes pour Demande 1 (Dossier validé et archivé en sérothèque)
             t1_edta = EchantillonTube(
                 demande_id=d1.id,
-                code_tube=f"{d1.code_barres}-EDTA",
+                code_tube=f"{pfx}001",
                 type_tube="EDTA K3 / K2",
                 couleur_bouchon="violet",
                 analyses_associees="Hémogramme complet (NFS), Plaquettes",
@@ -665,7 +666,7 @@ def seed_database(db: Session):
             )
             t1_sec = EchantillonTube(
                 demande_id=d1.id,
-                code_tube=f"{d1.code_barres}-SEC",
+                code_tube=f"{pfx}002",
                 type_tube="Sec avec gel séparateur",
                 couleur_bouchon="jaune",
                 analyses_associees="Glycémie, Bilan Rénal, Bilan Lipidique",
@@ -685,7 +686,7 @@ def seed_database(db: Session):
             # Tubes pour Demande 2 (En attente d'automate, prélèvements faits et reçus)
             t2_edta = EchantillonTube(
                 demande_id=d2.id,
-                code_tube=f"{d2.code_barres}-EDTA",
+                code_tube=f"{pfx}003",
                 type_tube="EDTA K3 / K2",
                 couleur_bouchon="violet",
                 analyses_associees="NFS Complète - Sysmex XN",
@@ -699,7 +700,7 @@ def seed_database(db: Session):
             )
             t2_sec = EchantillonTube(
                 demande_id=d2.id,
-                code_tube=f"{d2.code_barres}-SEC",
+                code_tube=f"{pfx}004",
                 type_tube="Sec avec gel séparateur",
                 couleur_bouchon="jaune",
                 analyses_associees="Glycémie, CRP - Cobas 6000",
@@ -717,7 +718,7 @@ def seed_database(db: Session):
             # Tubes pour Demande 3 (Pédiatrie, non encore reçus au plateau)
             t3_edta = EchantillonTube(
                 demande_id=d3.id,
-                code_tube=f"{d3.code_barres}-EDTA",
+                code_tube=f"{pfx}005",
                 type_tube="EDTA K3 / K2",
                 couleur_bouchon="violet",
                 analyses_associees="NFS Pédiatrique (Micro-méthode)",
@@ -729,7 +730,7 @@ def seed_database(db: Session):
             )
             t3_sec = EchantillonTube(
                 demande_id=d3.id,
-                code_tube=f"{d3.code_barres}-SEC",
+                code_tube=f"{pfx}006",
                 type_tube="Sec avec gel séparateur",
                 couleur_bouchon="jaune",
                 analyses_associees="CRP Pédiatrique",
@@ -745,7 +746,7 @@ def seed_database(db: Session):
             # Tubes pour Demande 4 (ECBU + NFS)
             t4_edta = EchantillonTube(
                 demande_id=d4.id,
-                code_tube=f"{d4.code_barres}-EDTA",
+                code_tube=f"{pfx}007",
                 type_tube="EDTA K3 / K2",
                 couleur_bouchon="violet",
                 analyses_associees="Hémogramme & Leucocytose",
@@ -758,7 +759,7 @@ def seed_database(db: Session):
             )
             t4_ecbu = EchantillonTube(
                 demande_id=d4.id,
-                code_tube=f"{d4.code_barres}-ECBU",
+                code_tube=f"{pfx}008",
                 type_tube="Flacon stérile urinaire",
                 couleur_bouchon="rouge",
                 analyses_associees="ECBU + Antibiogramme",

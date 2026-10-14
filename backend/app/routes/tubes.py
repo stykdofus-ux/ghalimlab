@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from backend.app.database import get_db
 from backend.app.models.core import EchantillonTube, Demande, Patient
 from backend.app.schemas import TubeCreate, TubeUpdate, TubeResponse
-from backend.app.services.tube_service import generate_tubes_for_demande
+from backend.app.services.tube_service import generate_tubes_for_demande, generate_next_tube_code
 
 router = APIRouter(prefix="/api/tubes", tags=["Traçabilité Tubes & Sérothèque"])
 
@@ -78,7 +78,7 @@ def create_custom_tube(payload: TubeCreate, db: Session = Depends(get_db)):
 
     code_tube = payload.code_tube
     if not code_tube:
-        code_tube = f"{demande.code_barres}-MANUEL-{int(datetime.datetime.now().timestamp()) % 1000}"
+        code_tube = generate_next_tube_code(db)
 
     # Vérifier l'unicité
     if db.query(EchantillonTube).filter(EchantillonTube.code_tube == code_tube).first():

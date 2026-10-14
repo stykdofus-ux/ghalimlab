@@ -58,9 +58,56 @@ REGLES_TUBES = [
 ]
 
 
-def determine_required_tubes(bilan_demande: str, code_barres_base: str) -> List[Dict[str, Any]]:
+def generate_next_tube_code(db: Session, date_ref: datetime.date = None, offset: int = 0) -> str:
+    """
+    Génère un identifiant unique de tube au format : YYMMDDNNN
+    Exemple : 261015001
+    - YY : 2 derniers chiffres de l'année (ex: 26 pour 2026)
+    - MM : Mois sur 2 chiffres (ex: 10 pour octobre)
+    - DD : Jour sur 2 chiffres (ex: 15)
+    - NNN : Numéro d'ordre journalier du tube sur 3 chiffres au minimum (ex: 001, premier tube du jour).
+    """
+    if date_ref is None:
+        date_ref = datetime.date.today()
+
+    prefix = date_ref.strftime("%y%m%d")
+
+    # Recherche les tubes du même jour pour trouver le numéro de séquence maximal
+    existing_tubes = db.query(EchantillonTube.code_tube).filter(
+        EchantillonTube.code_tube.like(f"{prefix}%")
+    ).all()
+
+    max_seq = 0
+    for (code,) in existing_tubes:
+        if code and code.startswith(prefix):
+            remainder = code[len(prefix):]
+            digits = ""
+            for ch in remainder:
+                if ch.isdigit():
+                    digits += ch
+                else:
+                    break
+            if digits:
+                try:
+                    num = int(digits)
+                    if num > max_seq:
+                        max_seq = num
+                except ValueError:
+                    pass
+
+    next_num = max_seq + 1 + offset
+    return f"{prefix}{next_num:03d}"
+
+
+def determine_required_tubes(
+    bilan_demande: str,
+    code_barres_base: str = "",
+    db: Session = None,
+    date_ref: datetime.date = None
+) -> List[Dict[str, Any]]:
     """
     Analyse le texte du bilan demandé et retourne la liste des tubes nécessaires avec leurs métadonnées.
+    Attribue à chaque tube son identifiant unique normalisé YYMMDDNNN (ex: 261015001).
     """
     bilan_lower = (bilan_demande or "").lower()
     selected_rules = []
@@ -74,8 +121,14 @@ def determine_required_tubes(bilan_demande: str, code_barres_base: str) -> List[
         selected_rules = [REGLES_TUBES[0], REGLES_TUBES[1]]
 
     tubes_data = []
-    for regle in selected_rules:
-        code_tube = f"{code_barres_base}-{regle['suffix']}"
+    pfx = (date_ref or datetime.date.today()).strftime("%y%m%d")
+
+    for idx, regle in enumerate(selected_rules):
+        if db is not None:
+            code_tube = generate_next_tube_code(db, date_ref=date_ref, offset=idx)
+        else:
+            code_tube = f"{pfx}{idx+1:03d}"
+
         tubes_data.append({
             "code_tube": code_tube,
             "type_tube": regle["type_tube"],
@@ -92,6 +145,7 @@ def determine_required_tubes(bilan_demande: str, code_barres_base: str) -> List[
 def generate_tubes_for_demande(db: Session, demande: Demande, force_recreate: bool = False) -> List[EchantillonTube]:
     """
     Crée en base de données les tubes requis pour une demande s'ils n'existent pas déjà.
+    Chaque tube reçoit son code officiel journalier YYMMDDNNN (ex: 261015001, 261015002...).
     """
     existing_tubes = db.query(EchantillonTube).filter(EchantillonTube.demande_id == demande.id).all()
     if existing_tubes and not force_recreate:
@@ -102,7 +156,13 @@ def generate_tubes_for_demande(db: Session, demande: Demande, force_recreate: bo
             db.delete(t)
         db.flush()
 
-    specs = determine_required_tubes(demande.bilan_demande, demande.code_barres)
+    date_ref = demande.date_reception.date() if demande.date_reception else datetime.date.today()
+    specs = determine_required_tubes(
+        demande.bilan_demande,
+        code_barres_base=demande.code_barres,
+        db=db,
+        date_ref=date_ref
+    )
     created_tubes = []
 
     for spec in specs:

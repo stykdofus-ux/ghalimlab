@@ -21,6 +21,7 @@ Base = declarative_base()
 
 def ensure_db_schema_up_to_date(target_engine):
     """Vérifie et applique les migrations incrémentales de colonnes pour SQLite / PostgreSQL."""
+    import datetime
     from sqlalchemy import inspect, text
     try:
         inspector = inspect(target_engine)
@@ -48,6 +49,44 @@ def ensure_db_schema_up_to_date(target_engine):
                             conn.commit()
                         except Exception:
                             pass
+
+        # Migration du système d'identification des tubes vers YYMMDDNNN (ex: 261015001)
+        if "echantillons_tubes" in inspector.get_table_names():
+            with target_engine.connect() as conn:
+                try:
+                    rows = conn.execute(text("SELECT id, code_tube, date_creation FROM echantillons_tubes ORDER BY id ASC")).fetchall()
+                    day_counters = {}
+                    for row in rows:
+                        c_tube = str(row[1] or "")
+                        if len(c_tube) >= 9 and c_tube[:6].isdigit() and c_tube[6:].isdigit():
+                            pfx = c_tube[:6]
+                            seq = int(c_tube[6:])
+                            day_counters[pfx] = max(day_counters.get(pfx, 0), seq)
+
+                    for row in rows:
+                        t_id = row[0]
+                        c_tube = str(row[1] or "")
+                        if not (len(c_tube) >= 9 and c_tube[:6].isdigit() and c_tube[6:].isdigit()):
+                            d_creat = row[2]
+                            d_obj = None
+                            if d_creat:
+                                try:
+                                    if isinstance(d_creat, str):
+                                        d_obj = datetime.datetime.fromisoformat(d_creat)
+                                    else:
+                                        d_obj = d_creat
+                                except Exception:
+                                    pass
+                            if not d_obj:
+                                d_obj = datetime.datetime.now()
+                            pfx = d_obj.strftime("%y%m%d")
+                            nxt = day_counters.get(pfx, 0) + 1
+                            day_counters[pfx] = nxt
+                            new_code = f"{pfx}{nxt:03d}"
+                            conn.execute(text("UPDATE echantillons_tubes SET code_tube = :nc WHERE id = :tid"), {"nc": new_code, "tid": t_id})
+                    conn.commit()
+                except Exception:
+                    pass
     except Exception:
         pass
 

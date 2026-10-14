@@ -9,6 +9,8 @@ Tests d'intégration end-to-end pour GhalimLab LIMS :
 """
 
 import pytest
+import datetime
+import io
 from fastapi.testclient import TestClient
 from backend.app.main import app
 from backend.app.database import SessionLocal, Base, engine
@@ -186,9 +188,15 @@ def test_api_tube_lifecycle_and_labels_generation():
     assert len(tubes) >= 2
 
     # Vérifier la présence du tube EDTA et du tube Sec
-    codes_tubes = [t["code_tube"] for t in tubes]
-    assert any("EDTA" in c for c in codes_tubes)
-    assert any("SEC" in c for c in codes_tubes)
+    types_tubes = [t["type_tube"] for t in tubes]
+    assert any("EDTA" in t for t in types_tubes)
+    assert any("Sec" in t for t in types_tubes)
+
+    # Vérifier le nouveau format d'identification : YYMMDDNNN (ex: 261015001)
+    for t in tubes:
+        c = t["code_tube"]
+        assert len(c) == 9
+        assert c.isdigit()
 
     tube_id = tubes[0]["id"]
 
@@ -219,6 +227,78 @@ def test_api_tube_lifecycle_and_labels_generation():
     assert single_label_resp.headers["content-type"] == "application/pdf"
     assert single_label_resp.content.startswith(b"%PDF")
 
+    db.close()
+
+
+def test_tube_identification_system_yymmddnnn():
+    """Vérifie le format d'identification des tubes : YYMMDDNNN (ex: 261015001)."""
+    # 1. Créer une nouvelle demande et vérifier la génération automatique des codes tubes
+    create_resp = client.post("/api/demandes", json={
+        "patient_id": 1,
+        "bilan_demande": "NFS, Bilan Rénal, Bilan Lipidique",
+        "prescripteur": "Dr. Benjelloun"
+    })
+    assert create_resp.status_code == 201
+    data = create_resp.json()
+    demande_id = data["id"]
+    tubes = data["tubes"]
+    assert len(tubes) >= 2
+
+    today_pfx = datetime.date.today().strftime("%y%m%d")
+    for t in tubes:
+        code = t["code_tube"]
+        assert len(code) == 9
+        assert code.isdigit()
+        assert code.startswith(today_pfx)
+
+    # 2. Vérifier que les numéros de tubes se suivent (ex: 001 puis 002)
+    seqs = [int(t["code_tube"][6:]) for t in tubes]
+    for i in range(len(seqs) - 1):
+        assert seqs[i+1] == seqs[i] + 1
+
+    # 3. Créer un tube manuellement sans code explicite -> Doit attribuer le code suivant séquentiel
+    manual_resp = client.post("/api/tubes", json={
+        "demande_id": demande_id,
+        "type_tube": "Citrate de sodium 3.2%",
+        "couleur_bouchon": "bleu",
+        "analyses_associees": "Hémostase TP INR",
+        "volume_ml": 2.7
+    })
+    assert manual_resp.status_code == 201
+    manual_code = manual_resp.json()["code_tube"]
+    assert len(manual_code) == 9
+    assert manual_code.isdigit()
+    assert int(manual_code[6:]) == seqs[-1] + 1
+
+    # 4. Vérifier la recherche de la demande par son code tube
+    search_resp = client.get(f"/api/demandes?search={manual_code}")
+    assert search_resp.status_code == 200
+    demandes_trouvees = search_resp.json()
+    assert any(d["id"] == demande_id for d in demandes_trouvees)
+
+    # 5. Tester l'ingestion d'un automate via le scan direct du code tube (ex: 261015001)
+    from backend.app.services.result_service import ingest_astm_payload
+    from backend.app.models.core import EchantillonTube
+    db = SessionLocal()
+    target_tube_code = tubes[0]["code_tube"]
+    parsed_astm = {
+        "automate": "Sysmex XN-550",
+        "orders": [
+            {
+                "code_barres": target_tube_code,
+                "results": [
+                    {"param_code": "GB", "valeur_str": "7.5", "valeur_num": 7.5, "unite": "10^3/uL"}
+                ]
+            }
+        ]
+    }
+    ingest_result = ingest_astm_payload(db, parsed_astm)
+    assert ingest_result["total_resultats_ingérés"] >= 1
+
+    # Vérifier que le tube scanné par l'automate est maintenant marqué "Analysé"
+    updated_tube = db.query(EchantillonTube).filter(EchantillonTube.code_tube == target_tube_code).first()
+    assert updated_tube is not None
+    assert updated_tube.statut_tube == "Analysé"
     db.close()
 
 
