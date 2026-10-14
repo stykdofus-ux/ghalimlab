@@ -21,7 +21,9 @@ client = TestClient(app)
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_db():
+    from backend.app.database import ensure_db_schema_up_to_date
     Base.metadata.create_all(bind=engine)
+    ensure_db_schema_up_to_date(engine)
     db = SessionLocal()
     seed_database(db)
     db.close()
@@ -339,6 +341,88 @@ def test_api_billing_facture_creation_and_invoice_pdf():
     assert pdf_resp.headers["content-type"] == "application/pdf"
     assert pdf_resp.content.startswith(b"%PDF")
     assert len(pdf_resp.content) > 1000
+
+    db.close()
+
+
+def test_api_lab_customization_and_branding_uploads():
+    """Teste la personnalisation complète du laboratoire, l'upload des médias (logo, cachet, signature) et l'auto-signature."""
+    # 1. Mise à jour de l'identité et coordonnées du laboratoire
+    custom_params = {
+        "nom_laboratoire": "Laboratoire Central de Biologie GhalimLab",
+        "sous_titre": "Hématologie & Biochimie Spécialisée",
+        "directeur": "Dr. Mohammed GHALIM - Directeur Médical",
+        "adresse": "Boulevard Mohammed V, Casablanca",
+        "telephone": "+212 5 22 99 88 77",
+        "email": "direction@ghalimlab.ma",
+        "ice": "009988776655443",
+        "identifiant_fiscal": "99887766",
+        "patente": "55443322",
+        "cnss_affiliation": "1122334",
+        "auto_signer_validation": True
+    }
+    patch_resp = client.patch("/api/billing/parametres", json=custom_params)
+    assert patch_resp.status_code == 200
+    data = patch_resp.json()
+    assert data["nom_laboratoire"] == "Laboratoire Central de Biologie GhalimLab"
+    assert data["directeur"] == "Dr. Mohammed GHALIM - Directeur Médical"
+    assert data["ice"] == "009988776655443"
+    assert data["auto_signer_validation"] is True
+
+    # 2. Upload Logo (SVG ou PNG)
+    fake_logo = b"<svg xmlns='http://www.w3.org/2000/svg'><circle cx='10' cy='10' r='5'/></svg>"
+    logo_resp = client.post(
+        "/api/billing/parametres/upload/logo",
+        files={"file": ("test_logo.svg", fake_logo, "image/svg+xml")}
+    )
+    assert logo_resp.status_code == 200
+    assert "logo_path" in logo_resp.json()
+    assert logo_resp.json()["logo_path"].startswith("/uploads/branding/logo_")
+
+    # 3. Upload Cachet (PNG)
+    import io
+    from PIL import Image as PILImage
+    _png_buf = io.BytesIO()
+    PILImage.new("RGBA", (60, 60), (200, 30, 30, 200)).save(_png_buf, format="PNG")
+    valid_png_bytes = _png_buf.getvalue()
+
+    cachet_resp = client.post(
+        "/api/billing/parametres/upload/cachet",
+        files={"file": ("test_cachet.png", valid_png_bytes, "image/png")}
+    )
+    assert cachet_resp.status_code == 200
+    assert cachet_resp.json()["cachet_path"].startswith("/uploads/branding/cachet_")
+
+    # 4. Upload Signature (PNG)
+    sign_resp = client.post(
+        "/api/billing/parametres/upload/signature",
+        files={"file": ("test_signature.png", valid_png_bytes, "image/png")}
+    )
+    assert sign_resp.status_code == 200
+    assert sign_resp.json()["signature_path"].startswith("/uploads/branding/signature_")
+
+    # 5. Valider un prélèvement et vérifier l'apposition automatique de la signature
+    db = SessionLocal()
+    demande = db.query(Demande).filter(Demande.code_barres == "PREL-2026-002").first()
+    assert demande is not None
+
+    valid_resp = client.post(f"/api/validation/{demande.id}/valider", json={
+        "conclusion_biologique": "Bilan biologique certifié et signé automatiquement."
+    })
+    assert valid_resp.status_code == 200
+    assert valid_resp.json()["auto_signed"] is True
+    assert "Dr. Mohammed GHALIM" in valid_resp.json()["valide_par"]
+
+    # 6. Vérifier la génération du rapport PDF avec les paramètres personnalisés
+    report_pdf_resp = client.get(f"/api/rapports/{demande.id}/pdf")
+    assert report_pdf_resp.status_code == 200
+    assert report_pdf_resp.content.startswith(b"%PDF")
+    assert len(report_pdf_resp.content) > 1000
+
+    # 7. Vérifier la page HTML /parametres
+    page_resp = client.get("/parametres")
+    assert page_resp.status_code == 200
+    assert "Laboratoire Central de Biologie" in page_resp.text
 
     db.close()
 

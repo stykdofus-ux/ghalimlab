@@ -84,19 +84,24 @@ def valider_dossier(
                 )
                 db.add(new_res)
 
+    from backend.app.services.billing_service import get_or_create_tarification_params
+    params = get_or_create_tarification_params(db)
+
     demande.statut = "Validé"
     demande.date_validation = datetime.datetime.now()
-    demande.valide_par = payload.valide_par or "Dr. M. GHALIM (Biologiste Médical)"
+    demande.valide_par = payload.valide_par or params.directeur or "Dr. M. GHALIM (Biologiste Médical)"
     if payload.conclusion_biologique:
         demande.conclusion_biologique = payload.conclusion_biologique
 
     db.commit()
 
+    sig_mention = " et signé électroniquement" if params.auto_signer_validation else ""
     return {
         "status": "success",
-        "message": f"Dossier {demande.code_barres} validé biologiquement avec succès !",
+        "message": f"Dossier {demande.code_barres} validé{sig_mention} avec succès !",
         "date_validation": demande.date_validation.strftime("%d/%m/%Y %H:%M"),
-        "valide_par": demande.valide_par
+        "valide_par": demande.valide_par,
+        "auto_signed": params.auto_signer_validation
     }
 
 

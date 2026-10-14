@@ -47,7 +47,7 @@ class ResultatItem(BaseModel):
 
 class ValidationRequest(BaseModel):
     conclusion_biologique: Optional[str] = None
-    valide_par: Optional[str] = "Dr. M. GHALIM"
+    valide_par: Optional[str] = None
     resultats_modifies: Optional[List[ResultatItem]] = None
 
 
@@ -170,11 +170,23 @@ class ParametresTarificationUpdate(BaseModel):
     tva_applicable: Optional[float] = None
     frais_prelevement: Optional[float] = None
     nom_laboratoire: Optional[str] = None
+    sous_titre: Optional[str] = None
+    directeur: Optional[str] = None
+    adresse: Optional[str] = None
+    telephone: Optional[str] = None
+    email: Optional[str] = None
+    site_web: Optional[str] = None
+    agrement: Optional[str] = None
+    titre_rapport: Optional[str] = None
     ice: Optional[str] = None
     identifiant_fiscal: Optional[str] = None
     patente: Optional[str] = None
     cnss_affiliation: Optional[str] = None
     mentions_legales: Optional[str] = None
+    logo_path: Optional[str] = None
+    cachet_path: Optional[str] = None
+    signature_path: Optional[str] = None
+    auto_signer_validation: Optional[bool] = None
     recalculer_prix_actes: Optional[bool] = False  # Si True, recalcule les prix par défaut de tous les actes
 
 
@@ -186,11 +198,23 @@ class ParametresTarificationResponse(BaseModel):
     tva_applicable: float
     frais_prelevement: float
     nom_laboratoire: str
+    sous_titre: Optional[str] = None
+    directeur: Optional[str] = None
+    adresse: Optional[str] = None
+    telephone: Optional[str] = None
+    email: Optional[str] = None
+    site_web: Optional[str] = None
+    agrement: Optional[str] = None
+    titre_rapport: Optional[str] = None
     ice: Optional[str] = None
     identifiant_fiscal: Optional[str] = None
     patente: Optional[str] = None
     cnss_affiliation: Optional[str] = None
     mentions_legales: Optional[str] = None
+    logo_path: Optional[str] = None
+    cachet_path: Optional[str] = None
+    signature_path: Optional[str] = None
+    auto_signer_validation: bool = True
     date_modification: Optional[datetime] = None
 
     model_config = {"from_attributes": True}

@@ -201,15 +201,28 @@ py -m backend.astm.simulator --automate cobas --barcode PREL-2026-002
   * Tableau de bord financier : Chiffre d'Affaires total, montants encaissés, reste à recouvrer.
   * **Édition de Factures & Reçus de Paiement Officiels (PDF)** : Génération haute définition avec ReportLab conforme aux mentions fiscales (ICE, Identifiant Fiscal, Patente, N° CNSS). Téléchargement direct via `/api/billing/factures/{id}/pdf`.
 
+### H. Paramètres du Laboratoire, Identité Visuelle & Signature Automatique (`/parametres`)
+* **Personnalisation Complète de l'Établissement** :
+  * **Identité & Coordonnées** : Nom du laboratoire, Directeur médical, Sous-titre/Spécialités, Adresse complète, Téléphone, Email, Site web, N° d'Agrément ministériel, Titre officiel des comptes-rendus.
+  * **Fiscalité & Mentions Légales** : Identifiant Commun de l'Entreprise (ICE), Identifiant Fiscal (IF), Patente, N° d'Affiliation CNSS, Taux de TVA (%), Mentions légales personnalisées.
+* **Gestion des Médias Visuels & Branding** :
+  * **Logo Officiel du Laboratoire** : Téléversement en format vectoriel **SVG** ou matriciel haute résolution **PNG/JPG** avec prévisualisation en direct et intégration dynamique dans l'entête de tous les comptes-rendus médicaux et factures PDF.
+  * **Tampon & Cachet Officiel** : Téléversement de l'empreinte officielle du laboratoire au format **PNG transparent**.
+  * **Signature Électronique du Biologiste** : Téléversement de la signature manuscrite numérisée au format **PNG transparent**.
+* **Signature Électronique Automatique lors de la Validation** :
+  * Option commutable (*toggle switch*) dans les paramètres pour activer l'apposition automatique de la signature et du cachet du biologiste dès qu'un dossier d'analyse est validé médicalement (`POST /api/validation/{id}/valider`).
+  * Les comptes-rendus PDF générés intègrent automatiquement le bloc de certification officielle avec le tampon et la signature électronique.
+
 ---
 
 ## 6. Exécution des Tests Automatisés
 
-Le projet comprend une suite complète de 17 tests unitaires et d'intégration validant le protocole ASTM, le calcul des bornes normales, la gestion des documents scannés, la traçabilité des tubes, la nomenclature des 492 actes, le calcul des tarifs CNSS/Normal et la génération des factures PDF :
+Le projet comprend une suite complète de 18 tests unitaires et d'intégration validant le protocole ASTM, le calcul des bornes normales, la gestion des documents scannés, la traçabilité des tubes, la nomenclature des 492 actes, le calcul des tarifs CNSS/Normal, la génération des factures PDF, la personnalisation du laboratoire, l'upload des médias et l'auto-signature :
 
 ```powershell
 py -m pytest tests/
 ```
 
-*Résultat attendu : 17 passed.*
+*Résultat attendu : 18 passed.*
+
 

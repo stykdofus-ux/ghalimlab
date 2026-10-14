@@ -1,177 +1,404 @@
 {% extends "base.html" %}
 
 {% block page_heading %}
-⚙️ Paramètres de Tarification & Nomenclature des 492 Actes
+⚙️ Paramètres Généraux du Laboratoire, Tarifs & Signature
 {% endblock %}
 
 {% block content %}
 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-    <!-- En-tête & Introduction -->
+    <!-- En-tête & Titre -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
         <div>
-            <h1 style="font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.35rem;">
-                Nomenclature & Paramètres Tarifaires du Laboratoire
+            <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.35rem;">
+                Configuration & Personnalisation du Laboratoire
             </h1>
             <p style="color: var(--text-muted); font-size: 0.95rem;">
-                Le biologiste médical peut ajuster ici les multiplicateurs conventionnels globaux ou personnaliser les coefficients (B) et prix de chaque analyse.
+                Gérez l'identité officielle, les mentions légales, le logo, le cachet, la signature électronique et la nomenclature tarifaire (492 actes).
             </p>
         </div>
         <div style="display: flex; gap: 0.75rem;">
             <a href="/facturation" class="btn btn-secondary">
-                💰 Voir le Journal des Factures
+                💰 Journal de Facturation
             </a>
-            <button onclick="ouvrirModalNouvelActe()" class="btn btn-primary">
-                ➕ Ajouter un Acte
-            </button>
+            <a href="/worklist" class="btn btn-secondary">
+                📋 Liste de Travail
+            </a>
         </div>
     </div>
 
-    <!-- Section 1 : Configuration des Multiplicateurs Globaux (Biologiste) -->
-    <div class="card" style="padding: 1.5rem; background: #f8fafc; border: 1px solid var(--border-color);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
-            <div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">
-                    📊 Multiplicateurs Réglementaires & Coordonnées du Laboratoire
-                </h3>
-                <small style="color: var(--text-muted);">
-                    Règles de calcul appliquées automatiquement à toutes les analyses médicales.
-                </small>
-            </div>
-            <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 600; padding: 0.4rem 0.8rem;">
-                Nomenclature Arrêté 1796-03 & 1968-16
-            </span>
-        </div>
-
-        <form id="formGlobalParams" onsubmit="sauvegarderParamsGlobaux(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; align-items: end;">
-            <div>
-                <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
-                    Taux CNSS / CNOPS (DH par unité B) * :
-                </label>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-weight: 700; color: #0284c7;">×</span>
-                    <input type="number" step="0.01" id="inputTauxCNSS" value="{{ params.taux_cnss_cnops }}" class="form-control" required style="font-weight: 700; color: #0284c7;">
-                    <span style="font-size: 0.85rem; color: var(--text-muted);">DH</span>
-                </div>
-                <small style="color: var(--text-muted); font-size: 0.72rem;">Tarif conventionnel sécurité sociale</small>
-            </div>
-
-            <div>
-                <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
-                    Taux Normal / Assurances (DH par unité B) * :
-                </label>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-weight: 700; color: #0f766e;">×</span>
-                    <input type="number" step="0.01" id="inputTauxNormal" value="{{ params.taux_normal_assurance }}" class="form-control" required style="font-weight: 700; color: #0f766e;">
-                    <span style="font-size: 0.85rem; color: var(--text-muted);">DH</span>
-                </div>
-                <small style="color: var(--text-muted); font-size: 0.72rem;">Tarif privé / mutuelles d'assurance</small>
-            </div>
-
-            <div>
-                <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
-                    Identifiant Commun (ICE) :
-                </label>
-                <input type="text" id="inputICE" value="{{ params.ice or '002847192000045' }}" class="form-control">
-            </div>
-
-            <div>
-                <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
-                    Identifiant Fiscal (IF) :
-                </label>
-                <input type="text" id="inputIF" value="{{ params.identifiant_fiscal or '40291823' }}" class="form-control">
-            </div>
-
-            <div style="display: flex; gap: 0.75rem; align-items: center;">
-                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
-                    💾 Mettre à jour les taux
-                </button>
-            </div>
-        </form>
+    <!-- Barre d'onglets principale -->
+    <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 2px; flex-wrap: wrap;">
+        <button type="button" class="tab-btn {% if tab_actif == 'identite' or not tab_actif %}active{% endif %}" onclick="switchTab('identite')" id="tab-btn-identite" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.9rem; border-radius: 8px 8px 0 0; border: none; cursor: pointer; transition: all 0.2s;">
+            <span>🏥</span> Identité & Coordonnées
+        </button>
+        <button type="button" class="tab-btn {% if tab_actif == 'fiscal' %}active{% endif %}" onclick="switchTab('fiscal')" id="tab-btn-fiscal" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.9rem; border-radius: 8px 8px 0 0; border: none; cursor: pointer; transition: all 0.2s;">
+            <span>⚖️</span> Fiscalité & Mentions Légales
+        </button>
+        <button type="button" class="tab-btn {% if tab_actif == 'branding' %}active{% endif %}" onclick="switchTab('branding')" id="tab-btn-branding" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.9rem; border-radius: 8px 8px 0 0; border: none; cursor: pointer; transition: all 0.2s;">
+            <span>🎨</span> Logo, Cachet & Signature
+        </button>
+        <button type="button" class="tab-btn {% if tab_actif == 'tarifs' %}active{% endif %}" onclick="switchTab('tarifs')" id="tab-btn-tarifs" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.9rem; border-radius: 8px 8px 0 0; border: none; cursor: pointer; transition: all 0.2s;">
+            <span>💰</span> Nomenclature & Tarifs (492 Actes)
+        </button>
     </div>
 
-    <!-- Section 2 : Nomenclature des 492 Actes de Biologie Médicale -->
-    <div class="card" style="padding: 1.25rem;">
-        <form method="GET" action="/parametres-tarifs" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-right: 0.5rem;">Catégorie :</span>
-                <a href="/parametres-tarifs?categorie=Toutes&search={{ search_term }}" 
-                   class="btn btn-sm {% if categorie_actif == 'Toutes' %}btn-primary{% else %}btn-secondary{% endif %}"
-                   style="border-radius: 20px; font-size: 0.8rem; padding: 0.25rem 0.75rem;">
-                   Toutes ({{ total_actes }})
-                </a>
-                {% for cat in categories[:6] %}
-                    <a href="/parametres-tarifs?categorie={{ cat }}&search={{ search_term }}" 
-                       class="btn btn-sm {% if categorie_actif == cat %}btn-primary{% else %}btn-secondary{% endif %}"
-                       style="border-radius: 20px; font-size: 0.8rem; padding: 0.25rem 0.75rem;">
-                       {{ cat }}
-                    </a>
-                {% endfor %}
+    <!-- ======================================================================= -->
+    <!-- ONGLET 1 : IDENTITÉ & COORDONNÉES                                       -->
+    <!-- ======================================================================= -->
+    <div id="tab-content-identite" class="tab-pane" style="display: {% if tab_actif == 'identite' or not tab_actif %}block{% else %}none{% endif %};">
+        <div class="card" style="padding: 1.75rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+                        🏥 Identité Publique du Laboratoire
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                        Ces informations sont affichées sur l'interface, les comptes-rendus d'analyses biomédicales et les factures d'honoraires.
+                    </p>
+                </div>
+                <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 600;">
+                    En-tête Officielle
+                </span>
             </div>
 
-            <div style="display: flex; gap: 0.5rem; align-items: center; min-width: 320px;">
-                <input type="text" name="search" value="{{ search_term }}" placeholder="Recherche par code (ex: B100, B216) ou nom..." class="form-control form-control-sm" style="flex: 1;">
-                <input type="hidden" name="categorie" value="{{ categorie_actif }}">
-                <button type="submit" class="btn btn-primary btn-sm">🔍</button>
-                {% if search_term or categorie_actif != 'Toutes' %}
-                    <a href="/parametres-tarifs" class="btn btn-secondary btn-sm" title="Réinitialiser">✖</a>
-                {% endif %}
-            </div>
-        </form>
+            <form id="formIdentite" onsubmit="sauvegarderIdentite(event)">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Nom du Laboratoire * :</label>
+                        <input type="text" id="identite_nom" value="{{ params.nom_laboratoire }}" class="form-control" required placeholder="ex: Laboratoire d'Analyses Médicales GhalimLab">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Spécialité / Sous-titre :</label>
+                        <input type="text" id="identite_sous_titre" value="{{ params.sous_titre|default('') }}" class="form-control" placeholder="ex: Biologie Médicale - Hématologie, Biochimie...">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Biologiste Directeur / Responsable * :</label>
+                        <input type="text" id="identite_directeur" value="{{ params.directeur|default('') }}" class="form-control" required placeholder="ex: Dr. M. GHALIM - Biologiste Médical">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Agrément Ministère de la Santé :</label>
+                        <input type="text" id="identite_agrement" value="{{ params.agrement|default('') }}" class="form-control" placeholder="ex: Agrément Ministère N° 8492/BM">
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Adresse Géographique Complète * :</label>
+                        <input type="text" id="identite_adresse" value="{{ params.adresse|default('') }}" class="form-control" required placeholder="ex: 124 Avenue Hassan II, Casablanca, Maroc">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Téléphone du Secrétariat / Accueil :</label>
+                        <input type="text" id="identite_tel" value="{{ params.telephone|default('') }}" class="form-control" placeholder="+212 5 22 ...">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Email de Contact :</label>
+                        <input type="email" id="identite_email" value="{{ params.email|default('') }}" class="form-control" placeholder="contact@ghalimlab.ma">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Site Web / Portail Résultats :</label>
+                        <input type="text" id="identite_site" value="{{ params.site_web|default('') }}" class="form-control" placeholder="www.ghalimlab.ma">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Titre des Rapports Médicaux :</label>
+                        <input type="text" id="identite_titre_rapport" value="{{ params.titre_rapport|default('COMPTE-RENDU D\'ANALYSES BIOMÉDICALES') }}" class="form-control">
+                    </div>
+                </div>
 
-        <!-- Tableau des Actes -->
-        <div style="border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden;">
-            <div class="table-responsive" style="max-height: 650px; overflow-y: auto;">
-                <table class="data-table" style="width: 100%; border-collapse: collapse;">
-                    <thead style="position: sticky; top: 0; z-index: 10;">
-                        <tr style="background: #0f172a; color: white; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
-                            <th style="padding: 0.85rem 1rem; width: 100px;">Code B</th>
-                            <th style="padding: 0.85rem 1rem;">Désignation Officielle de l'Analyse</th>
-                            <th style="padding: 0.85rem 1rem;">Catégorie</th>
-                            <th style="padding: 0.85rem 1rem; text-align: center; width: 110px;">Coefficient</th>
-                            <th style="padding: 0.85rem 1rem; text-align: right; width: 140px;">Tarif CNSS / CNOPS</th>
-                            <th style="padding: 0.85rem 1rem; text-align: right; width: 140px;">Tarif Normal / Assur.</th>
-                            <th style="padding: 0.85rem 1rem; text-align: right; width: 100px;">Actions</th>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                    <button type="submit" class="btn btn-primary" id="btn-save-identite">
+                        💾 Enregistrer l'Identité du Laboratoire
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- ONGLET 2 : FISCALITÉ & MENTIONS LÉGALES                                 -->
+    <!-- ======================================================================= -->
+    <div id="tab-content-fiscal" class="tab-pane" style="display: {% if tab_actif == 'fiscal' %}block{% else %}none{% endif %};">
+        <div class="card" style="padding: 1.75rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+                        ⚖️ Identifiants Fiscaux & Réglementaires Marocains
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                        Mentions fiscales obligatoires requises pour les factures conformes à la Direction Générale des Impôts (DGI) et aux organismes payeurs (CNSS, CNOPS, Assurances).
+                    </p>
+                </div>
+                <span class="badge" style="background: #f0fdf4; color: #166534; font-weight: 600;">
+                    Conformité Fiscale
+                </span>
+            </div>
+
+            <form id="formFiscalite" onsubmit="sauvegarderFiscalite(event)">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">ICE (Identifiant Commun de l'Entreprise) * :</label>
+                        <input type="text" id="fiscal_ice" value="{{ params.ice|default('') }}" class="form-control" required placeholder="ex: 002847192000045" style="font-family: monospace; font-weight: 700;">
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">15 chiffres obligatoires</small>
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Identifiant Fiscal (IF) :</label>
+                        <input type="text" id="fiscal_if" value="{{ params.identifiant_fiscal|default('') }}" class="form-control" placeholder="ex: 40291823" style="font-family: monospace;">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">N° de Patente :</label>
+                        <input type="text" id="fiscal_patente" value="{{ params.patente|default('') }}" class="form-control" placeholder="ex: 32194850" style="font-family: monospace;">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">N° Affiliation CNSS Employeur :</label>
+                        <input type="text" id="fiscal_cnss" value="{{ params.cnss_affiliation|default('') }}" class="form-control" placeholder="ex: 7849201" style="font-family: monospace;">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Taux de TVA Applicable (%) :</label>
+                        <input type="number" step="0.1" id="fiscal_tva" value="{{ params.tva_applicable|default(0.0) }}" class="form-control" style="font-weight: 700;">
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">0% (Actes de biologie exonérés selon art. 91 CGI)</small>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Mentions Légales & Réglementaires de Facturation :</label>
+                        <textarea id="fiscal_mentions" rows="3" class="form-control" placeholder="Laboratoire conventionné avec la CNSS, la CNOPS et les compagnies d'assurances...">{{ params.mentions_legales|default('') }}</textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                    <button type="submit" class="btn btn-primary" id="btn-save-fiscal">
+                        💾 Enregistrer les Identifiants Fiscaux
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- ONGLET 3 : LOGO, CACHET & SIGNATURE ÉLECTRONIQUE                       -->
+    <!-- ======================================================================= -->
+    <div id="tab-content-branding" class="tab-pane" style="display: {% if tab_actif == 'branding' %}block{% else %}none{% endif %};">
+        <div class="card" style="padding: 1.75rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+                        🎨 Identité Visuelle, Sceau & Signature Électronique
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                        Téléversez votre logo vectoriel ou haute résolution, le tampon officiel du laboratoire et votre signature manuscrite pour signature automatique des comptes-rendus et reçus.
+                    </p>
+                </div>
+                <span class="badge" style="background: #e0f2fe; color: #0284c7; font-weight: 600;">
+                    Certification Électronique
+                </span>
+            </div>
+
+            <!-- Option Signature Automatique -->
+            <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div style="max-width: 650px;">
+                    <h4 style="font-size: 1rem; font-weight: 700; color: #166534; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <span>✍️</span> Signature & Cachet Automatiques après Validation Biologique
+                    </h4>
+                    <p style="color: #14532d; font-size: 0.85rem; margin: 0; line-height: 1.4;">
+                        Lorsque cette option est activée, dès que le biologiste clique sur <b>"Valider le Dossier"</b>, la signature électronique et le cachet sont <b>automatiquement apposés</b> sur le compte-rendu d'analyses PDF et sur la facture avec horodatage certifié.
+                    </p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <label class="switch" style="position: relative; display: inline-block; width: 54px; height: 28px;">
+                        <input type="checkbox" id="check_auto_signer" {% if params.auto_signer_validation %}checked{% endif %} onchange="toggleAutoSigner(this.checked)" style="opacity: 0; width: 0; height: 0;">
+                        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: {% if params.auto_signer_validation %}#16a34a{% else %}#cbd5e1{% endif %}; transition: .3s; border-radius: 34px;"></span>
+                    </label>
+                    <span id="label-auto-signer-state" style="font-weight: 700; font-size: 0.85rem; color: {% if params.auto_signer_validation %}#166534{% else %}#64748b{% endif %};">
+                        {% if params.auto_signer_validation %}ACTIVÉ{% else %}DÉSACTIVÉ{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Grille des 3 Médias : Logo, Cachet, Signature -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.75rem;">
+
+                <!-- 1. Logo du Laboratoire -->
+                <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <div style="font-weight: 700; color: #0284c7; font-size: 1rem; margin-bottom: 0.3rem;">
+                        🏢 Logo Officiel du Laboratoire
+                    </div>
+                    <small style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 1rem;">
+                        Formats : SVG (vectoriel recommandé), PNG ou JPG
+                    </small>
+
+                    <div style="width: 100%; height: 110px; background: white; border: 1px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; margin-bottom: 1rem;">
+                        <img id="preview-logo" src="{{ params.logo_path|default('/uploads/branding/logo.svg') }}" alt="Logo" style="max-height: 90px; max-width: 90%; object-fit: contain;">
+                    </div>
+
+                    <label class="btn btn-secondary btn-sm" style="cursor: pointer; width: 100%;">
+                        📤 Téléverser un nouveau Logo
+                        <input type="file" id="file-logo" accept=".svg,.png,.jpg,.jpeg,.webp" style="display: none;" onchange="uploadMedia('logo', this)">
+                    </label>
+                    <small id="status-logo" style="margin-top: 0.5rem; font-size: 0.72rem; color: #16a34a; display: none;">✓ Logo mis à jour !</small>
+                </div>
+
+                <!-- 2. Cachet du Laboratoire -->
+                <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <div style="font-weight: 700; color: #0f766e; font-size: 1rem; margin-bottom: 0.3rem;">
+                        ⭕ Cachet Officiel du Laboratoire
+                    </div>
+                    <small style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 1rem;">
+                        Format : PNG avec fond transparent (tampon circulaire)
+                    </small>
+
+                    <div style="width: 100%; height: 110px; background: white; border: 1px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; margin-bottom: 1rem;">
+                        <img id="preview-cachet" src="{{ params.cachet_path|default('/uploads/branding/cachet.png') }}" alt="Cachet" style="max-height: 95px; max-width: 95px; object-fit: contain;">
+                    </div>
+
+                    <label class="btn btn-secondary btn-sm" style="cursor: pointer; width: 100%;">
+                        📤 Téléverser un nouveau Cachet
+                        <input type="file" id="file-cachet" accept=".png,.jpg,.jpeg,.webp" style="display: none;" onchange="uploadMedia('cachet', this)">
+                    </label>
+                    <small id="status-cachet" style="margin-top: 0.5rem; font-size: 0.72rem; color: #16a34a; display: none;">✓ Cachet mis à jour !</small>
+                </div>
+
+                <!-- 3. Signature Électronique du Biologiste -->
+                <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <div style="font-weight: 700; color: #4338ca; font-size: 1rem; margin-bottom: 0.3rem;">
+                        🖋️ Signature Électronique
+                    </div>
+                    <small style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 1rem;">
+                        Format : PNG avec fond transparent (signature manuscrite)
+                    </small>
+
+                    <div style="width: 100%; height: 110px; background: white; border: 1px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; margin-bottom: 1rem;">
+                        <img id="preview-signature" src="{{ params.signature_path|default('/uploads/branding/signature.png') }}" alt="Signature" style="max-height: 90px; max-width: 90%; object-fit: contain;">
+                    </div>
+
+                    <label class="btn btn-secondary btn-sm" style="cursor: pointer; width: 100%;">
+                        📤 Téléverser votre Signature
+                        <input type="file" id="file-signature" accept=".png,.jpg,.jpeg,.webp" style="display: none;" onchange="uploadMedia('signature', this)">
+                    </label>
+                    <small id="status-signature" style="margin-top: 0.5rem; font-size: 0.72rem; color: #16a34a; display: none;">✓ Signature mise à jour !</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- ONGLET 4 : NOMENCLATURE & TARIFS (492 ACTES V4)                        -->
+    <!-- ======================================================================= -->
+    <div id="tab-content-tarifs" class="tab-pane" style="display: {% if tab_actif == 'tarifs' %}block{% else %}none{% endif %};">
+
+        <!-- Multiplicateurs Globaux -->
+        <div class="card" style="padding: 1.5rem; background: #f8fafc; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">
+                        📊 Multiplicateurs Réglementaires Globaux
+                    </h3>
+                    <small style="color: var(--text-muted);">
+                        Formule officielle : CNSS = Coeff × 1.10 DH | Normal & Assurances = Coeff × 1.36 DH
+                    </small>
+                </div>
+                <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 600; padding: 0.4rem 0.8rem;">
+                    Nomenclature Marocaine V4 (492 actes)
+                </span>
+            </div>
+
+            <form id="formGlobalParams" onsubmit="sauvegarderParamsGlobaux(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; align-items: end;">
+                <div>
+                    <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
+                        Taux CNSS / CNOPS (DH par unité B) * :
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-weight: 700; color: #0284c7;">×</span>
+                        <input type="number" step="0.01" id="inputTauxCNSS" value="{{ params.taux_cnss_cnops }}" class="form-control" required style="font-weight: 700; color: #0284c7;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">DH</span>
+                    </div>
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">Tarif conventionnel sécurité sociale</small>
+                </div>
+
+                <div>
+                    <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
+                        Taux Normal / Assurances (DH par unité B) * :
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-weight: 700; color: #0f766e;">×</span>
+                        <input type="number" step="0.01" id="inputTauxNormal" value="{{ params.taux_normal_assurance }}" class="form-control" required style="font-weight: 700; color: #0f766e;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">DH</span>
+                    </div>
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">Tarif privé et mutuelles</small>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        💾 Mettre à jour les taux globaux
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Catalogue des 492 Actes -->
+        <div class="card" style="padding: 1.5rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+                        📑 Répertoire des Actes Médicaux ({{ total_actes }} actes enregistrés)
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                        Vous pouvez ajuster individuellement le coefficient B, le tarif CNSS ou le tarif Normal de chaque analyse.
+                    </p>
+                </div>
+                <div>
+                    <button onclick="ouvrirModalNouvelActe()" class="btn btn-primary btn-sm">
+                        ➕ Ajouter une analyse hors nomenclature
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtres de recherche -->
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                <input type="text" id="rechercheActe" placeholder="🔍 Rechercher par code (ex: B100) ou nom d'analyse..." 
+                       class="form-control" style="max-width: 380px;" oninput="filtrerActesEnDirect()">
+                <select id="filtreCategorie" class="form-control" style="max-width: 200px;" onchange="filtrerParCategorie(this.value)">
+                    <option value="Toutes">Toutes les spécialités</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if categorie_actif == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Tableau des Actes -->
+            <div class="table-container" style="max-height: 600px; overflow-y: auto;">
+                <table class="table" style="width: 100%; border-collapse: collapse;" id="table-actes">
+                    <thead style="position: sticky; top: 0; background: #f8fafc; z-index: 2;">
+                        <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted);">
+                            <th style="padding: 0.75rem 1rem; text-align: left;">Code Acte</th>
+                            <th style="padding: 0.75rem 1rem; text-align: left;">Désignation de l'Analyse</th>
+                            <th style="padding: 0.75rem 1rem; text-align: left;">Catégorie</th>
+                            <th style="padding: 0.75rem 1rem; text-align: center;">Coefficient B</th>
+                            <th style="padding: 0.75rem 1rem; text-align: right;">Tarif CNSS (x1.10)</th>
+                            <th style="padding: 0.75rem 1rem; text-align: right;">Tarif Normal (x1.36)</th>
+                            <th style="padding: 0.75rem 1rem; text-align: right;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for a in actes %}
-                        <tr id="row-acte-{{ a.id }}" style="border-bottom: 1px solid var(--border-color); font-size: 0.88rem;">
-                            <!-- Code -->
-                            <td style="padding: 0.75rem 1rem; font-family: monospace; font-weight: 800; color: var(--primary); font-size: 0.95rem;">
+                        <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.88rem;" class="ligne-acte" data-code="{{ a.code }}" data-nom="{{ a.nom|lower }}" data-cat="{{ a.categorie }}">
+                            <td style="padding: 0.75rem 1rem; font-weight: 700; color: #0284c7; white-space: nowrap;">
                                 {{ a.code }}
                             </td>
-
-                            <!-- Nom -->
+                            <td style="padding: 0.75rem 1rem; font-weight: 600; color: var(--text-main);">
+                                {{ a.nom }}
+                            </td>
                             <td style="padding: 0.75rem 1rem;">
-                                <div style="font-weight: 600; color: var(--text-main);" id="text-nom-{{ a.id }}">
-                                    {{ a.nom }}
-                                </div>
+                                <span class="badge" style="background: #e2e8f0; color: #334155; font-size: 0.75rem;">
+                                    {{ a.categorie or 'Général' }}
+                                </span>
                             </td>
-
-                            <!-- Catégorie -->
-                            <td style="padding: 0.75rem 1rem; color: var(--text-muted); font-size: 0.78rem;">
-                                {{ a.categorie }}
-                            </td>
-
-                            <!-- Coefficient B -->
                             <td style="padding: 0.75rem 1rem; text-align: center;">
-                                <span class="badge" style="background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; font-weight: 700; font-size: 0.85rem;" id="badge-coeff-{{ a.id }}">
+                                <span class="badge" style="background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; font-weight: 700; font-size: 0.85rem;">
                                     B {{ a.coefficient }}
                                 </span>
                             </td>
-
-                            <!-- Prix CNSS / CNOPS -->
-                            <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 700; color: #0284c7;" id="prix-cnss-{{ a.id }}">
+                            <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 700; color: #0284c7;">
                                 {{ "%.2f"|format(a.prix_cnss) }} <small style="font-size: 0.72rem;">DH</small>
                             </td>
-
-                            <!-- Prix Normal / Assurances -->
-                            <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 700; color: #0f766e;" id="prix-normal-{{ a.id }}">
+                            <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 700; color: #0f766e;">
                                 {{ "%.2f"|format(a.prix_normal) }} <small style="font-size: 0.72rem;">DH</small>
                             </td>
-
-                            <!-- Actions -->
                             <td style="padding: 0.75rem 1rem; text-align: right; white-space: nowrap;">
                                 <button type="button"
                                         class="btn btn-secondary btn-sm" 
@@ -190,8 +417,8 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
-                                Aucun acte trouvé pour ces critères.
+                            <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                Aucun acte trouvé.
                             </td>
                         </tr>
                         {% endfor %}
@@ -199,114 +426,101 @@
                 </table>
             </div>
         </div>
-        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem; text-align: right;">
-            Affichage de {{ actes|length }} acte(s) sur les 492 de la nomenclature officielle.
-        </div>
+
     </div>
+
 </div>
 
-<!-- Modal Modification d'un Acte -->
-<div id="modalModifierActe" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
-    <div style="background: white; border-radius: var(--radius); width: 100%; max-width: 500px; padding: 1.5rem; box-shadow: var(--shadow-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">
-                ✏️ Modifier l'Acte <span id="modalEditCode" style="color: var(--primary);"></span>
+<!-- Modal 1 : Modifier un Acte Biologique (Coefficient & Tarifs) -->
+<div id="modalModifierActe" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; width: 100%; max-width: 500px; padding: 1.75rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);" id="modalEditTitre">
+                ✏️ Modifier l'Analyse <span id="modalEditCode" style="color: #0284c7;"></span>
             </h3>
             <button onclick="fermerModalModifierActe()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
 
-        <form id="formModifierActe" onsubmit="sauvegarderActe(event)">
+        <form onsubmit="sauvegarderActe(event)">
             <input type="hidden" id="modalEditId">
 
-            <div style="margin-bottom: 1rem;">
-                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
-                    Désignation de l'Analyse :
-                </label>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Désignation :</label>
                 <input type="text" id="modalEditNom" class="form-control" required>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div>
-                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
-                        Coefficient B * :
-                    </label>
-                    <input type="number" step="0.5" id="modalEditCoeff" class="form-control" required oninput="recalculerTarifsModal()">
-                    <small style="color: var(--text-muted); font-size: 0.72rem;">Ex: 30, 80, 250</small>
-                </div>
-
-                <div>
-                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
-                        Prix CNSS / CNOPS (DH) :
-                    </label>
-                    <input type="number" step="0.01" id="modalEditPrixCNSS" class="form-control" required style="color: #0284c7; font-weight: 700;">
-                    <small style="color: var(--text-muted); font-size: 0.72rem;">Coeff x {{ params.taux_cnss_cnops }}</small>
-                </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Coefficient B :</label>
+                <input type="number" step="0.5" id="modalEditCoeff" class="form-control" required oninput="recalculerTarifsModal()">
             </div>
 
-            <div style="margin-bottom: 1.25rem;">
-                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
-                    Prix Normal / Assurances (DH) :
-                </label>
-                <input type="number" step="0.01" id="modalEditPrixNormal" class="form-control" required style="color: #0f766e; font-weight: 700;">
-                <small style="color: var(--text-muted); font-size: 0.72rem;">Coeff x {{ params.taux_normal_assurance }}</small>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                <div>
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #0284c7;">Tarif CNSS (DH) :</label>
+                    <input type="number" step="0.01" id="modalEditPrixCNSS" class="form-control" required style="font-weight: 700; color: #0284c7;">
+                </div>
+                <div>
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; color: #0f766e;">Tarif Normal (DH) :</label>
+                    <input type="number" step="0.01" id="modalEditPrixNormal" class="form-control" required style="font-weight: 700; color: #0f766e;">
+                </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" onclick="fermerModalModifierActe()" class="btn btn-secondary">Annuler</button>
-                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal Nouvel Acte -->
-<div id="modalNouvelActe" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
-    <div style="background: white; border-radius: var(--radius); width: 100%; max-width: 500px; padding: 1.5rem; box-shadow: var(--shadow-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<!-- Modal 2 : Ajouter un Acte Hors Nomenclature -->
+<div id="modalNouvelActe" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; width: 100%; max-width: 500px; padding: 1.75rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
             <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">
-                ➕ Ajouter un Acte Biologique
+                ➕ Nouvelle Analyse Médicale
             </h3>
             <button onclick="fermerModalNouvelActe()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
 
-        <form id="formNouvelActe" onsubmit="creerNouvelActe(event)">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <form onsubmit="creerNouvelActe(event)">
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
-                        Code Acte * :
-                    </label>
-                    <input type="text" id="newActeCode" placeholder="B600" class="form-control" required>
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Code Acte * :</label>
+                    <input type="text" id="newCode" class="form-control" placeholder="ex: B600" required>
                 </div>
                 <div>
-                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
-                        Catégorie :
-                    </label>
-                    <input type="text" id="newActeCat" placeholder="Biochimie" class="form-control">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Catégorie :</label>
+                    <select id="newCat" class="form-control">
+                        <option value="Biochimie">Biochimie</option>
+                        <option value="Hématologie">Hématologie</option>
+                        <option value="Immunologie">Immunologie</option>
+                        <option value="Bactériologie">Bactériologie</option>
+                        <option value="Hormonologie">Hormonologie</option>
+                        <option value="Sérologie">Sérologie</option>
+                        <option value="Autre">Autre spécialité</option>
+                    </select>
                 </div>
             </div>
 
-            <div style="margin-bottom: 1rem;">
-                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
-                    Désignation de l'Analyse * :
-                </label>
-                <input type="text" id="newActeNom" placeholder="Calprotectine Fécale" class="form-control" required>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Désignation complète de l'analyse * :</label>
+                <input type="text" id="newNom" class="form-control" placeholder="ex: Dosage de la Vitamine D3" required>
             </div>
 
-            <div style="margin-bottom: 1.25rem;">
-                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
-                    Coefficient B * :
-                </label>
-                <input type="number" step="0.5" id="newActeCoeff" placeholder="150" class="form-control" required>
-                <small style="color: var(--text-muted); font-size: 0.72rem;">Les prix CNSS et Normal seront calculés automatiquement.</small>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="font-weight: 600; font-size: 0.85rem;">Coefficient B * :</label>
+                <input type="number" step="0.5" id="newCoeff" value="50" class="form-control" required>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <button type="button" onclick="fermerModalNouvelActe()" class="btn btn-secondary">Annuler</button>
-                <button type="submit" class="btn btn-primary">Créer l'acte</button>
+                <button type="submit" class="btn btn-primary">Créer l'analyse</button>
             </div>
         </form>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -314,6 +528,212 @@
 const TAUX_CNSS = {{ params.taux_cnss_cnops }};
 const TAUX_NORMAL = {{ params.taux_normal_assurance }};
 
+// --- GESTION DES ONGLETS ---
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-muted)';
+        btn.style.borderBottom = 'none';
+    });
+
+    const activePane = document.getElementById('tab-content-' + tabId);
+    const activeBtn = document.getElementById('tab-btn-' + tabId);
+    if (activePane) activePane.style.display = 'block';
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.style.background = '#e0f2fe';
+        activeBtn.style.color = '#0284c7';
+    }
+}
+
+// Initialiser styles des boutons d'onglets
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.classList.contains('active')) {
+            btn.style.background = '#e0f2fe';
+            btn.style.color = '#0284c7';
+        } else {
+            btn.style.background = 'transparent';
+            btn.style.color = 'var(--text-muted)';
+        }
+    });
+});
+
+// --- SAUVEGARDE IDENTITÉ DU LABORATOIRE ---
+async function sauvegarderIdentite(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-identite');
+    btn.disabled = true;
+    btn.innerText = 'Enregistrement...';
+
+    const payload = {
+        nom_laboratoire: document.getElementById('identite_nom').value.trim(),
+        sous_titre: document.getElementById('identite_sous_titre').value.trim(),
+        directeur: document.getElementById('identite_directeur').value.trim(),
+        agrement: document.getElementById('identite_agrement').value.trim(),
+        adresse: document.getElementById('identite_adresse').value.trim(),
+        telephone: document.getElementById('identite_tel').value.trim(),
+        email: document.getElementById('identite_email').value.trim(),
+        site_web: document.getElementById('identite_site').value.trim(),
+        titre_rapport: document.getElementById('identite_titre_rapport').value.trim()
+    };
+
+    try {
+        const resp = await fetch('/api/billing/parametres', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (resp.ok) {
+            alert('✓ Identité du laboratoire enregistrée avec succès !');
+            window.location.reload();
+        } else {
+            const err = await resp.json();
+            alert('Erreur: ' + (err.detail || 'Impossible d\'enregistrer'));
+        }
+    } catch (err) {
+        alert('Erreur réseau lors de la sauvegarde.');
+    } finally {
+        btn.disabled = false;
+        btn.innerText = '💾 Enregistrer l\'Identité du Laboratoire';
+    }
+}
+
+// --- SAUVEGARDE FISCALITÉ ---
+async function sauvegarderFiscalite(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-fiscal');
+    btn.disabled = true;
+
+    const payload = {
+        ice: document.getElementById('fiscal_ice').value.trim(),
+        identifiant_fiscal: document.getElementById('fiscal_if').value.trim(),
+        patente: document.getElementById('fiscal_patente').value.trim(),
+        cnss_affiliation: document.getElementById('fiscal_cnss').value.trim(),
+        tva_applicable: parseFloat(document.getElementById('fiscal_tva').value) || 0.0,
+        mentions_legales: document.getElementById('fiscal_mentions').value.trim()
+    };
+
+    try {
+        const resp = await fetch('/api/billing/parametres', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (resp.ok) {
+            alert('✓ Identifiants fiscaux enregistrés avec succès !');
+        } else {
+            const err = await resp.json();
+            alert('Erreur: ' + (err.detail || 'Impossible d\'enregistrer'));
+        }
+    } catch (err) {
+        alert('Erreur réseau lors de la sauvegarde.');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+// --- TOGGLE AUTO SIGNER ---
+async function toggleAutoSigner(checked) {
+    const label = document.getElementById('label-auto-signer-state');
+    label.innerText = checked ? 'ACTIVÉ' : 'DÉSACTIVÉ';
+    label.style.color = checked ? '#166534' : '#64748b';
+
+    try {
+        await fetch('/api/billing/parametres', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ auto_signer_validation: checked })
+        });
+    } catch (e) {
+        console.error('Erreur mise à jour auto-signer:', e);
+    }
+}
+
+// --- TÉLÉVERSEMENT LOGO, CACHET, SIGNATURE ---
+async function uploadMedia(type, input) {
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const statusEl = document.getElementById('status-' + type);
+    const previewEl = document.getElementById('preview-' + type);
+
+    try {
+        const resp = await fetch(`/api/billing/parametres/upload/${type}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (resp.ok) {
+            const data = await resp.json();
+            const newUrl = (type === 'logo' ? data.logo_path : (type === 'cachet' ? data.cachet_path : data.signature_path)) + '?t=' + Date.now();
+            previewEl.src = newUrl;
+            statusEl.style.display = 'block';
+            setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+        } else {
+            const err = await resp.json();
+            alert('Erreur de téléversement : ' + (err.detail || 'Fichier non supporté'));
+        }
+    } catch (e) {
+        alert('Erreur réseau lors de l\'envoi du fichier.');
+    }
+}
+
+// --- MULTIPLICATEURS GLOBAUX & RECALCUL ---
+async function sauvegarderParamsGlobaux(e) {
+    e.preventDefault();
+    const tCnss = parseFloat(document.getElementById('inputTauxCNSS').value);
+    const tNormal = parseFloat(document.getElementById('inputTauxNormal').value);
+
+    const recal = confirm("Souhaitez-vous recalculer automatiquement les tarifs par défaut de tous les 492 actes avec ces nouveaux taux ?");
+
+    try {
+        const resp = await fetch('/api/billing/parametres', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                taux_cnss_cnops: tCnss,
+                taux_normal_assurance: tNormal,
+                recalculer_prix_actes: recal
+            })
+        });
+
+        if (resp.ok) {
+            alert('✓ Multiplicateurs tarifaires enregistrés avec succès !');
+            window.location.reload();
+        } else {
+            alert('Erreur lors de la mise à jour des paramètres');
+        }
+    } catch (e) {
+        alert('Erreur réseau');
+    }
+}
+
+// --- RECHERCHE ET FILTRAGE DES 492 ACTES ---
+function filtrerActesEnDirect() {
+    const query = document.getElementById('rechercheActe').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('.ligne-acte');
+    rows.forEach(r => {
+        const code = r.getAttribute('data-code').toLowerCase();
+        const nom = r.getAttribute('data-nom');
+        if (code.includes(query) || nom.includes(query)) {
+            r.style.display = '';
+        } else {
+            r.style.display = 'none';
+        }
+    });
+}
+
+function filtrerParCategorie(cat) {
+    window.location.href = `/parametres?tab=tarifs&categorie=${encodeURIComponent(cat)}`;
+}
+
+// --- MODAL MODIFIER ACTE ---
 function ouvrirModalModifierActeBtn(btn) {
     const id = btn.getAttribute('data-id');
     const code = btn.getAttribute('data-code');
@@ -376,39 +796,7 @@ async function sauvegarderActe(e) {
     }
 }
 
-async function sauvegarderParamsGlobaux(e) {
-    e.preventDefault();
-    const tCnss = parseFloat(document.getElementById('inputTauxCNSS').value);
-    const tNormal = parseFloat(document.getElementById('inputTauxNormal').value);
-    const ice = document.getElementById('inputICE').value.trim();
-    const iff = document.getElementById('inputIF').value.trim();
-
-    const recal = confirm("Souhaitez-vous recalculer les tarifs par défaut des 492 actes avec ces nouveaux multiplicateurs ?");
-
-    try {
-        const resp = await fetch('/api/billing/parametres', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                taux_cnss_cnops: tCnss,
-                taux_normal_assurance: tNormal,
-                ice: ice,
-                identifiant_fiscal: iff,
-                recalculer_prix_actes: recal
-            })
-        });
-
-        if (resp.ok) {
-            alert('Paramètres tarifaires enregistrés avec succès !');
-            window.location.reload();
-        } else {
-            alert('Erreur lors de la mise à jour des paramètres');
-        }
-    } catch (e) {
-        alert('Erreur réseau');
-    }
-}
-
+// --- MODAL NOUVEL ACTE ---
 function ouvrirModalNouvelActe() {
     document.getElementById('modalNouvelActe').style.display = 'flex';
 }
@@ -419,10 +807,10 @@ function fermerModalNouvelActe() {
 
 async function creerNouvelActe(e) {
     e.preventDefault();
-    const code = document.getElementById('newActeCode').value.trim();
-    const nom = document.getElementById('newActeNom').value.trim();
-    const cat = document.getElementById('newActeCat').value.trim();
-    const coeff = parseFloat(document.getElementById('newActeCoeff').value);
+    const code = document.getElementById('newCode').value.trim().toUpperCase();
+    const nom = document.getElementById('newNom').value.trim();
+    const cat = document.getElementById('newCat').value;
+    const coeff = parseFloat(document.getElementById('newCoeff').value) || 30;
 
     try {
         const resp = await fetch('/api/billing/actes', {
@@ -431,17 +819,18 @@ async function creerNouvelActe(e) {
             body: JSON.stringify({
                 code: code,
                 nom: nom,
-                categorie: cat || 'Biochimie',
+                categorie: cat,
                 coefficient: coeff
             })
         });
 
         if (resp.ok) {
+            alert(`✓ Analyse ${code} créée avec succès !`);
             fermerModalNouvelActe();
             window.location.reload();
         } else {
             const err = await resp.json();
-            alert('Erreur: ' + (err.detail || 'Impossible d\'ajouter l\'acte'));
+            alert('Erreur: ' + (err.detail || 'Impossible de créer'));
         }
     } catch (e) {
         alert('Erreur réseau');

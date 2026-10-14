@@ -11,11 +11,17 @@
     <div class="app-container">
         <!-- Barre latérale / Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo-icon">GL</div>
+            <div class="sidebar-header" style="display: flex; align-items: center; gap: 0.75rem; padding: 1.15rem 1rem;">
+                <div style="background: white; border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <img src="{{ labo_logo|default('/uploads/branding/logo.svg') }}" alt="Logo" style="height: 32px; width: auto; max-width: 90px; object-fit: contain;" onerror="this.style.display='none'">
+                </div>
                 <div class="sidebar-title">
-                    <h1>GhalimLab LIMS</h1>
-                    <span>Biologie Médicale</span>
+                    <h1 style="font-size: 0.95rem; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;" title="{{ labo_nom }}">
+                        {{ labo_nom|default('GhalimLab') }}
+                    </h1>
+                    <span style="font-size: 0.7rem; color: #94a3b8; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;">
+                        {{ labo_directeur|default('Biologie Médicale') }}
+                    </span>
                 </div>
             </div>
 
@@ -47,14 +53,14 @@
                     <span>Supervision ASTM (Port {{ astm_port|default(5000) }})</span>
                 </a>
 
-                <div class="nav-section-title">Comptabilité & Tarifs</div>
+                <div class="nav-section-title">Comptabilité & Configuration</div>
                 <a href="/facturation" class="nav-item {% if '/facturation' in request.url.path %}active{% endif %}">
                     <span class="icon">💰</span>
                     <span>Facturation & Encaissements</span>
                 </a>
-                <a href="/parametres-tarifs" class="nav-item {% if '/parametres-tarifs' in request.url.path %}active{% endif %}">
+                <a href="/parametres" class="nav-item {% if '/parametres' in request.url.path %}active{% endif %}">
                     <span class="icon">⚙️</span>
-                    <span>Nomenclature & Tarifs (492)</span>
+                    <span>Paramètres du Laboratoire</span>
                 </a>
 
 

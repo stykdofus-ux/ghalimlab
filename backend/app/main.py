@@ -34,8 +34,10 @@ from backend.app.routes.billing import router as billing_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from backend.app.database import ensure_db_schema_up_to_date
     # Initialisation des tables de base de données
     Base.metadata.create_all(bind=engine)
+    ensure_db_schema_up_to_date(engine)
     # Peuplement du catalogue et des données de démo
     db = SessionLocal()
     try:
@@ -52,19 +54,40 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Montage des fichiers statiques et templates
+# Montage des fichiers statiques, médias téléversés et templates
 static_path = BASE_DIR / "frontend" / "static"
+uploads_path = BASE_DIR / "uploads"
 templates_path = BASE_DIR / "frontend" / "templates"
 
+os.makedirs(uploads_path, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
+app.mount("/uploads", StaticFiles(directory=str(uploads_path)), name="uploads")
 templates = Jinja2Templates(directory=str(templates_path))
 
 
 def render_page(request: Request, template_name: str, context: dict = None):
-    """Encapsule TemplateResponse en garantissant la compatibilité avec Starlette récente."""
+    """Encapsule TemplateResponse en garantissant la compatibilité et l'injection dynamique des paramètres du laboratoire."""
     ctx = context or {}
-    ctx.setdefault("labo_nom", LABO_NOM)
-    ctx.setdefault("labo_directeur", LABO_DIRECTEUR)
+    try:
+        from backend.app.services.billing_service import get_or_create_tarification_params
+        _db = SessionLocal()
+        _params = get_or_create_tarification_params(_db)
+        _db.close()
+        ctx.setdefault("labo_nom", _params.nom_laboratoire or LABO_NOM)
+        ctx.setdefault("labo_directeur", _params.directeur or LABO_DIRECTEUR)
+        ctx.setdefault("labo_adresse", _params.adresse or LABO_ADRESSE)
+        ctx.setdefault("labo_tel", _params.telephone or LABO_TEL)
+        ctx.setdefault("labo_email", _params.email or LABO_EMAIL)
+        ctx.setdefault("labo_logo", _params.logo_path or "/uploads/branding/logo.svg")
+        ctx.setdefault("lab_params", _params)
+    except Exception:
+        ctx.setdefault("labo_nom", LABO_NOM)
+        ctx.setdefault("labo_directeur", LABO_DIRECTEUR)
+        ctx.setdefault("labo_adresse", LABO_ADRESSE)
+        ctx.setdefault("labo_tel", LABO_TEL)
+        ctx.setdefault("labo_email", LABO_EMAIL)
+        ctx.setdefault("labo_logo", "/uploads/branding/logo.svg")
+
     ctx.setdefault("astm_port", ASTM_PORT)
     return templates.TemplateResponse(request=request, name=template_name, context=ctx)
 
@@ -350,18 +373,24 @@ def page_facturation(
     })
 
 
+@app.get("/parametres", response_class=HTMLResponse)
 @app.get("/parametres-tarifs", response_class=HTMLResponse)
-def page_parametres_tarifs(
+def page_parametres_laboratoire(
     request: Request,
+    tab: str = "identite",
     categorie: str = "Toutes",
     search: str = "",
     db: Session = Depends(get_db)
 ):
-    """Page de configuration des tarifs et nomenclature des 492 actes de biologie médicale."""
+    """Page complète de paramétrage du laboratoire : identité, mentions légales, branding & nomenclature."""
     from backend.app.models.billing import ActeBiologique, ParametreTarification
     from backend.app.services.billing_service import get_or_create_tarification_params
 
     params = get_or_create_tarification_params(db)
+
+    # Si l'URL demandée est /parametres-tarifs sans onglet précisé, ouvrir directement l'onglet nomenclature
+    if request.url.path == "/parametres-tarifs" and tab == "identite":
+        tab = "tarifs"
 
     query = db.query(ActeBiologique).filter(ActeBiologique.actif == True)
 
@@ -373,13 +402,12 @@ def page_parametres_tarifs(
         query = query.filter((ActeBiologique.code.ilike(s)) | (ActeBiologique.nom.ilike(s)))
 
     actes = query.order_by(ActeBiologique.code.asc()).all()
-
-    # Catégories distinctes existantes
     categories = [r[0] for r in db.query(ActeBiologique.categorie).distinct().all() if r[0]]
 
     return render_page(request, "billing_settings.html", {
         "actes": actes,
         "params": params,
+        "tab_actif": tab,
         "categories": categories,
         "categorie_actif": categorie,
         "search_term": search,

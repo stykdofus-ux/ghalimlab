@@ -62,8 +62,18 @@ class ParametreTarification(Base):
     tva_applicable = Column(Float, default=0.0, doc="Taux de TVA (%) si applicable (0% pour actes médicaux exonérés)")
     frais_prelevement = Column(Float, default=0.0, doc="Frais de prélèvement à domicile ou acte spécifique")
     
-    # Mentions légales sur les factures et reçus
+    # Identité & Coordonnées du Laboratoire
     nom_laboratoire = Column(String(150), default="Laboratoire d'Analyses Médicales GhalimLab")
+    sous_titre = Column(String(200), default="Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie")
+    directeur = Column(String(150), default="Dr. M. GHALIM - Biologiste Médical Diplômé d'État")
+    adresse = Column(String(255), default="124 Avenue Hassan II, Casablanca, Maroc")
+    telephone = Column(String(50), default="+212 5 22 45 67 89")
+    email = Column(String(100), default="contact@ghalimlab.ma")
+    site_web = Column(String(100), default="www.ghalimlab.ma")
+    agrement = Column(String(100), default="Agrément Ministère de la Santé N° 8492/BM")
+    titre_rapport = Column(String(150), default="COMPTE-RENDU D'ANALYSES BIOMÉDICALES")
+
+    # Identifiants Fiscaux & Mentions légales sur factures et rapports
     ice = Column(String(50), default="002847192000045", doc="Identifiant Commun de l'Entreprise")
     identifiant_fiscal = Column(String(50), default="40291823")
     patente = Column(String(50), default="32194850")
@@ -72,6 +82,13 @@ class ParametreTarification(Base):
         Text,
         default="Laboratoire d'analyses médicales conventionné avec la CNSS, la CNOPS et les compagnies d'assurances privées. Facture établie conformément aux tarifs réglementaires."
     )
+
+    # Identité Visuelle & Signature Électronique
+    logo_path = Column(String(255), default="/uploads/branding/logo.svg", doc="Chemin relatif ou URL du logo SVG/PNG")
+    cachet_path = Column(String(255), default="/uploads/branding/cachet.png", doc="Chemin relatif ou URL du cachet officiel PNG")
+    signature_path = Column(String(255), default="/uploads/branding/signature.png", doc="Chemin relatif ou URL de la signature électronique PNG")
+    auto_signer_validation = Column(Boolean, default=True, doc="Activer l'apposition automatique de la signature et du cachet lors de la validation")
+
     date_modification = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
 

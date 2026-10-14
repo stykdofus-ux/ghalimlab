@@ -4,10 +4,14 @@ Gestion des 492 actes officiels, coefficients B, tarifs CNSS/CNOPS (x 1.10) et N
 """
 
 import datetime
+import os
+import shutil
+from pathlib import Path
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, UploadFile, File, status
 from sqlalchemy.orm import Session
 
+from backend.app.config import BASE_DIR
 from backend.app.database import get_db
 from backend.app.models.billing import ActeBiologique, ParametreTarification, Facture, FactureLigne
 from backend.app.models.core import Demande, Patient
@@ -26,14 +30,17 @@ from backend.app.services.pdf_service import generate_invoice_pdf
 
 router = APIRouter(prefix="/api/billing", tags=["Facturation & Tarification"])
 
+BRANDING_DIR = BASE_DIR / "uploads" / "branding"
+os.makedirs(BRANDING_DIR, exist_ok=True)
+
 
 # ==============================================================================
-# 1. PARAMÈTRES GLOBAUX DE TARIFICATION
+# 1. PARAMÈTRES GLOBAUX DU LABORATOIRE & TARIFICATION
 # ==============================================================================
 
 @router.get("/parametres", response_model=ParametresTarificationResponse)
 def get_parametres_tarification(db: Session = Depends(get_db)):
-    """Retourne la configuration globale de tarification du laboratoire."""
+    """Retourne la configuration globale et l'identité du laboratoire."""
     return get_or_create_tarification_params(db)
 
 
@@ -41,8 +48,8 @@ def get_parametres_tarification(db: Session = Depends(get_db)):
 @router.put("/parametres", response_model=ParametresTarificationResponse)
 def update_parametres_tarification(payload: ParametresTarificationUpdate, db: Session = Depends(get_db)):
     """
-    Met à jour les paramètres de tarification (Taux CNSS/CNOPS, Taux Normal, coordonnées fiscales).
-    Si recalculer_prix_actes est True, recalcule les prix par défaut de tous les 492 actes.
+    Met à jour les paramètres généraux (nom, directeur, adresse, ICE, IF, auto-signature, taux CNSS/Normal).
+    Si recalculer_prix_actes est True, recalcule les prix par défaut des 492 actes.
     """
     params = get_or_create_tarification_params(db)
 
@@ -60,6 +67,60 @@ def update_parametres_tarification(payload: ParametresTarificationUpdate, db: Se
     # Recalcul massif des prix si demandé ou si les multiplicateurs ont changé
     if payload.recalculer_prix_actes or (payload.taux_cnss_cnops and payload.taux_cnss_cnops != old_cnss) or (payload.taux_normal_assurance and payload.taux_normal_assurance != old_normal):
         recalculate_all_actes_prices(db, params.taux_cnss_cnops, params.taux_normal_assurance)
+
+    return params
+
+
+@router.post("/parametres/upload/{media_type}", response_model=ParametresTarificationResponse)
+async def upload_branding_media(
+    media_type: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Téléverse et configure un élément d'identité visuelle du laboratoire :
+    - 'logo' : Logo officiel (SVG, PNG, JPG)
+    - 'cachet' : Cachet officiel du laboratoire (PNG transparent recommandé)
+    - 'signature' : Signature manuscrite électronique du biologiste (PNG transparent recommandé)
+    """
+    media_type = media_type.strip().lower()
+    if media_type not in ["logo", "cachet", "signature"]:
+        raise HTTPException(status_code=400, detail="Type de média invalide. Choisissez parmi: logo, cachet, signature.")
+
+    filename = file.filename or "media"
+    ext = os.path.splitext(filename)[1].lower()
+    allowed_exts = [".png", ".jpg", ".jpeg", ".webp"]
+    if media_type == "logo":
+        allowed_exts.append(".svg")
+
+    if ext not in allowed_exts:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Format de fichier non autorisé ({ext}). Formats acceptés : {', '.join(allowed_exts)}"
+        )
+
+    # Nom de fichier sécurisé et déterministe
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    dest_filename = f"{media_type}_{timestamp}{ext}"
+    dest_path = BRANDING_DIR / dest_filename
+
+    # Sauvegarder le fichier
+    with open(dest_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    rel_url = f"/uploads/branding/{dest_filename}"
+    params = get_or_create_tarification_params(db)
+
+    if media_type == "logo":
+        params.logo_path = rel_url
+    elif media_type == "cachet":
+        params.cachet_path = rel_url
+    elif media_type == "signature":
+        params.signature_path = rel_url
+
+    params.date_modification = datetime.datetime.now()
+    db.commit()
+    db.refresh(params)
 
     return params
 

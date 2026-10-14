@@ -13,17 +13,78 @@ from reportlab.platypus import (
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+from pathlib import Path
 
 from backend.app.config import (
-    LABO_NOM, LABO_SOUS_TITRE, LABO_ADRESSE, LABO_TEL, LABO_EMAIL, LABO_DIRECTEUR, LABO_AGREMENT
+    BASE_DIR, LABO_NOM, LABO_SOUS_TITRE, LABO_ADRESSE, LABO_TEL, LABO_EMAIL, LABO_DIRECTEUR, LABO_AGREMENT
 )
+from backend.app.database import SessionLocal
 from backend.app.models.core import Demande
+
+
+def _get_image_flowable(rel_or_abs_path: str, max_w_pt: float, max_h_pt: float):
+    """Charge un logo ou média (SVG ou image matricielle) sous forme de Flowable ReportLab."""
+    if not rel_or_abs_path:
+        return None
+    try:
+        p_str = rel_or_abs_path.strip()
+        if p_str.startswith("/uploads/"):
+            abs_path = BASE_DIR / p_str.lstrip("/")
+        elif p_str.startswith("/static/"):
+            abs_path = BASE_DIR / "frontend" / p_str.lstrip("/")
+        else:
+            abs_path = Path(p_str)
+            if not abs_path.is_absolute():
+                abs_path = BASE_DIR / p_str
+
+        if not abs_path.exists():
+            return None
+
+        ext = abs_path.suffix.lower()
+        if ext == ".svg":
+            try:
+                from svglib.svglib import svg2rlg
+                drawing = svg2rlg(str(abs_path))
+                if drawing and drawing.width > 0 and drawing.height > 0:
+                    scale = min(max_w_pt / drawing.width, max_h_pt / drawing.height)
+                    drawing.scale(scale, scale)
+                    drawing.width = drawing.width * scale
+                    drawing.height = drawing.height * scale
+                    return drawing
+            except Exception:
+                pass
+        elif ext in [".png", ".jpg", ".jpeg", ".webp"]:
+            try:
+                from PIL import Image as PILImage
+                with PILImage.open(str(abs_path)) as img:
+                    img.verify()
+                from reportlab.platypus import Image as RLImage
+                return RLImage(str(abs_path), width=max_w_pt, height=max_h_pt)
+            except Exception:
+                return None
+    except Exception:
+        pass
+    return None
 
 
 def generate_medical_report_pdf(demande: Demande) -> bytes:
     """
     Génère le compte-rendu d'analyses officiel en PDF pour la demande passée en paramètre.
     """
+    from backend.app.services.billing_service import get_or_create_tarification_params
+    db_param = SessionLocal()
+    params = get_or_create_tarification_params(db_param)
+    db_param.close()
+
+    labo_nom = params.nom_laboratoire or LABO_NOM
+    labo_sub = params.sous_titre or LABO_SOUS_TITRE
+    labo_adresse = params.adresse or LABO_ADRESSE
+    labo_tel = params.telephone or LABO_TEL
+    labo_email = params.email or LABO_EMAIL
+    labo_directeur = params.directeur or LABO_DIRECTEUR
+    labo_agrement = params.agrement or LABO_AGREMENT
+    titre_rapport = params.titre_rapport or "COMPTE-RENDU D'ANALYSES DE BIOLOGIE MÉDICALE"
+
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -120,21 +181,43 @@ def generate_medical_report_pdf(demande: Demande) -> bytes:
     story = []
 
     # 1. En-tête du Laboratoire
+    logo_flowable = _get_image_flowable(params.logo_path, 3.8 * cm, 1.4 * cm)
+    if logo_flowable:
+        lab_text_cell = [
+            Paragraph(f"<b>{labo_nom.upper()}</b>", style_labo_title),
+            Paragraph(labo_sub, style_labo_sub),
+            Paragraph(f"{labo_adresse} • Tél: {labo_tel}", style_labo_sub),
+            Paragraph(f"{labo_directeur} • {labo_agrement}", style_labo_sub)
+        ]
+        t_left = Table([[logo_flowable, lab_text_cell]], colWidths=[4.0 * cm, 7.5 * cm])
+        t_left.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('PADDING', (0, 0), (-1, -1), 0),
+        ]))
+        left_header_item = t_left
+    else:
+        left_header_item = [
+            Paragraph(f"<b>{labo_nom}</b>", style_labo_title),
+            Paragraph(f"{labo_sub}<br/>{labo_adresse} | Tél: {labo_tel}<br/>{labo_directeur} | {labo_agrement}", style_labo_sub)
+        ]
+
     header_data = [
         [
-            Paragraph(f"<b>{LABO_NOM}</b>", style_labo_title),
-            Paragraph(f"<b>Dossier N° :</b> {demande.code_barres}<br/><b>Date :</b> {demande.date_reception.strftime('%d/%m/%Y %H:%M')}", ParagraphStyle('RightH', parent=style_normal, alignment=TA_RIGHT))
-        ],
-        [
-            Paragraph(f"{LABO_SOUS_TITRE}<br/>{LABO_ADRESSE} | Tél: {LABO_TEL}<br/>{LABO_DIRECTEUR} | {LABO_AGREMENT}", style_labo_sub),
-            Paragraph(f"<b>Statut :</b> {demande.statut.upper()}<br/><b>Édité le :</b> {datetime.datetime.now().strftime('%d/%m/%Y %H:%M')}", ParagraphStyle('RightH2', parent=style_normal, alignment=TA_RIGHT))
+            left_header_item,
+            [
+                Paragraph(f"<b>Dossier N° :</b> {demande.code_barres}<br/><b>Date :</b> {demande.date_reception.strftime('%d/%m/%Y %H:%M')}", ParagraphStyle('RightH', parent=style_normal, alignment=TA_RIGHT)),
+                Spacer(1, 0.15 * cm),
+                Paragraph(f"<b>Statut :</b> {demande.statut.upper()}<br/><b>Édité le :</b> {datetime.datetime.now().strftime('%d/%m/%Y %H:%M')}", ParagraphStyle('RightH2', parent=style_normal, alignment=TA_RIGHT))
+            ]
         ]
     ]
-    t_header = Table(header_data, colWidths=[11 * cm, 7 * cm])
+    t_header = Table(header_data, colWidths=[11.5 * cm, 6.5 * cm])
     t_header.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
         ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
     ]))
     story.append(t_header)
 
@@ -142,7 +225,7 @@ def generate_medical_report_pdf(demande: Demande) -> bytes:
     story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#0284C7'), spaceBefore=2, spaceAfter=8))
 
     # Titre du document
-    story.append(Paragraph("COMPTE-RENDU D'ANALYSES DE BIOLOGIE MÉDICALE", style_report_title))
+    story.append(Paragraph(titre_rapport, style_report_title))
     story.append(Spacer(1, 0.25 * cm))
 
     # 2. Encadré Patient et Prescription
@@ -258,7 +341,6 @@ def generate_medical_report_pdf(demande: Demande) -> bytes:
     # 4. Section Bactériologie si présente
     # Vérifier si un examen bactériologique existe pour cette demande
     # (importé dynamiquement pour éviter les dépendances circulaires)
-    from backend.app.database import SessionLocal
     from backend.app.models.bacteriology import ExamenBacteriologique
     db = SessionLocal()
     bact_exam = db.query(ExamenBacteriologique).filter(ExamenBacteriologique.demande_id == demande.id).first()
@@ -330,28 +412,52 @@ def generate_medical_report_pdf(demande: Demande) -> bytes:
         "Les valeurs hors normes doivent être interprétées en corrélation avec l'état clinique du patient."
     )
 
+    is_valide = (demande.statut == "Validé")
     valid_date_str = demande.date_validation.strftime('%d/%m/%Y à %H:%M') if demande.date_validation else "En cours de validation"
-    valid_par_str = demande.valide_par or LABO_DIRECTEUR
+    valid_par_str = demande.valide_par or labo_directeur
+
+    cachet_flowable = _get_image_flowable(params.cachet_path, 2.2 * cm, 2.2 * cm)
+    sign_flowable = _get_image_flowable(params.signature_path, 3.0 * cm, 1.3 * cm)
+
+    sign_elements = [
+        Paragraph("<b>Validation Biologique</b>", ParagraphStyle('SignTitle', parent=style_normal, alignment=TA_CENTER, fontName='Helvetica-Bold')),
+        Paragraph(f"<font size='7.5'>Validé le : <b>{valid_date_str}</b></font>", ParagraphStyle('SignDate', parent=style_normal, alignment=TA_CENTER)),
+        Paragraph(f"<b>{valid_par_str}</b>", ParagraphStyle('SignDoc', parent=style_normal, alignment=TA_CENTER, fontSize=8, textColor=colors.HexColor('#0F172A')))
+    ]
+
+    if is_valide and (params.auto_signer_validation or cachet_flowable or sign_flowable):
+        stamp_cells = []
+        if cachet_flowable:
+            stamp_cells.append(cachet_flowable)
+        if sign_flowable:
+            stamp_cells.append(sign_flowable)
+        
+        if stamp_cells:
+            t_stamps = Table([stamp_cells], colWidths=[3.0 * cm] * len(stamp_cells))
+            t_stamps.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('PADDING', (0, 0), (-1, -1), 0),
+            ]))
+            sign_elements.append(t_stamps)
+
+        sign_elements.append(Paragraph("<font size='6.5' color='#0284C7'>[DOCUMENT SÉCURISÉ - SIGNATURE & CACHET ÉLECTRONIQUE LIMS]</font>", ParagraphStyle('SignSec', parent=style_normal, alignment=TA_CENTER)))
+    else:
+        sign_elements.append(Spacer(1, 0.3 * cm))
+        sign_elements.append(Paragraph("<i>[Document en attente de validation officielle]</i>", ParagraphStyle('SignWait', parent=style_normal, alignment=TA_CENTER, fontSize=7.5, textColor=colors.HexColor('#DC2626'))))
 
     sign_data = [
         [
             Paragraph(f"<b>Conclusion Biologique :</b><br/>{conclusion_text}", style_normal),
-            Paragraph(
-                f"<b>Validation Biologique</b><br/>"
-                f"Validé le : {valid_date_str}<br/>"
-                f"<b>{valid_par_str}</b><br/>"
-                f"<i>Signature & Cachet Électronique</i><br/>"
-                f"<font size='7' color='#0284C7'>[DOCUMENT SÉCURISÉ CERTIFIÉ LIMS GHALIMLAB]</font>",
-                ParagraphStyle('SignBlock', parent=style_normal, alignment=TA_CENTER)
-            )
+            sign_elements
         ]
     ]
     t_sign = Table(sign_data, colWidths=[11.5 * cm, 6.5 * cm])
     t_sign.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F1F5F9')),
         ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
         ('LEFTPADDING', (0, 0), (-1, -1), 8),
         ('RIGHTPADDING', (0, 0), (-1, -1), 8),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
@@ -469,19 +575,53 @@ def generate_invoice_pdf(facture) -> bytes:
     style_center = ParagraphStyle('CenterInv', parent=style_normal, alignment=TA_CENTER)
     style_center_bold = ParagraphStyle('CenterBoldInv', parent=style_bold, alignment=TA_CENTER)
 
+    from backend.app.services.billing_service import get_or_create_tarification_params
+    db_param = SessionLocal()
+    params = get_or_create_tarification_params(db_param)
+    db_param.close()
+
+    labo_nom = params.nom_laboratoire or LABO_NOM
+    labo_sub = params.sous_titre or LABO_SOUS_TITRE
+    labo_adresse = params.adresse or LABO_ADRESSE
+    labo_tel = params.telephone or LABO_TEL
+    labo_email = params.email or LABO_EMAIL
+    labo_directeur = params.directeur or LABO_DIRECTEUR
+    ice_val = params.ice or "002847192000045"
+    if_val = params.identifiant_fiscal or "40291823"
+    pat_val = params.patente or "32194850"
+    cnss_val = params.cnss_affiliation or "7849201"
+
     story = []
 
     # 1. En-tête du Laboratoire
     p = facture.patient
     demande = facture.demande
 
-    labo_header_left = [
-        Paragraph(f"<b>{LABO_NOM.upper()}</b>", ParagraphStyle('LabName', fontName='Helvetica-Bold', fontSize=13, leading=15, textColor=colors.HexColor('#0F172A'))),
-        Paragraph(LABO_SOUS_TITRE, ParagraphStyle('LabSub', fontName='Helvetica', fontSize=8, leading=10, textColor=colors.HexColor('#0F766E'))),
-        Paragraph(f"{LABO_ADRESSE} • Tél: {LABO_TEL}", style_normal),
-        Paragraph(f"Email: {LABO_EMAIL} • {LABO_DIRECTEUR}", style_normal),
-        Paragraph("<font size='7' color='#64748B'><b>ICE :</b> 002847192000045 | <b>IF :</b> 40291823 | <b>Patente :</b> 32194850 | <b>CNSS :</b> 7849201</font>", style_normal)
-    ]
+    logo_flowable = _get_image_flowable(params.logo_path, 3.8 * cm, 1.4 * cm)
+    fiscal_info_p = Paragraph(f"<font size='7' color='#64748B'><b>ICE :</b> {ice_val} | <b>IF :</b> {if_val} | <b>Patente :</b> {pat_val} | <b>CNSS :</b> {cnss_val}</font>", style_normal)
+
+    if logo_flowable:
+        lab_details = [
+            Paragraph(f"<b>{labo_nom.upper()}</b>", ParagraphStyle('LabName', fontName='Helvetica-Bold', fontSize=12, leading=14, textColor=colors.HexColor('#0F172A'))),
+            Paragraph(labo_sub, ParagraphStyle('LabSub', fontName='Helvetica', fontSize=7.5, leading=9.5, textColor=colors.HexColor('#0F766E'))),
+            Paragraph(f"{labo_adresse} • Tél: {labo_tel}", style_normal),
+            Paragraph(f"Email: {labo_email} • {labo_directeur}", style_normal),
+            fiscal_info_p
+        ]
+        t_left = Table([[logo_flowable, lab_details]], colWidths=[3.8 * cm, 7.7 * cm])
+        t_left.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('PADDING', (0, 0), (-1, -1), 0),
+        ]))
+        labo_header_left = t_left
+    else:
+        labo_header_left = [
+            Paragraph(f"<b>{labo_nom.upper()}</b>", ParagraphStyle('LabName', fontName='Helvetica-Bold', fontSize=13, leading=15, textColor=colors.HexColor('#0F172A'))),
+            Paragraph(labo_sub, ParagraphStyle('LabSub', fontName='Helvetica', fontSize=8, leading=10, textColor=colors.HexColor('#0F766E'))),
+            Paragraph(f"{labo_adresse} • Tél: {labo_tel}", style_normal),
+            Paragraph(f"Email: {labo_email} • {labo_directeur}", style_normal),
+            fiscal_info_p
+        ]
 
     statut_color = '#15803D' if facture.statut_paiement == 'Payé intégralement' else ('#B45309' if 'Avance' in facture.statut_paiement else '#DC2626')
     statut_bg = '#DCFCE7' if facture.statut_paiement == 'Payé intégralement' else ('#FEF3C7' if 'Avance' in facture.statut_paiement else '#FEE2E2')
@@ -643,7 +783,33 @@ def generate_invoice_pdf(facture) -> bytes:
     story.append(KeepTogether([t_recap]))
 
     # 5. Bloc Signature et Cachet
-    story.append(Spacer(1, 0.6 * cm))
+    story.append(Spacer(1, 0.5 * cm))
+    cachet_flowable = _get_image_flowable(params.cachet_path, 2.0 * cm, 2.0 * cm)
+    sign_flowable = _get_image_flowable(params.signature_path, 2.8 * cm, 1.2 * cm)
+
+    sign_box_items = [
+        Paragraph("<b>Cachet et Signature du Laboratoire</b>", ParagraphStyle('SignFTitle', parent=style_center, fontSize=8, fontName='Helvetica-Bold')),
+        Paragraph(f"<font size='7' color='#64748B'>Le {datetime.datetime.now().strftime('%d/%m/%Y')}</font>", ParagraphStyle('SignFDate', parent=style_center, fontSize=7)),
+        Paragraph(f"<b>{labo_directeur}</b>", ParagraphStyle('SignFDir', parent=style_center, fontSize=7.5))
+    ]
+
+    stamp_cells = []
+    if cachet_flowable:
+        stamp_cells.append(cachet_flowable)
+    if sign_flowable:
+        stamp_cells.append(sign_flowable)
+
+    if stamp_cells:
+        t_stamps = Table([stamp_cells], colWidths=[2.8 * cm] * len(stamp_cells))
+        t_stamps.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('PADDING', (0, 0), (-1, -1), 0),
+        ]))
+        sign_box_items.append(t_stamps)
+
+    sign_box_items.append(Paragraph("<font size='6.5' color='#0284C7'>[DOCUMENT COMPTABLE CERTIFIÉ LIMS]</font>", ParagraphStyle('SignFSec', parent=style_center)))
+
     sign_table = Table([
         [
             Paragraph(
@@ -651,20 +817,14 @@ def generate_invoice_pdf(facture) -> bytes:
                 "Les analyses de biologie médicale sont exécutées sous la responsabilité du Biologiste Médical Directeur.</i>",
                 style_normal
             ),
-            Paragraph(
-                f"<b>Cachet et Signature du Laboratoire</b><br/>"
-                f"<font size='7' color='#64748B'>Le {datetime.datetime.now().strftime('%d/%m/%Y')}</font><br/><br/>"
-                f"<b>{LABO_DIRECTEUR}</b><br/>"
-                f"<font size='7' color='#0284C7'>[DOCUMENT COMPTABLE CERTIFIÉ GHALIMLAB]</font>",
-                ParagraphStyle('SignF', parent=style_center, fontSize=8, leading=10)
-            )
+            sign_box_items
         ]
     ], colWidths=[11.5 * cm, 6.5 * cm])
     sign_table.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('BOX', (1, 0), (1, 0), 0.5, colors.HexColor('#CBD5E1')),
         ('BACKGROUND', (1, 0), (1, 0), colors.HexColor('#F8FAFC')),
-        ('PADDING', (1, 0), (1, 0), 8),
+        ('PADDING', (1, 0), (1, 0), 6),
     ]))
     story.append(KeepTogether([sign_table]))
 

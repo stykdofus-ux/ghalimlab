@@ -21,7 +21,7 @@ JSON_ACTES_PATH = BASE_DIR / "backend" / "app" / "services" / "actes_extracted.j
 
 
 def get_or_create_tarification_params(db: Session) -> ParametreTarification:
-    """Retourne les paramètres de tarification uniques du laboratoire ou les initialise."""
+    """Retourne les paramètres de tarification et d'identité du laboratoire ou les initialise."""
     params = db.query(ParametreTarification).first()
     if not params:
         params = ParametreTarification(
@@ -31,15 +31,70 @@ def get_or_create_tarification_params(db: Session) -> ParametreTarification:
             tva_applicable=0.0,
             frais_prelevement=0.0,
             nom_laboratoire="Laboratoire d'Analyses Médicales GhalimLab",
+            sous_titre="Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie",
+            directeur="Dr. M. GHALIM - Biologiste Médical Diplômé d'État",
+            adresse="124 Avenue Hassan II, Casablanca, Maroc",
+            telephone="+212 5 22 45 67 89",
+            email="contact@ghalimlab.ma",
+            site_web="www.ghalimlab.ma",
+            agrement="Agrément Ministère de la Santé N° 8492/BM",
+            titre_rapport="COMPTE-RENDU D'ANALYSES BIOMÉDICALES",
             ice="002847192000045",
             identifiant_fiscal="40291823",
             patente="32194850",
             cnss_affiliation="7849201",
-            mentions_legales="Laboratoire conventionné CNSS / CNOPS et compagnies d'assurances privées. Facture établie selon la nomenclature marocaine des actes de biologie médicale."
+            mentions_legales="Laboratoire conventionné CNSS / CNOPS et compagnies d'assurances privées. Facture établie selon la nomenclature marocaine des actes de biologie médicale.",
+            logo_path="/uploads/branding/logo.svg",
+            cachet_path="/uploads/branding/cachet.png",
+            signature_path="/uploads/branding/signature.png",
+            auto_signer_validation=True
         )
         db.add(params)
         db.commit()
         db.refresh(params)
+    else:
+        # Assurer que les nouveaux champs d'identité et de branding sont initialisés
+        updated = False
+        if not getattr(params, "directeur", None):
+            params.directeur = "Dr. M. GHALIM - Biologiste Médical Diplômé d'État"
+            updated = True
+        if not getattr(params, "sous_titre", None):
+            params.sous_titre = "Biologie Médicale - Hématologie, Biochimie, Bactériologie, Parasitologie"
+            updated = True
+        if not getattr(params, "adresse", None):
+            params.adresse = "124 Avenue Hassan II, Casablanca, Maroc"
+            updated = True
+        if not getattr(params, "telephone", None):
+            params.telephone = "+212 5 22 45 67 89"
+            updated = True
+        if not getattr(params, "email", None):
+            params.email = "contact@ghalimlab.ma"
+            updated = True
+        if not getattr(params, "site_web", None):
+            params.site_web = "www.ghalimlab.ma"
+            updated = True
+        if not getattr(params, "agrement", None):
+            params.agrement = "Agrément Ministère de la Santé N° 8492/BM"
+            updated = True
+        if not getattr(params, "titre_rapport", None):
+            params.titre_rapport = "COMPTE-RENDU D'ANALYSES BIOMÉDICALES"
+            updated = True
+        if not getattr(params, "logo_path", None):
+            params.logo_path = "/uploads/branding/logo.svg"
+            updated = True
+        if not getattr(params, "cachet_path", None):
+            params.cachet_path = "/uploads/branding/cachet.png"
+            updated = True
+        if not getattr(params, "signature_path", None):
+            params.signature_path = "/uploads/branding/signature.png"
+            updated = True
+        if getattr(params, "auto_signer_validation", None) is None:
+            params.auto_signer_validation = True
+            updated = True
+        if updated:
+            db.commit()
+            db.refresh(params)
+
     return params
 
 
