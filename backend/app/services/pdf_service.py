@@ -437,3 +437,240 @@ def generate_tube_labels_pdf(tubes, patient=None) -> bytes:
     buffer.close()
     return pdf_bytes
 
+
+def generate_invoice_pdf(facture) -> bytes:
+    """
+    Génère la facture officielle / reçu d'honoraires d'analyses médicales au format PDF (ReportLab A4).
+    Mise en page clinique haute définition conforme aux règles comptables et conventionnelles (CNSS / CNOPS / Assurances).
+    """
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.units import cm
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, KeepTogether
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=1.5 * cm,
+        leftMargin=1.5 * cm,
+        topMargin=1.2 * cm,
+        bottomMargin=1.5 * cm
+    )
+
+    styles = getSampleStyleSheet()
+
+    style_normal = ParagraphStyle('NormalInv', parent=styles['Normal'], fontName='Helvetica', fontSize=8.5, leading=11, textColor=colors.HexColor('#1E293B'))
+    style_bold = ParagraphStyle('BoldInv', parent=style_normal, fontName='Helvetica-Bold')
+    style_right = ParagraphStyle('RightInv', parent=style_normal, alignment=TA_RIGHT)
+    style_right_bold = ParagraphStyle('RightBoldInv', parent=style_bold, alignment=TA_RIGHT)
+    style_center = ParagraphStyle('CenterInv', parent=style_normal, alignment=TA_CENTER)
+    style_center_bold = ParagraphStyle('CenterBoldInv', parent=style_bold, alignment=TA_CENTER)
+
+    story = []
+
+    # 1. En-tête du Laboratoire
+    p = facture.patient
+    demande = facture.demande
+
+    labo_header_left = [
+        Paragraph(f"<b>{LABO_NOM.upper()}</b>", ParagraphStyle('LabName', fontName='Helvetica-Bold', fontSize=13, leading=15, textColor=colors.HexColor('#0F172A'))),
+        Paragraph(LABO_SOUS_TITRE, ParagraphStyle('LabSub', fontName='Helvetica', fontSize=8, leading=10, textColor=colors.HexColor('#0F766E'))),
+        Paragraph(f"{LABO_ADRESSE} • Tél: {LABO_TEL}", style_normal),
+        Paragraph(f"Email: {LABO_EMAIL} • {LABO_DIRECTEUR}", style_normal),
+        Paragraph("<font size='7' color='#64748B'><b>ICE :</b> 002847192000045 | <b>IF :</b> 40291823 | <b>Patente :</b> 32194850 | <b>CNSS :</b> 7849201</font>", style_normal)
+    ]
+
+    statut_color = '#15803D' if facture.statut_paiement == 'Payé intégralement' else ('#B45309' if 'Avance' in facture.statut_paiement else '#DC2626')
+    statut_bg = '#DCFCE7' if facture.statut_paiement == 'Payé intégralement' else ('#FEF3C7' if 'Avance' in facture.statut_paiement else '#FEE2E2')
+
+    labo_header_right = [
+        Paragraph(f"<b>FACTURE / REÇU D'HONORAIRES</b>", ParagraphStyle('FacTitre', fontName='Helvetica-Bold', fontSize=12, leading=14, alignment=TA_RIGHT, textColor=colors.HexColor('#0284C7'))),
+        Paragraph(f"<b>N° : {facture.numero_facture}</b>", ParagraphStyle('FacNum', fontName='Helvetica-Bold', fontSize=10, leading=13, alignment=TA_RIGHT, textColor=colors.HexColor('#0F172A'))),
+        Paragraph(f"Date : {facture.date_facture.strftime('%d/%m/%Y à %H:%M')}", style_right),
+        Spacer(1, 0.2 * cm),
+        Paragraph(f"<font color='{statut_color}'><b>[ {facture.statut_paiement.upper()} ]</b></font>", ParagraphStyle('FacStatut', fontName='Helvetica-Bold', fontSize=9, alignment=TA_RIGHT))
+    ]
+
+    t_header = Table([[labo_header_left, labo_header_right]], colWidths=[11.5 * cm, 6.5 * cm])
+    t_header.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    story.append(t_header)
+
+    story.append(Spacer(1, 0.35 * cm))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#0284C7'), spaceBefore=2, spaceAfter=8))
+
+    # 2. Encadré Patient & Détails de la Prise en Charge
+    cin_str = p.cin if p else "-"
+    cnss_str = p.numero_securite_sociale or facture.numero_prise_en_charge or "Non renseigné"
+    nom_patient = f"{p.nom.upper()} {p.prenom}" if p else "Patient inconnu"
+    age_sexe = f"{p.age} ans ({p.sexe})" if p and p.age else "-"
+    prescripteur_str = demande.prescripteur if demande and demande.prescripteur else "Dr. Externe"
+    prel_code = demande.code_barres if demande else "-"
+
+    type_pe = facture.type_prise_en_charge or "Normal"
+    taux_str = f"x {facture.taux_applique:.2f} DH" if facture.taux_applique else "x 1.36 DH"
+
+    info_data = [
+        [
+            Paragraph("<b>INFORMATIONS DU PATIENT</b>", ParagraphStyle('SecT', parent=style_bold, textColor=colors.HexColor('#0284C7'), fontSize=9)),
+            Paragraph("<b>COUVERTURE & FACTURATION</b>", ParagraphStyle('SecT2', parent=style_bold, textColor=colors.HexColor('#0284C7'), fontSize=9))
+        ],
+        [
+            Paragraph(f"Nom & Prénom : <b>{nom_patient}</b><br/>CIN / Identifiant : <b>{cin_str}</b><br/>Âge & Sexe : {age_sexe}<br/>N° Sécurité Sociale / CNSS : {cnss_str}", style_normal),
+            Paragraph(f"Prise en charge : <b>{type_pe.upper()}</b> ({taux_str})<br/>Organisme : <b>{facture.organisme_nom or type_pe}</b><br/>Dossier Prélèvement : <b>{prel_code}</b><br/>Prescripteur : {prescripteur_str}", style_normal)
+        ]
+    ]
+    t_info = Table(info_data, colWidths=[9.0 * cm, 9.0 * cm])
+    t_info.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
+        ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    story.append(t_info)
+
+    story.append(Spacer(1, 0.4 * cm))
+
+    # 3. Tableau détaillé des Actes et Analyses
+    rows_actes = [
+        [
+            Paragraph("<b>Code</b>", style_center_bold),
+            Paragraph("<b>Désignation de l'Analyse Médicale</b>", style_bold),
+            Paragraph("<b>Coeff B</b>", style_center_bold),
+            Paragraph("<b>Prix Unit. (DH)</b>", style_right_bold),
+            Paragraph("<b>Qté</b>", style_center_bold),
+            Paragraph("<b>Total (DH)</b>", style_right_bold),
+        ]
+    ]
+
+    for ligne in facture.lignes:
+        rows_actes.append([
+            Paragraph(f"<font color='#0284C7'><b>{ligne.code_acte}</b></font>", style_center),
+            Paragraph(ligne.nom_acte, style_normal),
+            Paragraph(f"B {int(ligne.coefficient) if ligne.coefficient.is_integer() else ligne.coefficient}", style_center),
+            Paragraph(f"{ligne.prix_unitaire:.2f}", style_right),
+            Paragraph(str(ligne.quantite), style_center),
+            Paragraph(f"<b>{ligne.total_ligne:.2f}</b>", style_right_bold),
+        ])
+
+    t_actes = Table(rows_actes, colWidths=[2.2 * cm, 8.8 * cm, 2.0 * cm, 2.4 * cm, 1.2 * cm, 2.4 * cm])
+    t_actes.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#F1F5F9')),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.2, colors.HexColor('#0284C7')),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#FAFAFA')]),
+    ]))
+    story.append(t_actes)
+
+    story.append(Spacer(1, 0.4 * cm))
+
+    # 4. Bloc Récapitulatif Financier
+    tot_b_str = f"B {int(facture.total_b) if facture.total_b.is_integer() else facture.total_b:.1f}"
+
+    recap_rows = [
+        [
+            Paragraph(f"<b>Total Cotation : {tot_b_str}</b><br/><font size='7.5' color='#64748B'>Exonération de TVA conformément à l'article 91-I-A-1° du CGI.</font>", style_normal),
+            Paragraph("Total Brut :", style_right),
+            Paragraph(f"<b>{facture.montant_brut:.2f} DH</b>", style_right_bold)
+        ]
+    ]
+
+    if facture.remise_montant and facture.remise_montant > 0:
+        recap_rows.append([
+            "",
+            Paragraph(f"Remise ({facture.remise_pourcent:g}%) :", style_right),
+            Paragraph(f"-{facture.remise_montant:.2f} DH", ParagraphStyle('Remise', parent=style_right, textColor=colors.HexColor('#DC2626')))
+        ])
+
+    recap_rows.append([
+        Paragraph(f"Mode de règlement : <b>{facture.mode_paiement}</b>" + (f" (Réf: {facture.reference_paiement})" if facture.reference_paiement else ""), style_normal),
+        Paragraph("<b>NET À PAYER :</b>", ParagraphStyle('NetL', parent=style_right_bold, fontSize=10, textColor=colors.HexColor('#0F172A'))),
+        Paragraph(f"<b>{facture.montant_net:.2f} DH</b>", ParagraphStyle('NetV', parent=style_right_bold, fontSize=10, textColor=colors.HexColor('#0284C7')))
+    ])
+
+    if facture.part_organisme and facture.part_organisme > 0:
+        recap_rows.append([
+            Paragraph("<font color='#0F766E'>Prise en charge par Tiers-Payant Organisme</font>", style_normal),
+            Paragraph("Part Organisme (CNSS/Assur.) :", style_right),
+            Paragraph(f"<b>{facture.part_organisme:.2f} DH</b>", style_right_bold)
+        ])
+        recap_rows.append([
+            "",
+            Paragraph("Ticket Modérateur Patient :", style_right),
+            Paragraph(f"<b>{facture.part_patient:.2f} DH</b>", style_right_bold)
+        ])
+
+    recap_rows.append([
+        "",
+        Paragraph("Montant Encaissé :", style_right),
+        Paragraph(f"<b>{facture.montant_paye:.2f} DH</b>", ParagraphStyle('PayeV', parent=style_right_bold, textColor=colors.HexColor('#15803D')))
+    ])
+
+    color_reste = colors.HexColor('#15803D') if facture.reste_a_payer <= 0 else colors.HexColor('#DC2626')
+    recap_rows.append([
+        "",
+        Paragraph("<b>SOLDE RESTANT :</b>", ParagraphStyle('SoldeL', parent=style_right_bold, textColor=color_reste)),
+        Paragraph(f"<b>{facture.reste_a_payer:.2f} DH</b>", ParagraphStyle('SoldeV', parent=style_right_bold, fontSize=9.5, textColor=color_reste))
+    ])
+
+    t_recap = Table(recap_rows, colWidths=[9.0 * cm, 5.5 * cm, 4.5 * cm])
+    t_recap.setStyle(TableStyle([
+        ('BOX', (1, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
+        ('BACKGROUND', (1, 0), (-1, -1), colors.HexColor('#F8FAFC')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('LINEBELOW', (1, -3), (-1, -3), 0.5, colors.HexColor('#CBD5E1')),
+    ]))
+    story.append(KeepTogether([t_recap]))
+
+    # 5. Bloc Signature et Cachet
+    story.append(Spacer(1, 0.6 * cm))
+    sign_table = Table([
+        [
+            Paragraph(
+                "<i>Reçu délivré pour valoir ce que de droit.<br/>"
+                "Les analyses de biologie médicale sont exécutées sous la responsabilité du Biologiste Médical Directeur.</i>",
+                style_normal
+            ),
+            Paragraph(
+                f"<b>Cachet et Signature du Laboratoire</b><br/>"
+                f"<font size='7' color='#64748B'>Le {datetime.datetime.now().strftime('%d/%m/%Y')}</font><br/><br/>"
+                f"<b>{LABO_DIRECTEUR}</b><br/>"
+                f"<font size='7' color='#0284C7'>[DOCUMENT COMPTABLE CERTIFIÉ GHALIMLAB]</font>",
+                ParagraphStyle('SignF', parent=style_center, fontSize=8, leading=10)
+            )
+        ]
+    ], colWidths=[11.5 * cm, 6.5 * cm])
+    sign_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BOX', (1, 0), (1, 0), 0.5, colors.HexColor('#CBD5E1')),
+        ('BACKGROUND', (1, 0), (1, 0), colors.HexColor('#F8FAFC')),
+        ('PADDING', (1, 0), (1, 0), 8),
+    ]))
+    story.append(KeepTogether([sign_table]))
+
+    doc.build(story)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes
+
+

@@ -1,0 +1,3446 @@
+[
+  {
+    "code": "B100",
+    "nom": "Acide urique sanguin",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B101",
+    "nom": "Albuminémie (Méthode immunologique)",
+    "coefficient": 60.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B102",
+    "nom": "Ammoniémie",
+    "coefficient": 100.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B103",
+    "nom": "Bilirubine (Totale Directe et Indirecte)",
+    "coefficient": 70.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B104",
+    "nom": "Calcium",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B105",
+    "nom": "Chlore",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B106",
+    "nom": "Cholestérol total",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B107",
+    "nom": "Cholestérol estérifié",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B108",
+    "nom": "Cholestérol HDL",
+    "coefficient": 50.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B109",
+    "nom": "Cholesterol LDL",
+    "coefficient": 50.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B110",
+    "nom": "Cholestérol HDL+LDL",
+    "coefficient": 80.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B111",
+    "nom": "Créatinine",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B112",
+    "nom": "Electrophorèse de l'Hémoglobine",
+    "coefficient": 100.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B113",
+    "nom": "Electrophorèse des lipides",
+    "coefficient": 100.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B114",
+    "nom": "Electrophorèse des protides",
+    "coefficient": 100.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B115",
+    "nom": "Fer sérique",
+    "coefficient": 60.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B116",
+    "nom": "Fer sérique + CTF",
+    "coefficient": 100.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B117",
+    "nom": "Fructosamine",
+    "coefficient": 80.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B118",
+    "nom": "Glycémie",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B119",
+    "nom": "Hémoglobine glycosylée",
+    "coefficient": 100.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B120",
+    "nom": "Ionogramme complet (Na, K, CI, Prot, RA,Ca)",
+    "coefficient": 160.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B121",
+    "nom": "Lipides",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B122",
+    "nom": "Lipoprotéine A",
+    "coefficient": 150.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B123",
+    "nom": "Lipoprotéine B",
+    "coefficient": 150.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B124",
+    "nom": "Lipoprotéines A+B",
+    "coefficient": 250.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B125",
+    "nom": "Lithium",
+    "coefficient": 50.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B126",
+    "nom": "Magnésium Plasmatique",
+    "coefficient": 60.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B127",
+    "nom": "Magnésium Erythrocytaire",
+    "coefficient": 80.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B128",
+    "nom": "Oxalates",
+    "coefficient": 180.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B129",
+    "nom": "Phosphore minéral",
+    "coefficient": 40.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B130",
+    "nom": "Protéines",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B131",
+    "nom": "Potassium",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B132",
+    "nom": "Réserve Alcaline",
+    "coefficient": 40.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B133",
+    "nom": "Sodium",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B134",
+    "nom": "Triglycérides",
+    "coefficient": 60.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B135",
+    "nom": "Urée",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 1
+  },
+  {
+    "code": "B136",
+    "nom": "Aldolase",
+    "coefficient": 100.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B137",
+    "nom": "Amylase",
+    "coefficient": 100.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B138",
+    "nom": "Creatinine phosphokinase CPK",
+    "coefficient": 100.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B139",
+    "nom": "Creatinine phosphokinase CPK (MB)",
+    "coefficient": 200.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B140",
+    "nom": "G6 PDH",
+    "coefficient": 100.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B141",
+    "nom": "Gamma glutamyl transférase (G G T)",
+    "coefficient": 50.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B142",
+    "nom": "Lacticodeshydrogenase LDH",
+    "coefficient": 50.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B143",
+    "nom": "Phosphatases Alcalines",
+    "coefficient": 50.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B144",
+    "nom": "Phosphatases acides",
+    "coefficient": 50.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B145",
+    "nom": "Phosphatases prostatiques",
+    "coefficient": 50.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B146",
+    "nom": "Transaminases 0 (TGO)",
+    "coefficient": 50.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B147",
+    "nom": "Transaminases P (TGP)",
+    "coefficient": 50.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B148",
+    "nom": "Lipase",
+    "coefficient": 100.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B149",
+    "nom": "Troponine",
+    "coefficient": 250.0,
+    "section": "b-Enzymologie B",
+    "page": 1
+  },
+  {
+    "code": "B150",
+    "nom": "B H CG quantitatif",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 1
+  },
+  {
+    "code": "B151",
+    "nom": "B H CG qualitatif",
+    "coefficient": 100.0,
+    "section": "c-Hormonologie B",
+    "page": 1
+  },
+  {
+    "code": "B152",
+    "nom": "17 B Oestradiol",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 1
+  },
+  {
+    "code": "B153",
+    "nom": "Cortisol",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 1
+  },
+  {
+    "code": "B154",
+    "nom": "Ferritine",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 1
+  },
+  {
+    "code": "B155",
+    "nom": "Insuline",
+    "coefficient": 300.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B156",
+    "nom": "L H",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B157",
+    "nom": "Progestérone",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B158",
+    "nom": "Prolactine",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B159",
+    "nom": "Triodothyronine :T3",
+    "coefficient": 200.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B160",
+    "nom": "Thyroxine :T4",
+    "coefficient": 200.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B161",
+    "nom": "Thyroxine libre: T4 libre",
+    "coefficient": 200.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B162",
+    "nom": "Testostérone",
+    "coefficient": 300.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B163",
+    "nom": "TSH",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B164",
+    "nom": "T S H ulta sensible",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B165",
+    "nom": "Triodothyronine libre :T3L",
+    "coefficient": 300.0,
+    "section": "c-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B166",
+    "nom": "Acétone (recherche)",
+    "coefficient": 10.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B167",
+    "nom": "Acide Urique",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B168",
+    "nom": "Calcium",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B169",
+    "nom": "Chlore",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B170",
+    "nom": "Créatinine",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B171",
+    "nom": "Electrophorèse des Protéines urinaires",
+    "coefficient": 180.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B172",
+    "nom": "Identification d'un calcul urinaire",
+    "coefficient": 80.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B173",
+    "nom": "PH",
+    "coefficient": 10.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B174",
+    "nom": "Phosphore minéral",
+    "coefficient": 40.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B175",
+    "nom": "Potassium",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B176",
+    "nom": "Protéine (recherche)",
+    "coefficient": 20.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B177",
+    "nom": "Protéine (dosage)",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B178",
+    "nom": "Sédiment minéral",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B179",
+    "nom": "Sodium",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B180",
+    "nom": "Sucre (recherche)",
+    "coefficient": 10.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B181",
+    "nom": "Sucre (Recherche+dosage)",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B182",
+    "nom": "Urée",
+    "coefficient": 30.0,
+    "section": "a-chimie courante B",
+    "page": 2
+  },
+  {
+    "code": "B183",
+    "nom": "Acide 5 Hydroxyindol acétique (5HIA)",
+    "coefficient": 250.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B184",
+    "nom": "Acide Vanil Mandélique (VMA)",
+    "coefficient": 250.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B185",
+    "nom": "Acide Homovanilique",
+    "coefficient": 250.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B186",
+    "nom": "Catécholamines",
+    "coefficient": 250.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B187",
+    "nom": "17 Cétostéroides",
+    "coefficient": 250.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B188",
+    "nom": "Dérivés méthoxylés: (Métanéphrines Normétanéphrines)",
+    "coefficient": 250.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B189",
+    "nom": "Phenolsteroides",
+    "coefficient": 250.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B190",
+    "nom": "Porphyrines (recherche)",
+    "coefficient": 100.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B191",
+    "nom": "Porphyrines (dosage)",
+    "coefficient": 150.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B192",
+    "nom": "Prégnandiol",
+    "coefficient": 250.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B193",
+    "nom": "Prolans B",
+    "coefficient": 200.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B194",
+    "nom": "Test de grossesse",
+    "coefficient": 80.0,
+    "section": "b-Hormonologie B",
+    "page": 2
+  },
+  {
+    "code": "B195",
+    "nom": "Chlore",
+    "coefficient": 30.0,
+    "section": "3- Examens des autres liquides biologiques (LCR-Ascites-Liquides Pleuraux…) B",
+    "page": 2
+  },
+  {
+    "code": "B196",
+    "nom": "Electrophorèse des protéines du LCR",
+    "coefficient": 180.0,
+    "section": "3- Examens des autres liquides biologiques (LCR-Ascites-Liquides Pleuraux…) B",
+    "page": 2
+  },
+  {
+    "code": "B197",
+    "nom": "Fructose spermatique",
+    "coefficient": 200.0,
+    "section": "3- Examens des autres liquides biologiques (LCR-Ascites-Liquides Pleuraux…) B",
+    "page": 2
+  },
+  {
+    "code": "B198",
+    "nom": "Glucose",
+    "coefficient": 20.0,
+    "section": "3- Examens des autres liquides biologiques (LCR-Ascites-Liquides Pleuraux…) B",
+    "page": 2
+  },
+  {
+    "code": "B199",
+    "nom": "Identification d'un calcul vésical",
+    "coefficient": 80.0,
+    "section": "3- Examens des autres liquides biologiques (LCR-Ascites-Liquides Pleuraux…) B",
+    "page": 2
+  },
+  {
+    "code": "B200",
+    "nom": "Protéines",
+    "coefficient": 30.0,
+    "section": "3- Examens des autres liquides biologiques (LCR-Ascites-Liquides Pleuraux…) B",
+    "page": 2
+  },
+  {
+    "code": "B201",
+    "nom": "Recherche et identification d'Antigènes bactériens Solubles dans le LCR",
+    "coefficient": 250.0,
+    "section": "3- Examens des autres liquides biologiques (LCR-Ascites-Liquides Pleuraux…) B",
+    "page": 2
+  },
+  {
+    "code": "B202",
+    "nom": "Rivalta",
+    "coefficient": 20.0,
+    "section": "3- Examens des autres liquides biologiques (LCR-Ascites-Liquides Pleuraux…) B",
+    "page": 2
+  },
+  {
+    "code": "B203",
+    "nom": "Clearance: de l'Acide urique",
+    "coefficient": 50.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 2
+  },
+  {
+    "code": "B204",
+    "nom": "Clearance: de l'Urée",
+    "coefficient": 50.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 2
+  },
+  {
+    "code": "B205",
+    "nom": "Clearance: de la créatinine",
+    "coefficient": 50.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 2
+  },
+  {
+    "code": "B206",
+    "nom": "Epreuve d'hyperglycémie provoquée par voie orale (HGPO)",
+    "coefficient": 150.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 2
+  },
+  {
+    "code": "B207",
+    "nom": "HLM(hématies-leucocytes-minute)Test d'Addis",
+    "coefficient": 30.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 2
+  },
+  {
+    "code": "B208",
+    "nom": "Test au D - xylose",
+    "coefficient": 180.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 2
+  },
+  {
+    "code": "B209",
+    "nom": "Test LH-RH sur FSH ou LH",
+    "coefficient": 700.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 2
+  },
+  {
+    "code": "B210",
+    "nom": "Test LH-RH sur FSH et LH",
+    "coefficient": 1200.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 3
+  },
+  {
+    "code": "B211",
+    "nom": "Test au TRH ( 4 temps)",
+    "coefficient": 700.0,
+    "section": "4-Epreuves Fonctionnelles B",
+    "page": 3
+  },
+  {
+    "code": "B212",
+    "nom": "Adénogramme",
+    "coefficient": 75.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B213",
+    "nom": "Goutte épaisse",
+    "coefficient": 50.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B214",
+    "nom": "Hématocrite",
+    "coefficient": 20.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B215",
+    "nom": "Hémoglobine",
+    "coefficient": 30.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B216",
+    "nom": "Numération Formule (Globules rouges/Blancs/plaquettes)",
+    "coefficient": 80.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B217",
+    "nom": "Numération des Plaquettes",
+    "coefficient": 30.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B218",
+    "nom": "Myélogramme: Etude cytologique",
+    "coefficient": 120.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B219",
+    "nom": "Myélogramme: Etude cytochimique",
+    "coefficient": 120.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B220",
+    "nom": "Recherche d'hématies ponctuées",
+    "coefficient": 20.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B221",
+    "nom": "Résistance globulaire",
+    "coefficient": 50.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B222",
+    "nom": "Réticulocytes",
+    "coefficient": 30.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B223",
+    "nom": "Vitesse de sédimentation",
+    "coefficient": 30.0,
+    "section": "1 -Cytologie B",
+    "page": 3
+  },
+  {
+    "code": "B224",
+    "nom": "Coombs Direct/Coombs indirect",
+    "coefficient": 60.0,
+    "section": "2-ImmunoHématologie B",
+    "page": 3
+  },
+  {
+    "code": "B225",
+    "nom": "Recherche d'agglutinines irrégulières:RAI",
+    "coefficient": 40.0,
+    "section": "2-ImmunoHématologie B",
+    "page": 3
+  },
+  {
+    "code": "B226",
+    "nom": "Recherche et dosage d'agglutinines irrégulières",
+    "coefficient": 100.0,
+    "section": "2-ImmunoHématologie B",
+    "page": 3
+  },
+  {
+    "code": "B227",
+    "nom": "Cross match :Une poche",
+    "coefficient": 110.0,
+    "section": "2-ImmunoHématologie B",
+    "page": 3
+  },
+  {
+    "code": "B228",
+    "nom": "Cross match: chaque poche supplémentaire",
+    "coefficient": 60.0,
+    "section": "2-ImmunoHématologie B",
+    "page": 3
+  },
+  {
+    "code": "B229",
+    "nom": "Cross match :Groupe ABO et Rhésus",
+    "coefficient": 60.0,
+    "section": "2-ImmunoHématologie B",
+    "page": 3
+  },
+  {
+    "code": "B230",
+    "nom": "Phénotype",
+    "coefficient": 100.0,
+    "section": "2-ImmunoHématologie B",
+    "page": 3
+  },
+  {
+    "code": "B231",
+    "nom": "Dosage des Facteurs de la coagulation autre que : VIII- IX - XIII",
+    "coefficient": 75.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B232",
+    "nom": "Dosage des facteurs VIII-IX ou XIII",
+    "coefficient": 200.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B233",
+    "nom": "Fibrinogène",
+    "coefficient": 40.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B234",
+    "nom": "Héparinémie",
+    "coefficient": 120.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B235",
+    "nom": "PDF",
+    "coefficient": 200.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B236",
+    "nom": "Taux de prothrombine",
+    "coefficient": 40.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B237",
+    "nom": "Temps de saignements (TS)",
+    "coefficient": 30.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B238",
+    "nom": "TS + Temps de coagulation",
+    "coefficient": 50.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B239",
+    "nom": "Temps de céphaline kaolin (TCK)",
+    "coefficient": 40.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B240",
+    "nom": "Temps de Howell",
+    "coefficient": 40.0,
+    "section": "3- Hémostase B",
+    "page": 3
+  },
+  {
+    "code": "B241",
+    "nom": "Cytologie. Culture. Identification",
+    "coefficient": 90.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B242",
+    "nom": "Antibiogramme",
+    "coefficient": 60.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B243",
+    "nom": "Sulfamidogramme en cas de prescription isolée",
+    "coefficient": 60.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B244",
+    "nom": "Cytologie",
+    "coefficient": 20.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B245",
+    "nom": "Examen parasitologique urinaire ou vaginal",
+    "coefficient": 20.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B246",
+    "nom": "Examen mycologique: Recherche",
+    "coefficient": 30.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B247",
+    "nom": "Examen mycologique: (culture, identification)",
+    "coefficient": 60.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B248",
+    "nom": "Recherche de BK + Concentration",
+    "coefficient": 35.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B249",
+    "nom": "Culture sur milieu de Lowenstein",
+    "coefficient": 30.0,
+    "section": "Tout examen cytobactériologique (Urinaire,Vaginal, Uréthral,Nasal,Pleural,Ascitique, Auriculaire,Crachats,LCR,etc)B",
+    "page": 3
+  },
+  {
+    "code": "B250",
+    "nom": "Culture (Aéorobie-Anaérobie)",
+    "coefficient": 80.0,
+    "section": "Hémoculture",
+    "page": 3
+  },
+  {
+    "code": "B251",
+    "nom": "Hémoculture :Identification",
+    "coefficient": 30.0,
+    "section": "Hémoculture",
+    "page": 3
+  },
+  {
+    "code": "B252",
+    "nom": "Recherche Chlamydiae direct par lA ou IF",
+    "coefficient": 200.0,
+    "section": "Hémoculture",
+    "page": 3
+  },
+  {
+    "code": "B253",
+    "nom": "Recherche Mycoplasmes par culture",
+    "coefficient": 200.0,
+    "section": "Hémoculture",
+    "page": 3
+  },
+  {
+    "code": "B254",
+    "nom": "Parasitologie des selles (Examen direct + enrichisement)",
+    "coefficient": 40.0,
+    "section": "Examen des selles",
+    "page": 3
+  },
+  {
+    "code": "B255",
+    "nom": "Coproculture + identification:",
+    "coefficient": 100.0,
+    "section": "Examen des selles",
+    "page": 3
+  },
+  {
+    "code": "B256",
+    "nom": "Recherche de sang dans les selles par méthode colorimétrique",
+    "coefficient": 60.0,
+    "section": "Examen des selles",
+    "page": 3
+  },
+  {
+    "code": "B257",
+    "nom": "Recherche de sang dans les selles par méthode Immunologique",
+    "coefficient": 150.0,
+    "section": "Examen des selles",
+    "page": 3
+  },
+  {
+    "code": "B258",
+    "nom": "Coprologie fonctionnelle",
+    "coefficient": 150.0,
+    "section": "Examen des selles",
+    "page": 3
+  },
+  {
+    "code": "B259",
+    "nom": "Rotavirus (recherche)",
+    "coefficient": 200.0,
+    "section": "Examen des selles",
+    "page": 3
+  },
+  {
+    "code": "B260",
+    "nom": "Adénovirus",
+    "coefficient": 200.0,
+    "section": "Examen des selles",
+    "page": 3
+  },
+  {
+    "code": "B261",
+    "nom": "Scotch test",
+    "coefficient": 20.0,
+    "section": "Examen des selles",
+    "page": 4
+  },
+  {
+    "code": "B262",
+    "nom": "Ectoparasites (gale) recherche",
+    "coefficient": 50.0,
+    "section": "Examen des selles",
+    "page": 4
+  },
+  {
+    "code": "B263",
+    "nom": "Antistaphylolysine",
+    "coefficient": 50.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B264",
+    "nom": "Antistreptodornase",
+    "coefficient": 100.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B265",
+    "nom": "Antistreptokinase",
+    "coefficient": 100.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B266",
+    "nom": "Antistreptolysine (recherche , titrage)",
+    "coefficient": 80.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B267",
+    "nom": "Antistreptohyaluronidase",
+    "coefficient": 100.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B268",
+    "nom": "Brucellose (Wright)",
+    "coefficient": 60.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B269",
+    "nom": "Chlamydiae trachomatis",
+    "coefficient": 180.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B270",
+    "nom": "Hélicobacter pylori",
+    "coefficient": 180.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B271",
+    "nom": "Diphtérie",
+    "coefficient": 190.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B272",
+    "nom": "Gonococcie",
+    "coefficient": 150.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B273",
+    "nom": "Léptospirose",
+    "coefficient": 150.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B274",
+    "nom": "Listériose",
+    "coefficient": 250.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B275",
+    "nom": "Maladie de Lyme",
+    "coefficient": 250.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B276",
+    "nom": "Mycoplasmes génitaux (hominis et uréalyticum)",
+    "coefficient": 180.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B277",
+    "nom": "Mycoplasma pneumoniae",
+    "coefficient": 180.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B278",
+    "nom": "Ricketlsiose",
+    "coefficient": 180.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B279",
+    "nom": "Salmonellose (Widal et Félix)",
+    "coefficient": 80.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B280",
+    "nom": "ShigeIlose : l'espèce",
+    "coefficient": 75.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B281",
+    "nom": "Streptozyme",
+    "coefficient": 100.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B282",
+    "nom": "Sérologie du BK",
+    "coefficient": 200.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B283",
+    "nom": "Sérologie de la Syphilis: VDRL qualitatif",
+    "coefficient": 20.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B284",
+    "nom": "Sérologie de la Syphilis: VDRL quantitatif",
+    "coefficient": 60.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B285",
+    "nom": "Sérologie de la Syphilis: TPHA qualitatif",
+    "coefficient": 50.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B286",
+    "nom": "Sérologie de la Syphilis: TPHA quantitatif",
+    "coefficient": 100.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B287",
+    "nom": "Sérologie de la Syphilis: Nelson",
+    "coefficient": 500.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B288",
+    "nom": "Sérologie de la Syphilis: FT A Absorbens IgG",
+    "coefficient": 120.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B289",
+    "nom": "Sérologie de la Syphilis: IgM",
+    "coefficient": 280.0,
+    "section": "1- Sérologie Bactérienne B",
+    "page": 4
+  },
+  {
+    "code": "B290",
+    "nom": "Ankylostomiase",
+    "coefficient": 300.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B291",
+    "nom": "Amibiase",
+    "coefficient": 150.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B292",
+    "nom": "Aspergillose",
+    "coefficient": 150.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B293",
+    "nom": "Bilharziose",
+    "coefficient": 150.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B294",
+    "nom": "Hydatidose (par hémaglutination)",
+    "coefficient": 150.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B295",
+    "nom": "Blastomycose",
+    "coefficient": 75.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B296",
+    "nom": "Candidose",
+    "coefficient": 200.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B297",
+    "nom": "Coccidiomycose",
+    "coefficient": 110.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B298",
+    "nom": "Cryptococcose",
+    "coefficient": 110.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B299",
+    "nom": "Criptosporidiose",
+    "coefficient": 150.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B300",
+    "nom": "Cysticércose",
+    "coefficient": 315.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B301",
+    "nom": "Distomatose",
+    "coefficient": 150.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B302",
+    "nom": "Filariose",
+    "coefficient": 225.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B303",
+    "nom": "Histoplasmose",
+    "coefficient": 110.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B304",
+    "nom": "Leichmaniose",
+    "coefficient": 110.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B305",
+    "nom": "Paludisme",
+    "coefficient": 110.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B306",
+    "nom": "Toxocarose",
+    "coefficient": 315.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B307",
+    "nom": "Toxoplasmose IgG",
+    "coefficient": 100.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B308",
+    "nom": "Toxoplasmose IgM",
+    "coefficient": 150.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B309",
+    "nom": "Taenia",
+    "coefficient": 90.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B310",
+    "nom": "Trichinose",
+    "coefficient": 225.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B311",
+    "nom": "Trichomonas",
+    "coefficient": 110.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B312",
+    "nom": "Trypanosome",
+    "coefficient": 110.0,
+    "section": "2- Sérologie Parasitaire B",
+    "page": 4
+  },
+  {
+    "code": "B313",
+    "nom": "Adénovirus",
+    "coefficient": 110.0,
+    "section": "3- Sérologie Virale B",
+    "page": 4
+  },
+  {
+    "code": "B314",
+    "nom": "Grippe antigène-B",
+    "coefficient": 200.0,
+    "section": "3- Sérologie Virale B",
+    "page": 4
+  },
+  {
+    "code": "B315",
+    "nom": "Hépatite A : IgG",
+    "coefficient": 250.0,
+    "section": "3- Sérologie Virale B",
+    "page": 4
+  },
+  {
+    "code": "B316",
+    "nom": "Hépatite A : IgM",
+    "coefficient": 250.0,
+    "section": "3- Sérologie Virale B",
+    "page": 4
+  },
+  {
+    "code": "B317",
+    "nom": "Hépatite B: AgHbs",
+    "coefficient": 120.0,
+    "section": "3- Sérologie Virale B",
+    "page": 4
+  },
+  {
+    "code": "B318",
+    "nom": "Hépatite B : Ac anti Hbs",
+    "coefficient": 250.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B319",
+    "nom": "Hépatite B : Ag Hbe",
+    "coefficient": 250.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B320",
+    "nom": "Hépatite B : Ac anti Hbe",
+    "coefficient": 250.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B321",
+    "nom": "Hépatite B: Ac anti Hbc",
+    "coefficient": 250.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B322",
+    "nom": "Hépatite B: Ac anti Hbc IgM",
+    "coefficient": 300.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B323",
+    "nom": "Hépatite B : ADN par PCR",
+    "coefficient": 600.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B324",
+    "nom": "Hépatite C : Dépistage",
+    "coefficient": 300.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B325",
+    "nom": "Hépatite C : test de confirmation",
+    "coefficient": 600.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B326",
+    "nom": "Hépatite C : ARN par PCR",
+    "coefficient": 900.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B327",
+    "nom": "Herpes virus simplex type I (lgG ou IgM)",
+    "coefficient": 200.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B328",
+    "nom": "Herpes virus simplex type Il (lgG ou IgM)",
+    "coefficient": 200.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B329",
+    "nom": "HIV 1 + HIV (1 +2) Dépistage",
+    "coefficient": 200.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B330",
+    "nom": "Westernblot de confirmation",
+    "coefficient": 600.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B331",
+    "nom": "Charge virale HIV",
+    "coefficient": 900.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B332",
+    "nom": "Mononucleose infectieuse : *MNI Test",
+    "coefficient": 50.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B333",
+    "nom": "*Paul et Bunnelle Davidson",
+    "coefficient": 80.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B334",
+    "nom": "*Ac EBNA",
+    "coefficient": 180.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B335",
+    "nom": "*Ac VCA (lgG+lgM)",
+    "coefficient": 180.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B336",
+    "nom": "*AcEA",
+    "coefficient": 180.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B337",
+    "nom": "Oreillons (lgG+lgM)",
+    "coefficient": 180.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B338",
+    "nom": "Para influenzae (paramyxovirus)",
+    "coefficient": 110.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B339",
+    "nom": "Coxackie",
+    "coefficient": 100.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B340",
+    "nom": "Poliomyélite",
+    "coefficient": 110.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B341",
+    "nom": "Rotavirus",
+    "coefficient": 200.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B342",
+    "nom": "Rougeole IgG ou IgM",
+    "coefficient": 330.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B343",
+    "nom": "Rubéole IgG",
+    "coefficient": 150.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B344",
+    "nom": "Rubéole IgM",
+    "coefficient": 400.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B345",
+    "nom": "Varicelle et Zona",
+    "coefficient": 200.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B346",
+    "nom": "Virus Syncitial respiratoire (VRS)",
+    "coefficient": 200.0,
+    "section": "3- Sérologie Virale B",
+    "page": 5
+  },
+  {
+    "code": "B347",
+    "nom": "Auto anticorps anti nucléaires",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B348",
+    "nom": "Anticorps anti thyroidiens : AC anti Microsomaux",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B349",
+    "nom": "Anticorps anti thyroidiens : AC anti Thyroglobulines",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B350",
+    "nom": "Complément total CH50",
+    "coefficient": 100.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B351",
+    "nom": "Dosage C3",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B352",
+    "nom": "Dosage C4",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B353",
+    "nom": "Dosage C1 Inhibiteur estérase",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B354",
+    "nom": "IgE totales",
+    "coefficient": 200.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B355",
+    "nom": "IgE spécifiques ou Rast : Allergène unique",
+    "coefficient": 180.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B356",
+    "nom": "IgE spécifiques ou Rast : A partir du 3ème allergène (chacun)",
+    "coefficient": 140.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B357",
+    "nom": "Test multi allergènes",
+    "coefficient": 300.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B358",
+    "nom": "Immunofixation des Protides (ou Immunoéléctrophorèse )",
+    "coefficient": 600.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B359",
+    "nom": "Marqueur Tumoral :antigene carcino embryonnaire : ACE",
+    "coefficient": 250.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B360",
+    "nom": "Marqueur Tumoral :Alpha foeto proteine : AFP",
+    "coefficient": 250.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B361",
+    "nom": "Marqueur Tumoral :Antigene prostatique spécifique : PSA",
+    "coefficient": 300.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B362",
+    "nom": "Marqueur Tumoral : Ca 125",
+    "coefficient": 400.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B363",
+    "nom": "MarqueurTumoral : Ca 15-3",
+    "coefficient": 400.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B364",
+    "nom": "Marqueur Tumoral : Ca 19-9",
+    "coefficient": 400.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B365",
+    "nom": "Marqueur Tumoral : Ca 50",
+    "coefficient": 400.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B366",
+    "nom": "Marqueur Tumoral : Ca 724",
+    "coefficient": 400.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B367",
+    "nom": "Marqueur Tumoral : NSE",
+    "coefficient": 400.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B368",
+    "nom": "Test au latex",
+    "coefficient": 50.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B369",
+    "nom": "Réaction de waaler rose",
+    "coefficient": 50.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B370",
+    "nom": "C R P (Protéine C réactive)",
+    "coefficient": 100.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B371",
+    "nom": "Haptoglobine",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B372",
+    "nom": "Orosomucoides",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B373",
+    "nom": "Transferrine",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B374",
+    "nom": "Alpha 1 Antitrypsine",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B375",
+    "nom": "IgG totales",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B376",
+    "nom": "IgA totales",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B377",
+    "nom": "IgM totales",
+    "coefficient": 150.0,
+    "section": "4- Immunologie B",
+    "page": 5
+  },
+  {
+    "code": "B378",
+    "nom": "Crèatorrhée",
+    "coefficient": 100.0,
+    "section": "5- Divers B",
+    "page": 6
+  },
+  {
+    "code": "B379",
+    "nom": "Spermogramme",
+    "coefficient": 100.0,
+    "section": "5- Divers B",
+    "page": 6
+  },
+  {
+    "code": "B380",
+    "nom": "Spermocytogramme",
+    "coefficient": 150.0,
+    "section": "5- Divers B",
+    "page": 6
+  },
+  {
+    "code": "B381",
+    "nom": "Stéatorrhée",
+    "coefficient": 300.0,
+    "section": "5- Divers B",
+    "page": 6
+  },
+  {
+    "code": "B382",
+    "nom": "Test de HUHNER",
+    "coefficient": 120.0,
+    "section": "5- Divers B",
+    "page": 6
+  },
+  {
+    "code": "B383",
+    "nom": "17 Hydroxyprogestérone",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B384",
+    "nom": "25 Hydroxy cholecalciférol",
+    "coefficient": 450.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B385",
+    "nom": "ACTH",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B386",
+    "nom": "ADH",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B387",
+    "nom": "ADN Viral HBV",
+    "coefficient": 600.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B388",
+    "nom": "Aldostérone",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B389",
+    "nom": "Aluminium",
+    "coefficient": 180.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B390",
+    "nom": "Androstenédiol",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B391",
+    "nom": "Anticorps Anti cannaux biliaires",
+    "coefficient": 200.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B392",
+    "nom": "Anticorps Anti Cartilage",
+    "coefficient": 200.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B393",
+    "nom": "Anticorps Anti cellules nerveuses",
+    "coefficient": 200.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B394",
+    "nom": "Anticorps Anti E C T",
+    "coefficient": 500.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B395",
+    "nom": "Anticorps Anti Facteur intrisèque",
+    "coefficient": 450.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B396",
+    "nom": "Anticorps Anti organes (autres)",
+    "coefficient": 200.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B397",
+    "nom": "Anticorps Anti Plaquettes fixées",
+    "coefficient": 450.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B398",
+    "nom": "Anticorps Anti T3",
+    "coefficient": 450.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B399",
+    "nom": "Anticorps Anti T4",
+    "coefficient": 450.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B400",
+    "nom": "ARN Viral HCV",
+    "coefficient": 900.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B401",
+    "nom": "Ca 50",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B402",
+    "nom": "Calcitonine",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B403",
+    "nom": "Carnitine libre",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B404",
+    "nom": "Charge Virale H IV",
+    "coefficient": 900.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B405",
+    "nom": "Citrate dans le sperme",
+    "coefficient": 200.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B406",
+    "nom": "Complément C2",
+    "coefficient": 240.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B407",
+    "nom": "Complément C5",
+    "coefficient": 150.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B408",
+    "nom": "Delta 4 Androsténe dione",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B409",
+    "nom": "DHA",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B410",
+    "nom": "DHA Sulfate",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B411",
+    "nom": "DHT",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B412",
+    "nom": "EBV:EARLY OU VCA (lgG+lgM) ou EBNA chacun",
+    "coefficient": 450.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B413",
+    "nom": "EBV:ECA",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B414",
+    "nom": "Elastase",
+    "coefficient": 600.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B415",
+    "nom": "Erytropïoetine",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B416",
+    "nom": "Fibronectine",
+    "coefficient": 150.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B417",
+    "nom": "Gastrine",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B418",
+    "nom": "G H ou STH",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B419",
+    "nom": "Glucagon",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B420",
+    "nom": "Hépatite E",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B421",
+    "nom": "Hépatite Delta",
+    "coefficient": 300.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B422",
+    "nom": "Hydroxyproline",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B423",
+    "nom": "IgG 4 (sous classe)",
+    "coefficient": 200.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B424",
+    "nom": "Il Deoxycortisol",
+    "coefficient": 300.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B425",
+    "nom": "Médicaments (digoxine théophylline)chacun",
+    "coefficient": 300.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B426",
+    "nom": "Nelson",
+    "coefficient": 500.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B427",
+    "nom": "Ostéocalcine",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B428",
+    "nom": "Parathormone (PTH)",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B429",
+    "nom": "Peptide C",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B430",
+    "nom": "Rénine",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B431",
+    "nom": "Sérotonine",
+    "coefficient": 300.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B432",
+    "nom": "Somatomédine C",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B433",
+    "nom": "TBG",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B434",
+    "nom": "Te BG",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B435",
+    "nom": "Test à la STH",
+    "coefficient": 1200.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B436",
+    "nom": "Thyrocalcitonine",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 6
+  },
+  {
+    "code": "B437",
+    "nom": "Virus (culture)",
+    "coefficient": 300.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 7
+  },
+  {
+    "code": "B438",
+    "nom": "Vitamine B 12",
+    "coefficient": 400.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 7
+  },
+  {
+    "code": "B439",
+    "nom": "Vitamine D",
+    "coefficient": 450.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 7
+  },
+  {
+    "code": "B440",
+    "nom": "Autres vitamines (K-A-E) chacune",
+    "coefficient": 800.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 7
+  },
+  {
+    "code": "B441",
+    "nom": "Zinc dans le sperme",
+    "coefficient": 200.0,
+    "section": "Prescriptions pouvant faire objet de transmission à l'étranger",
+    "page": 7
+  },
+  {
+    "code": "B442",
+    "nom": "Osmolarité sang (Si Prescription isolée)",
+    "coefficient": 100.0,
+    "section": "a-Biochimie courante",
+    "page": 7
+  },
+  {
+    "code": "B443",
+    "nom": "Osmolarité \"urine \" (Si Prescription isolée)",
+    "coefficient": 100.0,
+    "section": "a-Biochimie courante",
+    "page": 7
+  },
+  {
+    "code": "B444",
+    "nom": "Alpha 2 macroglobuline-par immunomarquage",
+    "coefficient": 200.0,
+    "section": "a-Biochimie courante",
+    "page": 7
+  },
+  {
+    "code": "B445",
+    "nom": "Acide lactique",
+    "coefficient": 100.0,
+    "section": "a-Biochimie courante",
+    "page": 7
+  },
+  {
+    "code": "B446",
+    "nom": "Débit de Filtration Glomérulaire-DFG",
+    "coefficient": 50.0,
+    "section": "a-Biochimie courante",
+    "page": 7
+  },
+  {
+    "code": "B447",
+    "nom": "Cryoglobulines recherche",
+    "coefficient": 70.0,
+    "section": "a-Biochimie courante",
+    "page": 7
+  },
+  {
+    "code": "B448",
+    "nom": "Cryoglobulines recherche+Typage",
+    "coefficient": 600.0,
+    "section": "a-Biochimie courante",
+    "page": 7
+  },
+  {
+    "code": "B449",
+    "nom": "Gazométrie (PH,pCO2,pO2,SatO2)",
+    "coefficient": 200.0,
+    "section": "a-Biochimie courante",
+    "page": 7
+  },
+  {
+    "code": "B450",
+    "nom": "Myoglobine-Technique Immunoenzymatique",
+    "coefficient": 200.0,
+    "section": "b-Cardiologie",
+    "page": 7
+  },
+  {
+    "code": "B451",
+    "nom": "Enzyme de conversion de l'angiotensine",
+    "coefficient": 200.0,
+    "section": "b-Cardiologie",
+    "page": 7
+  },
+  {
+    "code": "B452",
+    "nom": "Beta2microglobuline-par immunomarquage",
+    "coefficient": 200.0,
+    "section": "b-Cardiologie",
+    "page": 7
+  },
+  {
+    "code": "B453",
+    "nom": "Homocystéine- par immunomarquage ou HPLC",
+    "coefficient": 400.0,
+    "section": "b-Cardiologie",
+    "page": 7
+  },
+  {
+    "code": "B454",
+    "nom": "BNP-par immunomarquage",
+    "coefficient": 500.0,
+    "section": "b-Cardiologie",
+    "page": 7
+  },
+  {
+    "code": "B455",
+    "nom": "NT ProBNP-par immunomarquage",
+    "coefficient": 500.0,
+    "section": "b-Cardiologie",
+    "page": 7
+  },
+  {
+    "code": "B456",
+    "nom": "Procalcitonine-par immunomarquage",
+    "coefficient": 400.0,
+    "section": "b-Cardiologie",
+    "page": 7
+  },
+  {
+    "code": "B457",
+    "nom": "CRP ultrasensible-par immunomarquage",
+    "coefficient": 200.0,
+    "section": "b-Cardiologie",
+    "page": 7
+  },
+  {
+    "code": "B458",
+    "nom": "F S H-Technique Immunoenzymatique",
+    "coefficient": 250.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B459",
+    "nom": "InhibineB-Technique Immunoenzymatique",
+    "coefficient": 500.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B460",
+    "nom": "AMH: hormone anti-mullérienne-Technique Immunoenzymatique",
+    "coefficient": 500.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B461",
+    "nom": "Triple Test(DépistageTrisomie21)-3marqueurs: AFP, bHCG, Oestriol",
+    "coefficient": 600.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B462",
+    "nom": "Testostérone LIBRE-Technique Immunoenzymatique",
+    "coefficient": 300.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B463",
+    "nom": "Insuline LIBRE-Technique Immunoenzymatique",
+    "coefficient": 450.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B464",
+    "nom": "PTH Intacte-Technique Immunoenzymatique",
+    "coefficient": 300.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B465",
+    "nom": "Testostérone urinaire- parImmunomarquage",
+    "coefficient": 300.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B466",
+    "nom": "Cortisol libre urinaire-par Immunomarquage",
+    "coefficient": 300.0,
+    "section": "c-Hormonologie",
+    "page": 7
+  },
+  {
+    "code": "B467",
+    "nom": "Chromatographie qualitative des acides aminés (Sang, urine, LCR)",
+    "coefficient": 600.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B468",
+    "nom": "Dosage et identification des MPS (GAG) urinaires",
+    "coefficient": 600.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B469",
+    "nom": "CCM sucres ou oligosaccharides urinaires",
+    "coefficient": 400.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B470",
+    "nom": "Dosage fluorimétrique de la Phénylalanine (suivi PCU)",
+    "coefficient": 400.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B471",
+    "nom": "Dosage d'un métabolite:Galactose-1 Phosphate, Carnitine,Acide pipécolique",
+    "coefficient": 400.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B472",
+    "nom": "Diagnostic de la Galactosémie congénitale",
+    "coefficient": 400.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B473",
+    "nom": "Recherche d'un déficit enzymatique sur leucocytes (1 activité ) Cotation limitée à 5 activités",
+    "coefficient": 600.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B474",
+    "nom": "Chromatographie quantitative des acides aminés",
+    "coefficient": 1200.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B475",
+    "nom": "Diagnostic enzymatique de la maladie de Hurler",
+    "coefficient": 1200.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B476",
+    "nom": "Etude des acyl carnitines",
+    "coefficient": 1200.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B477",
+    "nom": "Recherche d'une mutation responsable de la maladie",
+    "coefficient": 1200.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B478",
+    "nom": "Acides gras à très longue chaine (CPG)",
+    "coefficient": 600.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B479",
+    "nom": "Identification d'une hémoglobinose (Isofocalisation + HPLC des chaines)",
+    "coefficient": 600.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B480",
+    "nom": "Diagnostic anténatal d'une hémoglobinopathie",
+    "coefficient": 1200.0,
+    "section": "d- Maladies héréditaires du métabolisme",
+    "page": 7
+  },
+  {
+    "code": "B481",
+    "nom": "Ionogramme urinaire (Na-K-Cl-Ca)",
+    "coefficient": 100.0,
+    "section": "2 Examens Urinaires",
+    "page": 7
+  },
+  {
+    "code": "B482",
+    "nom": "Microalbuminurie de 24H-par immunoNéphélémetrie",
+    "coefficient": 120.0,
+    "section": "2 Examens Urinaires",
+    "page": 7
+  },
+  {
+    "code": "B483",
+    "nom": "Microalbuminurie exprimée en gramme/gramme de créatinine",
+    "coefficient": 150.0,
+    "section": "2 Examens Urinaires",
+    "page": 7
+  },
+  {
+    "code": "B484",
+    "nom": "Etude des Hémoglobines-HPLC",
+    "coefficient": 400.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 7
+  },
+  {
+    "code": "B485",
+    "nom": "Folates plasmatiques (vitamineB9)- par Immunomarquage",
+    "coefficient": 400.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 7
+  },
+  {
+    "code": "B486",
+    "nom": "Folates érythrocytaires- par Immunomarquage",
+    "coefficient": 400.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 7
+  },
+  {
+    "code": "B487",
+    "nom": "Antithrombine III-Technique chromogénique ou Néphélémétrie",
+    "coefficient": 200.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 7
+  },
+  {
+    "code": "B488",
+    "nom": "Protéine C- Technique chromogénique ou EIA",
+    "coefficient": 200.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B489",
+    "nom": "Protéine S-Technique chromogénique ou Turbdimétrie",
+    "coefficient": 200.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B490",
+    "nom": "Activité Anti-Xa-T chronométrique ou chromogénique",
+    "coefficient": 120.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B491",
+    "nom": "Identification des agglutinines irrègulières",
+    "coefficient": 200.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B492",
+    "nom": "Phénotype Rhésus CcEe+Kell",
+    "coefficient": 100.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B493",
+    "nom": "Temps de saignement IVY(Méthode du Brassard)",
+    "coefficient": 50.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B494",
+    "nom": "D Dimères-turbidimétrie ou Immunomarquage",
+    "coefficient": 200.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B495",
+    "nom": "Etude de la Moelle Osseuse:Examen cytologique et cytochimique",
+    "coefficient": 300.0,
+    "section": "II- HEMATOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B496",
+    "nom": "Hélicobacter pylori-Antigènes",
+    "coefficient": 300.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B497",
+    "nom": "Charge virale de l'Hépatite C",
+    "coefficient": 1200.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B498",
+    "nom": "Génotypage du virus de L'Hépatite C",
+    "coefficient": 1200.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B499",
+    "nom": "Fibrotest-Actitest",
+    "coefficient": 800.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B500",
+    "nom": "Anti Fongigramme",
+    "coefficient": 200.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B501",
+    "nom": "BK Antibiogramme",
+    "coefficient": 500.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B502",
+    "nom": "Chlamydiae trachomatis PCR",
+    "coefficient": 400.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B503",
+    "nom": "Hémoculture Aerobie+Anaerobie-(T.fluorométrique sur Automates )",
+    "coefficient": 250.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B504",
+    "nom": "BK -Mycobactéries PCR",
+    "coefficient": 900.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B505",
+    "nom": "Hydatidose Confirmation par Western Blot",
+    "coefficient": 600.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B506",
+    "nom": "Toxoplasmose-IgA",
+    "coefficient": 200.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B507",
+    "nom": "Toxoplasmose Avidité",
+    "coefficient": 200.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B508",
+    "nom": "Recherche d'ADN par PCR",
+    "coefficient": 900.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B509",
+    "nom": "Leishmaniose-Confirmation par western-blot",
+    "coefficient": 600.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B510",
+    "nom": "Recherche d'antigènes aspergillaires circulants",
+    "coefficient": 200.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B511",
+    "nom": "Recherche d'antigènes candidosiques circulants",
+    "coefficient": 600.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B512",
+    "nom": "Recherche et titrage de l'antigène cryptococcique dans le sang ou le LCR",
+    "coefficient": 200.0,
+    "section": "III- BACTERIOLOGIE- VIROLOGIE- PARASITOLOGIE",
+    "page": 8
+  },
+  {
+    "code": "B513",
+    "nom": "HLA B27-Technique Microlymphocytotoxicité (LCT)",
+    "coefficient": 600.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B514",
+    "nom": "HLA B5-Technique Microlymphocytotoxicité (LCT)",
+    "coefficient": 800.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B515",
+    "nom": "Typage HLA classe I- Technique Microlymphocytotoxicité (LCT)",
+    "coefficient": 1200.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B516",
+    "nom": "Typage HLA classe II par biologie moléculaire",
+    "coefficient": 900.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B517",
+    "nom": "Cross match HLA- Technique microlymphocytotoxicité",
+    "coefficient": 700.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B518",
+    "nom": "Typage HLA locus Apar technique luminex",
+    "coefficient": 1200.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B519",
+    "nom": "Typage HLA locus B par technique luminex",
+    "coefficient": 1200.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B520",
+    "nom": "Typage HLA locus DR par technique luminex",
+    "coefficient": 1200.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B521",
+    "nom": "Typage HLA locus DQ par technique luminex",
+    "coefficient": 1200.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B522",
+    "nom": "Recherche d'anticorps anti HLA par technique ELISA",
+    "coefficient": 250.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B523",
+    "nom": "Identification d'anticorps anti HLA classe I par ELISA",
+    "coefficient": 1200.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B524",
+    "nom": "Identification d'anticorps anti HLA classe II par ELISA",
+    "coefficient": 1200.0,
+    "section": "1 - HISTOCOMPATIBILITE",
+    "page": 8
+  },
+  {
+    "code": "B525",
+    "nom": "Identification des anticorps antigliadine (IgG et IgA),Antitransglutaminase tissulaire (tTg) par technique luminex ou équivalent",
+    "coefficient": 400.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B526",
+    "nom": "Identification des anticorps anti Phospholipides: Cardiolipine, B2 GP1, Prothrombine, Phosphatidylsérine par technique Luminex ou équivalent",
+    "coefficient": 400.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B527",
+    "nom": "Identification des anticorps Anti-nucléaires (ANA) : SSA, SSB, Sm, RNP, Scl-70, Jo-1, dsDNA, Cent-B, Histone par technique Luminex ou équivalent",
+    "coefficient": 400.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B528",
+    "nom": "Identification des anticorps anti Thyroglobuline et thyropéroxydase par technique luminex",
+    "coefficient": 400.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B529",
+    "nom": "Anticorps anti-neutrophiles cytoplasmiques(ANCA): Myelopéroxidase, Proteinase 3, GBM par technique Luminex ou équivalent",
+    "coefficient": 400.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B530",
+    "nom": "Anticorps anti-DNA natif-T.Immunomarquage",
+    "coefficient": 150.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B531",
+    "nom": "Anticorps anti SSA- Si Prescription isolée",
+    "coefficient": 150.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B532",
+    "nom": "Anticorps anti SSB- Si Prescription isolée",
+    "coefficient": 150.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B533",
+    "nom": "Anticorps anti Sm- Si Prescription isolée",
+    "coefficient": 150.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B534",
+    "nom": "Anticorps anti Scl 70- Si Prescription isolée",
+    "coefficient": 150.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B535",
+    "nom": "Anticorps anti RNP- Si Prescription isolée",
+    "coefficient": 150.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B536",
+    "nom": "Anticorps anti Jo1-Si Prescription isolée",
+    "coefficient": 150.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B537",
+    "nom": "Anticorps anti muscle lisse-Si Prescription isolée",
+    "coefficient": 150.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B538",
+    "nom": "Anticorps anti-cardiolipine IgG- Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B539",
+    "nom": "Anticorps anti-cardiolipine IgM- Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B540",
+    "nom": "Anticorps anti-Bêta 2 glycoprotéine 1 -B2GP-IgG",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B541",
+    "nom": "Anticorps anti-Bêta 2 glycoprotéine 1 -B2GP-IgM",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 8
+  },
+  {
+    "code": "B542",
+    "nom": "Anticorps anti R.endoplasmique LKM",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B543",
+    "nom": "Anticorps anti endomysium IgA- Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B544",
+    "nom": "Anticorps anti endomysium IgG- Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B545",
+    "nom": "Anticorps anti GAD- Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B546",
+    "nom": "Anticorps anti gliadine IgG-Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B547",
+    "nom": "Anticorps anti gliadine IgM-Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B548",
+    "nom": "Anticorps anti gliadine IgA-Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B549",
+    "nom": "Anticorps anti transglutaminase tissulaire -IgA- Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B550",
+    "nom": "Anticorps anti transglutaminase tissulaire-IgG- Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B551",
+    "nom": "Anticorps anti phospholipides- Si Prescription isolée",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B552",
+    "nom": "Anticorps-Saccharomyces cerevisiae(ASCA)-EIA",
+    "coefficient": 450.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B553",
+    "nom": "Anticorps anti-peptides cycliques citrullinés",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B554",
+    "nom": "Anticorps anti ilots de Langerhans",
+    "coefficient": 200.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B555",
+    "nom": "Anticorps anti recepteur de la TSH (TRAK)",
+    "coefficient": 450.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B556",
+    "nom": "CTX-Telopeptide C",
+    "coefficient": 400.0,
+    "section": "2 - AUTOIMMUNITE",
+    "page": 9
+  },
+  {
+    "code": "B557",
+    "nom": "Test polyallergènes: pneumallergènes",
+    "coefficient": 500.0,
+    "section": "3 - ALLERGIE",
+    "page": 9
+  },
+  {
+    "code": "B558",
+    "nom": "Test polyallergènes: trophallergènes",
+    "coefficient": 500.0,
+    "section": "3 - ALLERGIE",
+    "page": 9
+  },
+  {
+    "code": "B559",
+    "nom": "Test polyallergènes: mixtes",
+    "coefficient": 500.0,
+    "section": "3 - ALLERGIE",
+    "page": 9
+  },
+  {
+    "code": "B560",
+    "nom": "IGF-1(Somatomedine)",
+    "coefficient": 400.0,
+    "section": "4 - AUTRES",
+    "page": 9
+  },
+  {
+    "code": "B561",
+    "nom": "IGF-2",
+    "coefficient": 600.0,
+    "section": "4 - AUTRES",
+    "page": 9
+  },
+  {
+    "code": "B562",
+    "nom": "Protéine BENCE-JONES",
+    "coefficient": 600.0,
+    "section": "4 - AUTRES",
+    "page": 9
+  },
+  {
+    "code": "B563",
+    "nom": "PSA libre",
+    "coefficient": 300.0,
+    "section": "V - MARQUEURS TUMORAUX",
+    "page": 9
+  },
+  {
+    "code": "B564",
+    "nom": "Bhcg chaine libre marqueur tumoral",
+    "coefficient": 300.0,
+    "section": "V - MARQUEURS TUMORAUX",
+    "page": 9
+  },
+  {
+    "code": "B565",
+    "nom": "Cyfra 21",
+    "coefficient": 300.0,
+    "section": "V - MARQUEURS TUMORAUX",
+    "page": 9
+  },
+  {
+    "code": "B566",
+    "nom": "CA 549",
+    "coefficient": 400.0,
+    "section": "V - MARQUEURS TUMORAUX",
+    "page": 9
+  },
+  {
+    "code": "B567",
+    "nom": "MAR TEST(Ac Anti-spermatozoides)",
+    "coefficient": 500.0,
+    "section": "VI - ACTES DE BIOLOGIE DE LA REPRODUCTION",
+    "page": 9
+  },
+  {
+    "code": "B568",
+    "nom": "TMS(Test de Migration-Survie)",
+    "coefficient": 600.0,
+    "section": "VI - ACTES DE BIOLOGIE DE LA REPRODUCTION",
+    "page": 9
+  },
+  {
+    "code": "B569",
+    "nom": "IAC",
+    "coefficient": 800.0,
+    "section": "VI - ACTES DE BIOLOGIE DE LA REPRODUCTION",
+    "page": 9
+  },
+  {
+    "code": "B570",
+    "nom": "Fragmentation de l'ADN spermatique (T.TUNEL)",
+    "coefficient": 800.0,
+    "section": "VI - ACTES DE BIOLOGIE DE LA REPRODUCTION",
+    "page": 9
+  },
+  {
+    "code": "B571",
+    "nom": "Décondensation de la chromatine ou test de dénaturation(T. bleu d'aniline)",
+    "coefficient": 200.0,
+    "section": "VI - ACTES DE BIOLOGIE DE LA REPRODUCTION",
+    "page": 9
+  },
+  {
+    "code": "B572",
+    "nom": "Ciclosporine",
+    "coefficient": 300.0,
+    "section": "VII - MEDICAMENTS",
+    "page": 9
+  },
+  {
+    "code": "B573",
+    "nom": "Cannabinoides",
+    "coefficient": 300.0,
+    "section": "VII - MEDICAMENTS",
+    "page": 9
+  },
+  {
+    "code": "B574",
+    "nom": "Carbamazépine (Tegretol)",
+    "coefficient": 300.0,
+    "section": "VII - MEDICAMENTS",
+    "page": 9
+  },
+  {
+    "code": "B575",
+    "nom": "Dépakine(valproate de sodium)",
+    "coefficient": 300.0,
+    "section": "VII - MEDICAMENTS",
+    "page": 9
+  },
+  {
+    "code": "B576",
+    "nom": "Immunophénotypage par cytométrie en flux d'une leucémie aigue",
+    "coefficient": 1200.0,
+    "section": "Actes de cytométrie et d'immunologie cellulaire",
+    "page": 9
+  },
+  {
+    "code": "B577",
+    "nom": "Immunophénotypage par cytométrie en flux d'un syndrome lymphoprolifératif",
+    "coefficient": 1200.0,
+    "section": "Actes de cytométrie et d'immunologie cellulaire",
+    "page": 9
+  },
+  {
+    "code": "B578",
+    "nom": "Cytométrie en flux de l'hémoglobine paroxystique nocturne (HPN)",
+    "coefficient": 450.0,
+    "section": "Actes de cytométrie et d'immunologie cellulaire",
+    "page": 9
+  },
+  {
+    "code": "B579",
+    "nom": "Mesure de la cytotoxicité des cellules NK",
+    "coefficient": 1200.0,
+    "section": "Actes de cytométrie et d'immunologie cellulaire",
+    "page": 9
+  },
+  {
+    "code": "B580",
+    "nom": "test d'activation des basophiles ( allergène unitaire)",
+    "coefficient": 600.0,
+    "section": "Actes de cytométrie et d'immunologie cellulaire",
+    "page": 9
+  },
+  {
+    "code": "B581",
+    "nom": "Caryotype constitutionnel postnatal",
+    "coefficient": 1200.0,
+    "section": "Actes de génétique médicale",
+    "page": 9
+  },
+  {
+    "code": "B582",
+    "nom": "Recherche d'une mutation par simple PCR",
+    "coefficient": 1200.0,
+    "section": "Actes de génétique médicale",
+    "page": 9
+  },
+  {
+    "code": "B583",
+    "nom": "Recherche d'une mutation par séquençage d'un amplion",
+    "coefficient": 1200.0,
+    "section": "Actes de génétique médicale",
+    "page": 9
+  },
+  {
+    "code": "B584",
+    "nom": "Recherche d'un variant de l'ADN par RT-PCR et sonde Taqman",
+    "coefficient": 1200.0,
+    "section": "Actes de génétique médicale",
+    "page": 9
+  },
+  {
+    "code": "B585",
+    "nom": "Recherche de métaux lourds dans le sang (par élément)",
+    "coefficient": 250.0,
+    "section": "Actes d'analyses toxicologie médicale",
+    "page": 9
+  },
+  {
+    "code": "B586",
+    "nom": "Recherche de solvants dans le sang (par élément)",
+    "coefficient": 250.0,
+    "section": "Actes d'analyses toxicologie médicale",
+    "page": 9
+  },
+  {
+    "code": "B587",
+    "nom": "Recherche de métaux lourds dans les urines (par élément)",
+    "coefficient": 250.0,
+    "section": "Actes d'analyses toxicologie médicale",
+    "page": 9
+  },
+  {
+    "code": "B588",
+    "nom": "Recherche de solvants dans les urines (par élément)",
+    "coefficient": 250.0,
+    "section": "Actes d'analyses toxicologie médicale",
+    "page": 9
+  },
+  {
+    "code": "B589",
+    "nom": "Recherche de métaux lourds dans les cheveux (par élément)",
+    "coefficient": 300.0,
+    "section": "Actes d'analyses toxicologie médicale",
+    "page": 9
+  },
+  {
+    "code": "B590",
+    "nom": "Recherche de monoxyde de carbone (CO) dans le sang",
+    "coefficient": 250.0,
+    "section": "Actes d'analyses toxicologie médicale",
+    "page": 9
+  },
+  {
+    "code": "B591",
+    "nom": "Recherche des stupéfiants dans les urines",
+    "coefficient": 300.0,
+    "section": "Actes d'analyses toxicologie médicale",
+    "page": 9
+  }
+]

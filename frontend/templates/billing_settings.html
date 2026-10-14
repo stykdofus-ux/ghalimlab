@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+
+{% block page_heading %}
+⚙️ Paramètres de Tarification & Nomenclature des 492 Actes
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+    <!-- En-tête & Introduction -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.35rem;">
+                Nomenclature & Paramètres Tarifaires du Laboratoire
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                Le biologiste médical peut ajuster ici les multiplicateurs conventionnels globaux ou personnaliser les coefficients (B) et prix de chaque analyse.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="/facturation" class="btn btn-secondary">
+                💰 Voir le Journal des Factures
+            </a>
+            <button onclick="ouvrirModalNouvelActe()" class="btn btn-primary">
+                ➕ Ajouter un Acte
+            </button>
+        </div>
+    </div>
+
+    <!-- Section 1 : Configuration des Multiplicateurs Globaux (Biologiste) -->
+    <div class="card" style="padding: 1.5rem; background: #f8fafc; border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            <div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">
+                    📊 Multiplicateurs Réglementaires & Coordonnées du Laboratoire
+                </h3>
+                <small style="color: var(--text-muted);">
+                    Règles de calcul appliquées automatiquement à toutes les analyses médicales.
+                </small>
+            </div>
+            <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 600; padding: 0.4rem 0.8rem;">
+                Nomenclature Arrêté 1796-03 & 1968-16
+            </span>
+        </div>
+
+        <form id="formGlobalParams" onsubmit="sauvegarderParamsGlobaux(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; align-items: end;">
+            <div>
+                <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
+                    Taux CNSS / CNOPS (DH par unité B) * :
+                </label>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-weight: 700; color: #0284c7;">×</span>
+                    <input type="number" step="0.01" id="inputTauxCNSS" value="{{ params.taux_cnss_cnops }}" class="form-control" required style="font-weight: 700; color: #0284c7;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">DH</span>
+                </div>
+                <small style="color: var(--text-muted); font-size: 0.72rem;">Tarif conventionnel sécurité sociale</small>
+            </div>
+
+            <div>
+                <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
+                    Taux Normal / Assurances (DH par unité B) * :
+                </label>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-weight: 700; color: #0f766e;">×</span>
+                    <input type="number" step="0.01" id="inputTauxNormal" value="{{ params.taux_normal_assurance }}" class="form-control" required style="font-weight: 700; color: #0f766e;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">DH</span>
+                </div>
+                <small style="color: var(--text-muted); font-size: 0.72rem;">Tarif privé / mutuelles d'assurance</small>
+            </div>
+
+            <div>
+                <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
+                    Identifiant Commun (ICE) :
+                </label>
+                <input type="text" id="inputICE" value="{{ params.ice or '002847192000045' }}" class="form-control">
+            </div>
+
+            <div>
+                <label class="form-label" style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.3rem;">
+                    Identifiant Fiscal (IF) :
+                </label>
+                <input type="text" id="inputIF" value="{{ params.identifiant_fiscal or '40291823' }}" class="form-control">
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+                    💾 Mettre à jour les taux
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Section 2 : Nomenclature des 492 Actes de Biologie Médicale -->
+    <div class="card" style="padding: 1.25rem;">
+        <form method="GET" action="/parametres-tarifs" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-right: 0.5rem;">Catégorie :</span>
+                <a href="/parametres-tarifs?categorie=Toutes&search={{ search_term }}" 
+                   class="btn btn-sm {% if categorie_actif == 'Toutes' %}btn-primary{% else %}btn-secondary{% endif %}"
+                   style="border-radius: 20px; font-size: 0.8rem; padding: 0.25rem 0.75rem;">
+                   Toutes ({{ total_actes }})
+                </a>
+                {% for cat in categories[:6] %}
+                    <a href="/parametres-tarifs?categorie={{ cat }}&search={{ search_term }}" 
+                       class="btn btn-sm {% if categorie_actif == cat %}btn-primary{% else %}btn-secondary{% endif %}"
+                       style="border-radius: 20px; font-size: 0.8rem; padding: 0.25rem 0.75rem;">
+                       {{ cat }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; align-items: center; min-width: 320px;">
+                <input type="text" name="search" value="{{ search_term }}" placeholder="Recherche par code (ex: B100, B216) ou nom..." class="form-control form-control-sm" style="flex: 1;">
+                <input type="hidden" name="categorie" value="{{ categorie_actif }}">
+                <button type="submit" class="btn btn-primary btn-sm">🔍</button>
+                {% if search_term or categorie_actif != 'Toutes' %}
+                    <a href="/parametres-tarifs" class="btn btn-secondary btn-sm" title="Réinitialiser">✖</a>
+                {% endif %}
+            </div>
+        </form>
+
+        <!-- Tableau des Actes -->
+        <div style="border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden;">
+            <div class="table-responsive" style="max-height: 650px; overflow-y: auto;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                    <thead style="position: sticky; top: 0; z-index: 10;">
+                        <tr style="background: #0f172a; color: white; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                            <th style="padding: 0.85rem 1rem; width: 100px;">Code B</th>
+                            <th style="padding: 0.85rem 1rem;">Désignation Officielle de l'Analyse</th>
+                            <th style="padding: 0.85rem 1rem;">Catégorie</th>
+                            <th style="padding: 0.85rem 1rem; text-align: center; width: 110px;">Coefficient</th>
+                            <th style="padding: 0.85rem 1rem; text-align: right; width: 140px;">Tarif CNSS / CNOPS</th>
+                            <th style="padding: 0.85rem 1rem; text-align: right; width: 140px;">Tarif Normal / Assur.</th>
+                            <th style="padding: 0.85rem 1rem; text-align: right; width: 100px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in actes %}
+                        <tr id="row-acte-{{ a.id }}" style="border-bottom: 1px solid var(--border-color); font-size: 0.88rem;">
+                            <!-- Code -->
+                            <td style="padding: 0.75rem 1rem; font-family: monospace; font-weight: 800; color: var(--primary); font-size: 0.95rem;">
+                                {{ a.code }}
+                            </td>
+
+                            <!-- Nom -->
+                            <td style="padding: 0.75rem 1rem;">
+                                <div style="font-weight: 600; color: var(--text-main);" id="text-nom-{{ a.id }}">
+                                    {{ a.nom }}
+                                </div>
+                            </td>
+
+                            <!-- Catégorie -->
+                            <td style="padding: 0.75rem 1rem; color: var(--text-muted); font-size: 0.78rem;">
+                                {{ a.categorie }}
+                            </td>
+
+                            <!-- Coefficient B -->
+                            <td style="padding: 0.75rem 1rem; text-align: center;">
+                                <span class="badge" style="background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; font-weight: 700; font-size: 0.85rem;" id="badge-coeff-{{ a.id }}">
+                                    B {{ a.coefficient }}
+                                </span>
+                            </td>
+
+                            <!-- Prix CNSS / CNOPS -->
+                            <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 700; color: #0284c7;" id="prix-cnss-{{ a.id }}">
+                                {{ "%.2f"|format(a.prix_cnss) }} <small style="font-size: 0.72rem;">DH</small>
+                            </td>
+
+                            <!-- Prix Normal / Assurances -->
+                            <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 700; color: #0f766e;" id="prix-normal-{{ a.id }}">
+                                {{ "%.2f"|format(a.prix_normal) }} <small style="font-size: 0.72rem;">DH</small>
+                            </td>
+
+                            <!-- Actions -->
+                            <td style="padding: 0.75rem 1rem; text-align: right; white-space: nowrap;">
+                                <button type="button"
+                                        class="btn btn-secondary btn-sm" 
+                                        style="font-size: 0.75rem; padding: 0.2rem 0.5rem;" 
+                                        data-id="{{ a.id }}"
+                                        data-code="{{ a.code }}"
+                                        data-nom="{{ a.nom }}"
+                                        data-coeff="{{ a.coefficient }}"
+                                        data-cnss="{{ a.prix_cnss }}"
+                                        data-normal="{{ a.prix_normal }}"
+                                        onclick="ouvrirModalModifierActeBtn(this)"
+                                        title="Modifier le coefficient ou les prix">
+                                    ✏️ Modifier
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                                Aucun acte trouvé pour ces critères.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem; text-align: right;">
+            Affichage de {{ actes|length }} acte(s) sur les 492 de la nomenclature officielle.
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modification d'un Acte -->
+<div id="modalModifierActe" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+    <div style="background: white; border-radius: var(--radius); width: 100%; max-width: 500px; padding: 1.5rem; box-shadow: var(--shadow-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">
+                ✏️ Modifier l'Acte <span id="modalEditCode" style="color: var(--primary);"></span>
+            </h3>
+            <button onclick="fermerModalModifierActe()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+        </div>
+
+        <form id="formModifierActe" onsubmit="sauvegarderActe(event)">
+            <input type="hidden" id="modalEditId">
+
+            <div style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Désignation de l'Analyse :
+                </label>
+                <input type="text" id="modalEditNom" class="form-control" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                        Coefficient B * :
+                    </label>
+                    <input type="number" step="0.5" id="modalEditCoeff" class="form-control" required oninput="recalculerTarifsModal()">
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">Ex: 30, 80, 250</small>
+                </div>
+
+                <div>
+                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                        Prix CNSS / CNOPS (DH) :
+                    </label>
+                    <input type="number" step="0.01" id="modalEditPrixCNSS" class="form-control" required style="color: #0284c7; font-weight: 700;">
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">Coeff x {{ params.taux_cnss_cnops }}</small>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Prix Normal / Assurances (DH) :
+                </label>
+                <input type="number" step="0.01" id="modalEditPrixNormal" class="form-control" required style="color: #0f766e; font-weight: 700;">
+                <small style="color: var(--text-muted); font-size: 0.72rem;">Coeff x {{ params.taux_normal_assurance }}</small>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" onclick="fermerModalModifierActe()" class="btn btn-secondary">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Nouvel Acte -->
+<div id="modalNouvelActe" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+    <div style="background: white; border-radius: var(--radius); width: 100%; max-width: 500px; padding: 1.5rem; box-shadow: var(--shadow-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">
+                ➕ Ajouter un Acte Biologique
+            </h3>
+            <button onclick="fermerModalNouvelActe()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+        </div>
+
+        <form id="formNouvelActe" onsubmit="creerNouvelActe(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                        Code Acte * :
+                    </label>
+                    <input type="text" id="newActeCode" placeholder="B600" class="form-control" required>
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                        Catégorie :
+                    </label>
+                    <input type="text" id="newActeCat" placeholder="Biochimie" class="form-control">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Désignation de l'Analyse * :
+                </label>
+                <input type="text" id="newActeNom" placeholder="Calprotectine Fécale" class="form-control" required>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Coefficient B * :
+                </label>
+                <input type="number" step="0.5" id="newActeCoeff" placeholder="150" class="form-control" required>
+                <small style="color: var(--text-muted); font-size: 0.72rem;">Les prix CNSS et Normal seront calculés automatiquement.</small>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" onclick="fermerModalNouvelActe()" class="btn btn-secondary">Annuler</button>
+                <button type="submit" class="btn btn-primary">Créer l'acte</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const TAUX_CNSS = {{ params.taux_cnss_cnops }};
+const TAUX_NORMAL = {{ params.taux_normal_assurance }};
+
+function ouvrirModalModifierActeBtn(btn) {
+    const id = btn.getAttribute('data-id');
+    const code = btn.getAttribute('data-code');
+    const nom = btn.getAttribute('data-nom');
+    const coeff = parseFloat(btn.getAttribute('data-coeff')) || 0;
+    const pCnss = parseFloat(btn.getAttribute('data-cnss')) || 0;
+    const pNormal = parseFloat(btn.getAttribute('data-normal')) || 0;
+    ouvrirModalModifierActe(id, code, nom, coeff, pCnss, pNormal);
+}
+
+function ouvrirModalModifierActe(id, code, nom, coeff, pCnss, pNormal) {
+    document.getElementById('modalEditId').value = id;
+    document.getElementById('modalEditCode').innerText = code;
+    document.getElementById('modalEditNom').value = nom;
+    document.getElementById('modalEditCoeff').value = coeff;
+    document.getElementById('modalEditPrixCNSS').value = pCnss.toFixed(2);
+    document.getElementById('modalEditPrixNormal').value = pNormal.toFixed(2);
+    document.getElementById('modalModifierActe').style.display = 'flex';
+}
+
+function fermerModalModifierActe() {
+    document.getElementById('modalModifierActe').style.display = 'none';
+}
+
+function recalculerTarifsModal() {
+    const coeff = parseFloat(document.getElementById('modalEditCoeff').value) || 0;
+    document.getElementById('modalEditPrixCNSS').value = (coeff * TAUX_CNSS).toFixed(2);
+    document.getElementById('modalEditPrixNormal').value = (coeff * TAUX_NORMAL).toFixed(2);
+}
+
+async function sauvegarderActe(e) {
+    e.preventDefault();
+    const id = document.getElementById('modalEditId').value;
+    const nom = document.getElementById('modalEditNom').value.trim();
+    const coeff = parseFloat(document.getElementById('modalEditCoeff').value);
+    const pCnss = parseFloat(document.getElementById('modalEditPrixCNSS').value);
+    const pNormal = parseFloat(document.getElementById('modalEditPrixNormal').value);
+
+    try {
+        const resp = await fetch(`/api/billing/actes/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nom: nom,
+                coefficient: coeff,
+                prix_cnss: pCnss,
+                prix_normal: pNormal
+            })
+        });
+
+        if (resp.ok) {
+            fermerModalModifierActe();
+            window.location.reload();
+        } else {
+            const err = await resp.json();
+            alert('Erreur: ' + (err.detail || 'Impossible d\'enregistrer'));
+        }
+    } catch (e) {
+        alert('Erreur réseau');
+    }
+}
+
+async function sauvegarderParamsGlobaux(e) {
+    e.preventDefault();
+    const tCnss = parseFloat(document.getElementById('inputTauxCNSS').value);
+    const tNormal = parseFloat(document.getElementById('inputTauxNormal').value);
+    const ice = document.getElementById('inputICE').value.trim();
+    const iff = document.getElementById('inputIF').value.trim();
+
+    const recal = confirm("Souhaitez-vous recalculer les tarifs par défaut des 492 actes avec ces nouveaux multiplicateurs ?");
+
+    try {
+        const resp = await fetch('/api/billing/parametres', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                taux_cnss_cnops: tCnss,
+                taux_normal_assurance: tNormal,
+                ice: ice,
+                identifiant_fiscal: iff,
+                recalculer_prix_actes: recal
+            })
+        });
+
+        if (resp.ok) {
+            alert('Paramètres tarifaires enregistrés avec succès !');
+            window.location.reload();
+        } else {
+            alert('Erreur lors de la mise à jour des paramètres');
+        }
+    } catch (e) {
+        alert('Erreur réseau');
+    }
+}
+
+function ouvrirModalNouvelActe() {
+    document.getElementById('modalNouvelActe').style.display = 'flex';
+}
+
+function fermerModalNouvelActe() {
+    document.getElementById('modalNouvelActe').style.display = 'none';
+}
+
+async function creerNouvelActe(e) {
+    e.preventDefault();
+    const code = document.getElementById('newActeCode').value.trim();
+    const nom = document.getElementById('newActeNom').value.trim();
+    const cat = document.getElementById('newActeCat').value.trim();
+    const coeff = parseFloat(document.getElementById('newActeCoeff').value);
+
+    try {
+        const resp = await fetch('/api/billing/actes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: code,
+                nom: nom,
+                categorie: cat || 'Biochimie',
+                coefficient: coeff
+            })
+        });
+
+        if (resp.ok) {
+            fermerModalNouvelActe();
+            window.location.reload();
+        } else {
+            const err = await resp.json();
+            alert('Erreur: ' + (err.detail || 'Impossible d\'ajouter l\'acte'));
+        }
+    } catch (e) {
+        alert('Erreur réseau');
+    }
+}
+</script>
+{% endblock %}

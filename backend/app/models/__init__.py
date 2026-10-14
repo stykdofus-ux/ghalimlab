@@ -5,6 +5,7 @@ Exportation de tous les modèles SQLAlchemy pour faciliter les migrations et l'i
 from backend.app.models.core import Patient, Demande, AnalyseParameter, Resultat, AutomateLog, DocumentScanne, EchantillonTube
 from backend.app.models.bacteriology import ExamenBacteriologique, AntibiogrammeLigne
 from backend.app.models.parasitology import ExamenParasitologique
+from backend.app.models.billing import ActeBiologique, ParametreTarification, Facture, FactureLigne
 
 __all__ = [
     "Patient",
@@ -17,4 +18,9 @@ __all__ = [
     "ExamenBacteriologique",
     "AntibiogrammeLigne",
     "ExamenParasitologique",
+    "ActeBiologique",
+    "ParametreTarification",
+    "Facture",
+    "FactureLigne",
 ]
+

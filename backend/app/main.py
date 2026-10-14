@@ -15,7 +15,9 @@ from sqlalchemy.orm import Session
 from backend.app.config import BASE_DIR, LABO_NOM, LABO_DIRECTEUR, ASTM_PORT
 from backend.app.database import engine, Base, SessionLocal, get_db
 from backend.app.services.seed_data import seed_database
-from backend.app.models.core import Patient, Demande, AnalyseParameter, Resultat, AutomateLog
+import backend.app.models
+from backend.app.models.core import Patient, Demande, AnalyseParameter, Resultat, AutomateLog, DocumentScanne, EchantillonTube
+from backend.app.models.billing import ActeBiologique, ParametreTarification, Facture, FactureLigne
 
 # Routers
 from backend.app.routes.patients import router as patients_router
@@ -27,6 +29,7 @@ from backend.app.routes.parasitology import router as parasitology_router
 from backend.app.routes.pdf_export import router as pdf_router
 from backend.app.routes.documents import router as documents_router
 from backend.app.routes.tubes import router as tubes_router
+from backend.app.routes.billing import router as billing_router
 
 
 @asynccontextmanager
@@ -76,6 +79,7 @@ app.include_router(parasitology_router)
 app.include_router(pdf_router)
 app.include_router(documents_router)
 app.include_router(tubes_router)
+app.include_router(billing_router)
 
 
 # ==============================================================================
@@ -91,8 +95,15 @@ def page_dashboard(request: Request, db: Session = Depends(get_db)):
     valides = db.query(Demande).filter(Demande.statut == "Validé").count()
     total_patients = db.query(Patient).count()
     from backend.app.models.core import DocumentScanne, EchantillonTube
+    from backend.app.models.billing import Facture, ActeBiologique
     total_documents = db.query(DocumentScanne).count()
     total_tubes = db.query(EchantillonTube).count()
+    total_factures = db.query(Facture).count()
+    total_actes = db.query(ActeBiologique).count()
+
+    from sqlalchemy import func
+    total_recettes = db.query(func.sum(Facture.montant_paye)).scalar() or 0.0
+    total_impayes = db.query(func.sum(Facture.reste_a_payer)).scalar() or 0.0
 
     recentes_demandes = db.query(Demande).order_by(Demande.date_reception.desc()).limit(8).all()
     recent_logs = db.query(AutomateLog).order_by(AutomateLog.timestamp.desc()).limit(5).all()
@@ -105,7 +116,11 @@ def page_dashboard(request: Request, db: Session = Depends(get_db)):
             "valides": valides,
             "total_patients": total_patients,
             "total_documents": total_documents,
-            "total_tubes": total_tubes
+            "total_tubes": total_tubes,
+            "total_factures": total_factures,
+            "total_actes": total_actes,
+            "total_recettes": round(total_recettes, 2),
+            "total_impayes": round(total_impayes, 2)
         },
         "recentes_demandes": recentes_demandes,
         "recent_logs": recent_logs
@@ -271,4 +286,104 @@ def page_echantillons_serotheque(
             "non_conformes": non_conformes
         }
     })
+
+
+@app.get("/facturation", response_class=HTMLResponse)
+def page_facturation(
+    request: Request,
+    statut: str = "Tous",
+    prise_en_charge: str = "Tous",
+    search: str = "",
+    db: Session = Depends(get_db)
+):
+    """Console de facturation, suivi des règlements et caisse."""
+    from backend.app.models.billing import Facture
+    from sqlalchemy import func
+
+    query = db.query(Facture).join(Facture.patient)
+
+    if statut and statut != "Tous":
+        query = query.filter(Facture.statut_paiement == statut)
+
+    if prise_en_charge and prise_en_charge != "Tous":
+        query = query.filter(Facture.type_prise_en_charge == prise_en_charge)
+
+    if search:
+        s = f"%{search.strip()}%"
+        query = query.filter(
+            (Facture.numero_facture.ilike(s)) |
+            (Patient.nom.ilike(s)) |
+            (Patient.prenom.ilike(s)) |
+            (Patient.cin.ilike(s))
+        )
+
+    factures = query.order_by(Facture.date_facture.desc()).all()
+
+    # Statistiques financières globales
+    total_factures = db.query(Facture).count()
+    recettes_total = db.query(func.sum(Facture.montant_paye)).scalar() or 0.0
+    impayes_total = db.query(func.sum(Facture.reste_a_payer)).scalar() or 0.0
+    tiers_payant_total = db.query(func.sum(Facture.part_organisme)).scalar() or 0.0
+
+    nb_paye = db.query(Facture).filter(Facture.statut_paiement == "Payé intégralement").count()
+    nb_avance = db.query(Facture).filter(Facture.statut_paiement == "Avance versée").count()
+    nb_non_paye = db.query(Facture).filter(Facture.statut_paiement == "Non payé").count()
+
+    # Demandes récentes sans facture pour proposition de facturation rapide
+    demandes_sans_facture = db.query(Demande).outerjoin(Demande.factures).filter(Facture.id == None).limit(10).all()
+
+    return render_page(request, "billing_dashboard.html", {
+        "factures": factures,
+        "demandes_sans_facture": demandes_sans_facture,
+        "statut_actif": statut,
+        "prise_en_charge_actif": prise_en_charge,
+        "search_term": search,
+        "stats": {
+            "total_factures": total_factures,
+            "recettes": round(recettes_total, 2),
+            "impayes": round(impayes_total, 2),
+            "tiers_payant": round(tiers_payant_total, 2),
+            "nb_paye": nb_paye,
+            "nb_avance": nb_avance,
+            "nb_non_paye": nb_non_paye
+        }
+    })
+
+
+@app.get("/parametres-tarifs", response_class=HTMLResponse)
+def page_parametres_tarifs(
+    request: Request,
+    categorie: str = "Toutes",
+    search: str = "",
+    db: Session = Depends(get_db)
+):
+    """Page de configuration des tarifs et nomenclature des 492 actes de biologie médicale."""
+    from backend.app.models.billing import ActeBiologique, ParametreTarification
+    from backend.app.services.billing_service import get_or_create_tarification_params
+
+    params = get_or_create_tarification_params(db)
+
+    query = db.query(ActeBiologique).filter(ActeBiologique.actif == True)
+
+    if categorie and categorie != "Toutes":
+        query = query.filter(ActeBiologique.categorie == categorie)
+
+    if search:
+        s = f"%{search.strip()}%"
+        query = query.filter((ActeBiologique.code.ilike(s)) | (ActeBiologique.nom.ilike(s)))
+
+    actes = query.order_by(ActeBiologique.code.asc()).all()
+
+    # Catégories distinctes existantes
+    categories = [r[0] for r in db.query(ActeBiologique.categorie).distinct().all() if r[0]]
+
+    return render_page(request, "billing_settings.html", {
+        "actes": actes,
+        "params": params,
+        "categories": categories,
+        "categorie_actif": categorie,
+        "search_term": search,
+        "total_actes": db.query(ActeBiologique).count()
+    })
+
 

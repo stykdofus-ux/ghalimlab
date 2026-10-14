@@ -47,6 +47,17 @@
                     <span>Supervision ASTM (Port {{ astm_port|default(5000) }})</span>
                 </a>
 
+                <div class="nav-section-title">Comptabilité & Tarifs</div>
+                <a href="/facturation" class="nav-item {% if '/facturation' in request.url.path %}active{% endif %}">
+                    <span class="icon">💰</span>
+                    <span>Facturation & Encaissements</span>
+                </a>
+                <a href="/parametres-tarifs" class="nav-item {% if '/parametres-tarifs' in request.url.path %}active{% endif %}">
+                    <span class="icon">⚙️</span>
+                    <span>Nomenclature & Tarifs (492)</span>
+                </a>
+
+
 
                 <div class="nav-section-title">Sections Spécialisées</div>
                 <a href="/bacteriologie" class="nav-item {% if '/bacteriologie' in request.url.path %}active{% endif %}">

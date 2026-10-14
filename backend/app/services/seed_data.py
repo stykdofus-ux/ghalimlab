@@ -8,7 +8,9 @@ from sqlalchemy.orm import Session
 from backend.app.models.core import Patient, Demande, AnalyseParameter, Resultat, AutomateLog, DocumentScanne, EchantillonTube
 from backend.app.models.bacteriology import ExamenBacteriologique, AntibiogrammeLigne
 from backend.app.models.parasitology import ExamenParasitologique
+from backend.app.models.billing import ActeBiologique, ParametreTarification, Facture, FactureLigne
 from backend.app.config import UPLOAD_DIR
+
 
 
 PARAMETRES_CATALOGUE = [
@@ -772,4 +774,91 @@ def seed_database(db: Session):
             db.add_all([t4_edta, t4_ecbu])
 
         db.commit()
+
+    # 5. Nomenclature officielle des Actes de Biologie Médicale (492 actes) & Tarifs
+    try:
+        from backend.app.services.billing_service import (
+            seed_all_actes_from_json,
+            get_or_create_tarification_params,
+            create_or_update_facture
+        )
+        get_or_create_tarification_params(db)
+        seed_all_actes_from_json(db)
+
+        # Création de factures de démonstration pour les dossiers existants
+        if db.query(Facture).count() == 0:
+            d1 = db.query(Demande).filter(Demande.code_barres == "PREL-2026-001").first()
+            d2 = db.query(Demande).filter(Demande.code_barres == "PREL-2026-002").first()
+            d4 = db.query(Demande).filter(Demande.code_barres == "PREL-2026-004").first()
+
+            if d1:
+                # Facture 1 : Dossier validé - Prise en charge CNSS (Taux 1.10)
+                lignes_d1 = [
+                    {"code_acte": "B216", "nom_acte": "Numération Formule (Globules rouges/Blancs/plaquettes)", "coefficient": 80.0, "quantite": 1},
+                    {"code_acte": "B132", "nom_acte": "Glycémie", "coefficient": 20.0, "quantite": 1},
+                    {"code_acte": "B149", "nom_acte": "Urée", "coefficient": 20.0, "quantite": 1},
+                    {"code_acte": "B111", "nom_acte": "Créatinine", "coefficient": 30.0, "quantite": 1},
+                    {"code_acte": "B106", "nom_acte": "Cholestérol total", "coefficient": 30.0, "quantite": 1},
+                    {"code_acte": "B108", "nom_acte": "Cholestérol HDL", "coefficient": 50.0, "quantite": 1},
+                    {"code_acte": "B109", "nom_acte": "Cholesterol LDL", "coefficient": 50.0, "quantite": 1},
+                    {"code_acte": "B152", "nom_acte": "Triglycérides", "coefficient": 40.0, "quantite": 1},
+                    {"code_acte": "B125", "nom_acte": "Protéine C-Réactive (CRP)", "coefficient": 60.0, "quantite": 1},
+                ]
+                create_or_update_facture(
+                    db=db,
+                    patient_id=d1.patient_id,
+                    demande_id=d1.id,
+                    type_prise_en_charge="CNSS",
+                    organisme_nom="CNSS Maroc",
+                    numero_prise_en_charge="PEC-CNSS-889410",
+                    lignes_data=lignes_d1,
+                    montant_paye=418.00,
+                    mode_paiement="Carte Bancaire",
+                    reference_paiement="TPE-20261014-991",
+                    notes="Prise en charge CNSS validée. Ticket modérateur encaissé."
+                )
+
+            if d2:
+                # Facture 2 : En attente d'automate - Prise en charge CNOPS (Taux 1.10)
+                lignes_d2 = [
+                    {"code_acte": "B216", "nom_acte": "Numération Formule (NFS)", "coefficient": 80.0, "quantite": 1},
+                    {"code_acte": "B132", "nom_acte": "Glycémie", "coefficient": 20.0, "quantite": 1},
+                    {"code_acte": "B125", "nom_acte": "Protéine C-Réactive (CRP)", "coefficient": 60.0, "quantite": 1},
+                ]
+                create_or_update_facture(
+                    db=db,
+                    patient_id=d2.patient_id,
+                    demande_id=d2.id,
+                    type_prise_en_charge="CNOPS",
+                    organisme_nom="CNOPS",
+                    numero_prise_en_charge="PEC-CNOPS-4412",
+                    lignes_data=lignes_d2,
+                    montant_paye=50.00,
+                    mode_paiement="Espèces",
+                    notes="Avance versée par l'adhérente lors de l'enregistrement."
+                )
+
+            if d4:
+                # Facture 4 : ECBU - Tarif Normal / Privé (Taux 1.36)
+                lignes_d4 = [
+                    {"code_acte": "B216", "nom_acte": "Numération Formule (NFS)", "coefficient": 80.0, "quantite": 1},
+                    {"code_acte": "B248", "nom_acte": "Urine : Examen Cytobactériologique (ECBU)", "coefficient": 120.0, "quantite": 1},
+                    {"code_acte": "B254", "nom_acte": "Antibiogramme standard", "coefficient": 80.0, "quantite": 1},
+                ]
+                create_or_update_facture(
+                    db=db,
+                    patient_id=d4.patient_id,
+                    demande_id=d4.id,
+                    type_prise_en_charge="Normal",
+                    organisme_nom="Particulier",
+                    lignes_data=lignes_d4,
+                    montant_paye=380.80,
+                    mode_paiement="Espèces",
+                    notes="Règlement intégral en espèces au comptoir d'accueil."
+                )
+
+            db.commit()
+    except Exception as e:
+        print("Erreur initialisation tarification & actes :", e)
+
 

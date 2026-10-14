@@ -58,14 +58,23 @@
                 <strong>Prescripteur :</strong> {{ demande.prescripteur or 'Dr Externe' }}
             </div>
             <div style="display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
+                {% if demande.factures and demande.factures|length > 0 %}
+                <a href="/api/billing/factures/{{ demande.factures[0].id }}/pdf" target="_blank" class="btn btn-secondary btn-sm" style="background: #ecfdf5; color: #047857; border-color: #a7f3d0;" title="Télécharger la facture officielle">
+                    🧾 Facture ({{ demande.factures[0].montant_net }} DH)
+                </a>
+                {% else %}
+                <a href="/facturation?search={{ demande.code_barres }}" class="btn btn-secondary btn-sm" style="background: #ecfdf5; color: #047857; border-color: #a7f3d0;" title="Consulter ou établir la facture">
+                    🧾 Facturation
+                </a>
+                {% endif %}
                 <a href="/api/rapports/demande/{{ demande.id }}/etiquettes/pdf" target="_blank" class="btn btn-secondary btn-sm" style="background: #fdf2f8; color: #be185d; border-color: #fbcfe8;">
-                    🏷️ Imprimer Étiquettes Tubes
+                    🏷️ Étiquettes Tubes
                 </a>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-upload-scan-direct').style.display='block'">
-                    📤 Scanner / Ajouter un Bulletin
+                    📤 Scanner / Bulletin
                 </button>
                 <a href="/api/rapports/{{ demande.id }}/pdf" target="_blank" class="btn btn-primary btn-sm">
-                    📄 Imprimer le Compte-Rendu PDF
+                    📄 Compte-Rendu PDF
                 </a>
             </div>
         </div>

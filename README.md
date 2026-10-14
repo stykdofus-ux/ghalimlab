@@ -26,19 +26,23 @@ ghalimlab/
 │   │   ├── main.py                # Application FastAPI et routes web HTML
 │   │   ├── models/                # Modèles ORM
 │   │   │   ├── core.py            # Patient, Demande, AnalyseParameter, Resultat, AutomateLog
+│   │   │   ├── billing.py         # ActeBiologique, ParametreTarification, Facture, FactureLigne
 │   │   │   ├── bacteriology.py    # ExamenBacteriologique, AntibiogrammeLigne
 │   │   │   └── parasitology.py    # ExamenParasitologique
 │   │   ├── schemas/               # Schémas de validation Pydantic
 │   │   ├── services/
+│   │   │   ├── billing_service.py # Ingestion nomenclature V4, tarification CNSS/Normal & facturation
 │   │   │   ├── result_service.py  # Ingestion automatique & calcul des bornes de référence
-│   │   │   ├── pdf_service.py     # Générateur de compte-rendu médical PDF
-│   │   │   └── seed_data.py       # Catalogue officiel d'analyses & dossiers de test
+│   │   │   ├── pdf_service.py     # Édition des comptes-rendus et factures médicales PDF
+│   │   │   └── seed_data.py       # 492 actes nomenclature, catalogue & dossiers de test
 │   │   └── routes/                # API REST
+│   │       ├── billing.py         # Facturation, nomenclature 492 actes, règlements & PDF
 │   │       ├── patients.py        # Gestion des patients
 │   │       ├── demandes.py        # Gestion des prélèvements & codes-barres
 │   │       ├── validation.py      # Validation biologique & saisie manuelle
 │   │       ├── automates.py       # Télémétrie ASTM & déclenchement de simulation
 │   │       ├── documents.py       # Gestion des documents & bulletins scannés
+│   │       ├── tubes.py           # Traçabilité des tubes & étiquettes thermiques
 │   │       ├── bacteriology.py    # Endpoints ECBU & Antibiogrammes
 │   │       ├── parasitology.py    # Endpoints Parasitologie & Mycologie
 │   │       └── pdf_export.py      # Téléchargement du compte-rendu PDF
@@ -52,9 +56,11 @@ ghalimlab/
 │   │   └── js/app.js              # Interactions dynamiques, requêtes asynchrones, alertes
 │   └── templates/
 │       ├── base.html              # Gabarit principal avec barre latérale et indicateur ASTM
-│       ├── dashboard.html         # Tableau de bord principal avec KPIs
+│       ├── dashboard.html         # Tableau de bord principal avec KPIs & Chiffre d'Affaires
+│       ├── billing_dashboard.html # Gestion de la facturation, encaissements et reçus
+│       ├── billing_settings.html  # Paramètres des taux (CNSS / Normal) & 492 actes de nomenclature
 │       ├── worklist.html          # Liste de travail (Worklist) avec filtres par statut
-│       ├── new_demande.html       # Enregistrement patient & création de code-barres
+│       ├── new_demande.html       # Enregistrement patient, prise en charge & facturation auto
 │       ├── patient_detail.html    # Dossier complet patient & visionneuse de scans
 │       ├── validation_dossier.html# Dashboard de validation biologique (Élevé/Bas/Normal)
 │       ├── automates_monitor.html # Console de télémétrie ASTM en direct
@@ -66,7 +72,8 @@ ghalimlab/
 ├── tests/
 │   ├── test_astm_protocol.py      # Tests unitaires du protocole ASTM & checksum
 │   ├── test_reference_ranges.py   # Tests du calcul des bornes normales selon l'âge et le sexe
-│   └── test_api.py                # Tests d'intégration API, validation et génération PDF
+│   └── test_api.py                # Tests API, validation, traçabilité tubes, factures & PDF
+├── liste_actes_biologie_V4.pdf    # Nomenclature officielle marocaine des actes de biologie
 ├── run_server.py                  # Lanceur unifié (FastAPI + Démon ASTM)
 ├── requirements.txt
 └── README.md
@@ -178,15 +185,31 @@ py -m backend.astm.simulator --automate cobas --barcode PREL-2026-002
   * Attribution d'emplacements précis de conservation sous température contrôlée (ex: *Frigo Sérothèque 1 - Rack A1 - Pos 04*, *Congélateur -20°C - Rack C1*).
   * Horodatage d'archivage et traçabilité des opérateurs préleveurs et réceptionnaires.
 
+### G. Facturation Médicale & Nomenclature Officielle des Actes (492 Actes V4)
+* **Catalogue Intégral de la Nomenclature Marocaine** (`/parametres-tarifs`) :
+  * Intégration exhaustive de la totalité des **492 actes de biologie** issus du document officiel `liste_actes_biologie_V4.pdf` (codes B100 à B591, catégories Biochimie, Hématologie, Immunologie, Bactériologie, Hormonologie, etc.).
+  * Règle de tarification stricte selon la prise en charge :
+    * **CNSS / CNOPS** : `Prix = Coefficient B × 1.10 DH`
+    * **Normal / Assurances Privées** : `Prix = Coefficient B × 1.36 DH`
+* **Pilotage Paramétrique par le Biologiste** :
+  * Possibilité pour le biologiste médical de modifier globalement les multiplicateurs (taux CNSS et Normal) avec recalcul automatique instantané de l'ensemble des 492 actes.
+  * Possibilité d'ajuster individuellement le coefficient B, le prix conventionné CNSS ou le prix Normal de n'importe quel acte avec mémorisation instantanée.
+  * Ajout d'actes personnalisés hors nomenclature avec cotation propre.
+* **Module de Facturation & Règlements** (`/facturation`) :
+  * Facturation automatique lors de l'enregistrement d'une demande avec sélection du mode de couverture (*Normal / Privé*, *CNSS*, *CNOPS*, *Assurance*).
+  * Suivi des règlements : Espèces, Carte Bancaire, Virement, Prise en charge tierce avec statut de solde (*Payé intégralement*, *Avance versée*, *Non payé*).
+  * Tableau de bord financier : Chiffre d'Affaires total, montants encaissés, reste à recouvrer.
+  * **Édition de Factures & Reçus de Paiement Officiels (PDF)** : Génération haute définition avec ReportLab conforme aux mentions fiscales (ICE, Identifiant Fiscal, Patente, N° CNSS). Téléchargement direct via `/api/billing/factures/{id}/pdf`.
+
 ---
 
 ## 6. Exécution des Tests Automatisés
 
-Le projet comprend une suite complète de tests unitaires et d'intégration validant le protocole ASTM, le calcul des bornes normales, la gestion des documents scannés, la traçabilité des tubes et les endpoints de l'API :
+Le projet comprend une suite complète de 17 tests unitaires et d'intégration validant le protocole ASTM, le calcul des bornes normales, la gestion des documents scannés, la traçabilité des tubes, la nomenclature des 492 actes, le calcul des tarifs CNSS/Normal et la génération des factures PDF :
 
 ```powershell
 py -m pytest tests/
 ```
 
-*Résultat attendu : 13 passed.*
+*Résultat attendu : 17 passed.*
 

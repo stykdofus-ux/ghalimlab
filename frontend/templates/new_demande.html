@@ -134,6 +134,29 @@
                 <textarea id="renseignements_cliniques" class="form-control" rows="2" placeholder="Bilan systématique, fièvre, suspicion d'anémie, etc."></textarea>
             </div>
 
+            <!-- Prise en charge & Facturation Médicale -->
+            <div class="form-group" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; border-radius: 8px;">
+                <label class="form-label" style="color: #166534; font-weight: 700;">💳 Couverture Médicale & Tarification</label>
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Type de Prise en Charge :</label>
+                        <select id="type_prise_en_charge" class="form-control">
+                            <option value="Normal">Normal / Privé (Tarif coeff x 1.36 DH)</option>
+                            <option value="CNSS">CNSS (Tarif conventionné coeff x 1.10 DH)</option>
+                            <option value="CNOPS">CNOPS (Tarif conventionné coeff x 1.10 DH)</option>
+                            <option value="Assurance">Assurance Privée (Tarif coeff x 1.36 DH)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Génération Immédiate :</label>
+                        <div style="display: flex; align-items: center; height: 38px; gap: 0.5rem;">
+                            <input type="checkbox" id="auto_generate_invoice" checked>
+                            <label for="auto_generate_invoice" style="margin: 0; font-size: 0.85rem; color: #166534;">Éditer automatiquement la facture / note d'honoraires</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Ajout d'ordonnance ou document scanné dès l'admission -->
             <div class="form-group" style="background: #f8fafc; border: 1px dashed #93c5fd; padding: 1rem; border-radius: 8px;">
                 <label class="form-label" style="color: #0369a1;">📑 Numériser / Joindre un Bulletin ou Document Scanné (Optionnel) :</label>
@@ -272,6 +295,19 @@ async function soumettreDemande(event) {
         if (demResp.ok) {
             const demData = await demResp.json();
             
+            // Facturation automatique si demandée
+            const autoBilling = document.getElementById("auto_generate_invoice")?.checked;
+            const typePEC = document.getElementById("type_prise_en_charge")?.value || "Normal";
+            if (autoBilling) {
+                try {
+                    await fetch(`/api/billing/factures/auto/${demData.id}?type_prise_en_charge=${encodeURIComponent(typePEC)}`, {
+                        method: "POST"
+                    });
+                } catch (bErr) {
+                    console.error("Génération facture automatique :", bErr);
+                }
+            }
+
             // Si un fichier scanné a été sélectionné, le téléverser immédiatement
             const scanInput = document.getElementById("scan_initial_file");
             if (scanInput && scanInput.files && scanInput.files.length > 0) {
@@ -293,7 +329,7 @@ async function soumettreDemande(event) {
                 }
             }
 
-            showToast("Prélèvement et documents scannés enregistrés avec succès !", "success");
+            showToast("Prélèvement et dossier facturation créés avec succès !", "success");
             setTimeout(() => {
                 window.location.href = `/validation/${demData.id}`;
             }, 800);

@@ -219,3 +219,126 @@ def test_api_tube_lifecycle_and_labels_generation():
 
     db.close()
 
+
+def test_api_billing_nomenclature_and_rates():
+    """Vérifie la présence des 492 actes de la nomenclature marocaine et les règles tarifaires (1.10 et 1.36)."""
+    # 1. Vérifier la liste complète des actes
+    resp = client.get("/api/billing/actes?limit=600")
+    assert resp.status_code == 200
+    actes = resp.json()
+    assert len(actes) == 492, f"Attendu 492 actes de la nomenclature V4, obtenu {len(actes)}"
+
+    # 2. Vérifier les paramètres de tarification globaux
+    param_resp = client.get("/api/billing/parametres")
+    assert param_resp.status_code == 200
+    p = param_resp.json()
+    assert p["taux_cnss_cnops"] == 1.10
+    assert p["taux_normal_assurance"] == 1.36
+
+    # 3. Vérifier la règle de calcul sur un échantillon d'actes
+    for code in ["B100", "B110", "B118"]:
+        found = [a for a in actes if a["code"] == code]
+        assert len(found) == 1, f"Acte {code} introuvable"
+        acte = found[0]
+        coeff = acte["coefficient"]
+        assert acte["prix_cnss"] == round(coeff * 1.10, 2)
+        assert acte["prix_normal"] == round(coeff * 1.36, 2)
+
+
+def test_api_billing_update_rates_and_recalculate():
+    """Vérifie la mise à jour des taux par le biologiste et le recalcul automatique des actes."""
+    # 1. Modifier temporairement les taux globaux
+    new_rates = {
+        "taux_cnss_cnops": 1.15,
+        "taux_normal_assurance": 1.45,
+        "devise": "DH",
+        "recalculer_prix_actes": True
+    }
+    update_resp = client.put("/api/billing/parametres", json=new_rates)
+    assert update_resp.status_code == 200
+    data = update_resp.json()
+    assert data["taux_cnss_cnops"] == 1.15
+    assert data["taux_normal_assurance"] == 1.45
+
+    # Vérifier que les prix des actes ont bien été recalculés
+    b110_resp = client.get("/api/billing/actes/code/B110")
+    assert b110_resp.status_code == 200
+    b110 = b110_resp.json()
+    assert b110["prix_cnss"] == round(b110["coefficient"] * 1.15, 2)
+    assert b110["prix_normal"] == round(b110["coefficient"] * 1.45, 2)
+
+    # 2. Réinitialiser aux taux officiels (1.10 et 1.36)
+    restore_resp = client.put("/api/billing/parametres", json={
+        "taux_cnss_cnops": 1.10,
+        "taux_normal_assurance": 1.36,
+        "devise": "DH",
+        "recalculer_prix_actes": True
+    })
+    assert restore_resp.status_code == 200
+
+
+def test_api_billing_individual_acte_modification():
+    """Vérifie qu'un biologiste peut ajuster individuellement le coefficient ou les prix d'un acte."""
+    b100_resp = client.get("/api/billing/actes/code/B100")
+    assert b100_resp.status_code == 200
+    b100 = b100_resp.json()
+    acte_id = b100["id"]
+
+    # Modifier le coefficient individuel
+    patch_resp = client.patch(f"/api/billing/actes/{acte_id}", json={
+        "coefficient": 45.0,
+        "prix_cnss": 50.00,
+        "prix_normal": 62.00
+    })
+    assert patch_resp.status_code == 200
+    updated = patch_resp.json()
+    assert updated["coefficient"] == 45.0
+    assert updated["prix_cnss"] == 50.00
+    assert updated["prix_normal"] == 62.00
+
+    # Rétablir le coefficient original (40.0)
+    restore_resp = client.patch(f"/api/billing/actes/{acte_id}", json={
+        "coefficient": 40.0,
+        "prix_cnss": round(40.0 * 1.10, 2),
+        "prix_normal": round(40.0 * 1.36, 2)
+    })
+    assert restore_resp.status_code == 200
+
+
+def test_api_billing_facture_creation_and_invoice_pdf():
+    """Teste la création de facture, le calcul CNSS vs Normal, le paiement et le PDF."""
+    db = SessionLocal()
+    demande = db.query(Demande).filter(Demande.code_barres == "PREL-2026-001").first()
+    assert demande is not None
+
+    # 1. Génération automatique de facture pour cette demande en CNSS (taux 1.10)
+    auto_resp = client.post(f"/api/billing/factures/auto/{demande.id}?type_prise_en_charge=CNSS")
+    assert auto_resp.status_code in [200, 201]
+    facture = auto_resp.json()
+    facture_id = facture["id"]
+
+    assert facture["type_prise_en_charge"] == "CNSS"
+    assert facture["taux_applique"] == 1.10
+    assert len(facture["lignes"]) >= 1
+    assert facture["montant_net"] > 0
+
+    # 2. Enregistrer un règlement partiel / complet
+    reglement_resp = client.patch(f"/api/billing/factures/{facture_id}", json={
+        "montant_paye": facture["montant_net"],
+        "mode_paiement": "Carte Bancaire",
+        "reference_paiement": "TPE-TEST-7788"
+    })
+    assert reglement_resp.status_code == 200
+    reg = reglement_resp.json()
+    assert reg["statut_paiement"] == "Payé intégralement"
+    assert reg["reste_a_payer"] == 0.0
+
+    # 3. Téléchargement et validation du PDF de la facture
+    pdf_resp = client.get(f"/api/billing/factures/{facture_id}/pdf")
+    assert pdf_resp.status_code == 200
+    assert pdf_resp.headers["content-type"] == "application/pdf"
+    assert pdf_resp.content.startswith(b"%PDF")
+    assert len(pdf_resp.content) > 1000
+
+    db.close()
+

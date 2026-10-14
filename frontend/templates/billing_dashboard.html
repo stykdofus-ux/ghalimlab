@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block page_heading %}
+💰 Facturation, Encaissements & Suivi Tiers-Payant
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+    <!-- En-tête & Boutons d'accès -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.35rem;">
+                Gestion de la Facturation Médicale & Caisse
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                Cotation officielle à la nomenclature des actes de biologie médicale. Application différenciée des taux conventionnés <strong>CNSS / CNOPS (x 1.10 DH)</strong> et <strong>Normal / Assurances privées (x 1.36 DH)</strong>.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="/parametres-tarifs" class="btn btn-secondary">
+                ⚙️ Nomenclature & Tarifs des 492 Actes
+            </a>
+            <button onclick="ouvrirModalNouvelleFacture()" class="btn btn-primary">
+                ➕ Établir une Facture
+            </button>
+        </div>
+    </div>
+
+    <!-- Cartes KPI Financières -->
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));">
+        <div class="stat-card">
+            <div class="stat-label">Recettes Encaissées</div>
+            <div class="stat-value" style="color: #15803d;">{{ stats.recettes }} <small style="font-size: 1rem;">DH</small></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Total net perçu en caisse</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Reste à Recouvrer</div>
+            <div class="stat-value" style="color: #dc2626;">{{ stats.impayes }} <small style="font-size: 1rem;">DH</small></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Soldes débiteurs patients</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Tiers-Payant Organismes</div>
+            <div class="stat-value" style="color: #0284c7;">{{ stats.tiers_payant }} <small style="font-size: 1rem;">DH</small></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Prise en charge CNSS / CNOPS / Assur.</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Factures Émises</div>
+            <div class="stat-value" style="color: var(--text-main);">{{ stats.total_factures }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                <span style="color: #15803d; font-weight: 600;">{{ stats.nb_paye }} payées</span> • 
+                <span style="color: #b45309;">{{ stats.nb_avance }} avances</span> • 
+                <span style="color: #dc2626;">{{ stats.nb_non_paye }} impayées</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dossiers récents sans facture (Proposition de génération rapide) -->
+    {% if demandes_sans_facture %}
+    <div class="card" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+                <strong style="color: #166534; font-size: 0.95rem;">💡 Prélèvements récents sans facture émise :</strong>
+                <span style="font-size: 0.85rem; color: #374151; margin-left: 0.5rem;">
+                    Vous pouvez générer instantanément la facture cotée selon le bilan demandé.
+                </span>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% for d in demandes_sans_facture[:4] %}
+                <button onclick="genererFactureAuto({{ d.id }}, '{{ d.code_barres }}')" class="btn btn-sm btn-secondary" style="font-size: 0.78rem; background: white; border: 1px solid #86efac; color: #15803d;">
+                    ⚡ Facturer {{ d.code_barres }} ({{ d.patient.nom }})
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filtres & Recherche -->
+    <div class="card" style="padding: 1.25rem;">
+        <form method="GET" action="/facturation" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-right: 0.5rem;">Statut :</span>
+                {% set statuts = ['Tous', 'Payé intégralement', 'Avance versée', 'Non payé', 'Tiers-Payant / Prise en charge'] %}
+                {% for st in statuts %}
+                    <a href="/facturation?statut={{ st }}&prise_en_charge={{ prise_en_charge_actif }}&search={{ search_term }}" 
+                       class="btn btn-sm {% if statut_actif == st %}btn-primary{% else %}btn-secondary{% endif %}"
+                       style="border-radius: 20px; font-size: 0.8rem; padding: 0.25rem 0.75rem;">
+                       {{ st }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; align-items: center; min-width: 280px;">
+                <input type="text" name="search" value="{{ search_term }}" placeholder="N° Facture, patient, CIN..." class="form-control form-control-sm" style="flex: 1;">
+                <input type="hidden" name="statut" value="{{ statut_actif }}">
+                <input type="hidden" name="prise_en_charge" value="{{ prise_en_charge_actif }}">
+                <button type="submit" class="btn btn-primary btn-sm">🔍</button>
+                {% if search_term or statut_actif != 'Tous' or prise_en_charge_actif != 'Tous' %}
+                    <a href="/facturation" class="btn btn-secondary btn-sm" title="Réinitialiser">✖</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Table des Factures -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
+            <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">
+                🧾 Journal des Factures & Règlements ({{ factures|length }} facture{{ 's' if factures|length > 1 else '' }})
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                💡 Cliquez sur 📄 pour imprimer le reçu d'honoraires officiel au format PDF.
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f1f5f9; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+                        <th style="padding: 0.85rem 1rem;">N° Facture & Date</th>
+                        <th style="padding: 0.85rem 1rem;">Patient</th>
+                        <th style="padding: 0.85rem 1rem;">Prise en Charge (Taux)</th>
+                        <th style="padding: 0.85rem 1rem;">Cotation (B)</th>
+                        <th style="padding: 0.85rem 1rem; text-align: right;">Montant Net</th>
+                        <th style="padding: 0.85rem 1rem; text-align: right;">Payé / Reste</th>
+                        <th style="padding: 0.85rem 1rem;">Statut & Mode</th>
+                        <th style="padding: 0.85rem 1rem; text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in factures %}
+                    {% set p = f.patient %}
+                    <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">
+                        <!-- N° Facture & Date -->
+                        <td style="padding: 0.85rem 1rem; white-space: nowrap;">
+                            <div style="font-family: monospace; font-weight: 700; color: var(--primary); font-size: 0.95rem;">
+                                {{ f.numero_facture }}
+                            </div>
+                            <small style="color: var(--text-muted); font-size: 0.75rem;">
+                                {{ f.date_facture.strftime('%d/%m/%Y %H:%M') }}
+                            </small>
+                            {% if f.demande %}
+                            <div style="font-size: 0.75rem; margin-top: 2px;">
+                                <a href="/validation/{{ f.demande_id }}" style="color: var(--text-muted); text-decoration: none;">
+                                    📁 {{ f.demande.code_barres }}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Patient -->
+                        <td style="padding: 0.85rem 1rem;">
+                            <div style="font-weight: 700; color: var(--text-main);">
+                                <a href="/patient/{{ p.id }}" style="color: inherit; text-decoration: none;">
+                                    {{ p.nom }} {{ p.prenom }}
+                                </a>
+                            </div>
+                            <small style="color: var(--text-muted); font-size: 0.78rem;">
+                                CIN : {{ p.cin }} • {{ p.age }} ans ({{ p.sexe }})
+                            </small>
+                            {% if p.numero_securite_sociale %}
+                            <small style="display: block; color: var(--primary); font-size: 0.72rem;">
+                                N° Sécu/CNSS : {{ p.numero_securite_sociale }}
+                            </small>
+                            {% endif %}
+                        </td>
+
+                        <!-- Prise en charge -->
+                        <td style="padding: 0.85rem 1rem;">
+                            {% if 'CNSS' in f.type_prise_en_charge %}
+                                <span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 600;">
+                                    🏥 CNSS (x 1.10)
+                                </span>
+                            {% elif 'CNOPS' in f.type_prise_en_charge %}
+                                <span class="badge" style="background: #ccfbf1; color: #0f766e; border: 1px solid #99f6e4; font-weight: 600;">
+                                    🏛️ CNOPS (x 1.10)
+                                </span>
+                            {% elif 'Assurance' in f.type_prise_en_charge %}
+                                <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-weight: 600;">
+                                    🛡️ Assurance (x 1.36)
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 600;">
+                                    👤 Normal / Privé (x 1.36)
+                                </span>
+                            {% endif %}
+                            {% if f.organisme_nom and f.organisme_nom != f.type_prise_en_charge %}
+                            <small style="display: block; color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">
+                                {{ f.organisme_nom }}
+                            </small>
+                            {% endif %}
+                        </td>
+
+                        <!-- Cotation B -->
+                        <td style="padding: 0.85rem 1rem; white-space: nowrap;">
+                            <span style="font-weight: 700; color: #0f766e; font-size: 0.95rem;">
+                                B {{ f.total_b }}
+                            </span>
+                            <small style="display: block; color: var(--text-muted); font-size: 0.72rem;">
+                                {{ f.lignes|length }} acte{{ 's' if f.lignes|length > 1 else '' }}
+                            </small>
+                        </td>
+
+                        <!-- Montant Net -->
+                        <td style="padding: 0.85rem 1rem; text-align: right; white-space: nowrap;">
+                            <div style="font-weight: 800; color: var(--text-main); font-size: 1rem;">
+                                {{ "%.2f"|format(f.montant_net) }} <small style="font-size: 0.75rem;">DH</small>
+                            </div>
+                            {% if f.remise_montant and f.remise_montant > 0 %}
+                            <small style="color: #dc2626; font-size: 0.72rem;">
+                                Remise : -{{ "%.2f"|format(f.remise_montant) }} DH ({{ f.remise_pourcent }}%)
+                            </small>
+                            {% endif %}
+                        </td>
+
+                        <!-- Payé / Reste -->
+                        <td style="padding: 0.85rem 1rem; text-align: right; white-space: nowrap;">
+                            <div style="color: #15803d; font-weight: 700; font-size: 0.85rem;">
+                                Encaissé : {{ "%.2f"|format(f.montant_paye) }} DH
+                            </div>
+                            {% if f.reste_a_payer > 0 %}
+                            <div style="color: #dc2626; font-weight: 700; font-size: 0.85rem;">
+                                Reste : {{ "%.2f"|format(f.reste_a_payer) }} DH
+                            </div>
+                            {% else %}
+                            <div style="color: #15803d; font-size: 0.75rem;">
+                                ✓ Solde nul
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <!-- Statut & Mode -->
+                        <td style="padding: 0.85rem 1rem;">
+                            {% if f.statut_paiement == 'Payé intégralement' %}
+                                <span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 600;">
+                                    ✓ Réglé intégralement
+                                </span>
+                            {% elif f.statut_paiement == 'Avance versée' %}
+                                <span class="badge" style="background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; font-weight: 600;">
+                                    ⏳ Avance versée
+                                </span>
+                            {% elif 'Tiers-Payant' in f.statut_paiement %}
+                                <span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 600;">
+                                    🏥 Tiers-Payant Caisse
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #f87171; font-weight: 600;">
+                                    ⚠️ Non réglé
+                                </span>
+                            {% endif %}
+                            <small style="display: block; color: var(--text-muted); font-size: 0.72rem; margin-top: 2px;">
+                                Mode : {{ f.mode_paiement }}
+                            </small>
+                        </td>
+
+                        <!-- Actions -->
+                        <td style="padding: 0.85rem 1rem; text-align: right; white-space: nowrap;">
+                            <div style="display: inline-flex; gap: 0.4rem; align-items: center;">
+                                <button onclick="ouvrirModalPaiement({{ f.id }}, '{{ f.numero_facture }}', {{ f.montant_net }}, {{ f.montant_paye }}, {{ f.reste_a_payer }})" 
+                                        class="btn btn-secondary btn-sm" 
+                                        style="font-size: 0.78rem; padding: 0.25rem 0.5rem;" 
+                                        title="Encaisser un règlement">
+                                    💳 Encaisser
+                                </button>
+                                <a href="/api/billing/factures/{{ f.id }}/pdf" target="_blank" class="btn btn-primary btn-sm" style="font-size: 0.78rem; padding: 0.25rem 0.6rem;" title="Télécharger la Facture PDF">
+                                    📄 PDF
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                            Aucune facture trouvée pour ces critères.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Règlement / Encaissement -->
+<div id="modalPaiement" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+    <div style="background: white; border-radius: var(--radius); width: 100%; max-width: 440px; padding: 1.5rem; box-shadow: var(--shadow-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">
+                💳 Enregistrer un Règlement
+            </h3>
+            <button onclick="fermerModalPaiement()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Facture : <b id="payModalNumFacture" style="color: var(--primary);"></b><br/>
+            Montant Total Net : <b id="payModalNet"></b> DH | Déjà réglé : <b id="payModalPaye"></b> DH<br/>
+            <span style="color: #dc2626; font-weight: 700;">Reste à payer : <span id="payModalReste"></span> DH</span>
+        </p>
+
+        <form id="formPaiement" onsubmit="soumettrePaiement(event)">
+            <input type="hidden" id="payModalId">
+
+            <div style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Montant de l'encaissement (DH) * :
+                </label>
+                <input type="number" step="0.01" id="payModalNouveauMontant" class="form-control" required style="font-size: 1.1rem; font-weight: 700; color: #15803d;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Mode de règlement :
+                </label>
+                <select id="payModalMode" class="form-control">
+                    <option value="Espèces">Espèces</option>
+                    <option value="Carte Bancaire">Carte Bancaire (TPE)</option>
+                    <option value="Chèque">Chèque Bancaire</option>
+                    <option value="Virement">Virement Bancaire</option>
+                    <option value="Tiers-Payant">Prise en charge Tiers-Payant (Caisse / Mutuelle)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+                    Référence de paiement (Optionnel) :
+                </label>
+                <input type="text" id="payModalRef" class="form-control" placeholder="N° chèque, code transaction TPE...">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" onclick="fermerModalPaiement()" class="btn btn-secondary">Annuler</button>
+                <button type="submit" class="btn btn-primary">Valider l'encaissement</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function ouvrirModalPaiement(id, num, net, paye, reste) {
+    document.getElementById('payModalId').value = id;
+    document.getElementById('payModalNumFacture').innerText = num;
+    document.getElementById('payModalNet').innerText = net.toFixed(2);
+    document.getElementById('payModalPaye').innerText = paye.toFixed(2);
+    document.getElementById('payModalReste').innerText = reste.toFixed(2);
+    document.getElementById('payModalNouveauMontant').value = (paye + reste).toFixed(2);
+    document.getElementById('modalPaiement').style.display = 'flex';
+}
+
+function fermerModalPaiement() {
+    document.getElementById('modalPaiement').style.display = 'none';
+}
+
+async function soumettrePaiement(e) {
+    e.preventDefault();
+    const id = document.getElementById('payModalId').value;
+    const nouveauMontant = parseFloat(document.getElementById('payModalNouveauMontant').value);
+    const mode = document.getElementById('payModalMode').value;
+    const ref = document.getElementById('payModalRef').value;
+
+    try {
+        const resp = await fetch(`/api/billing/factures/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                montant_paye: nouveauMontant,
+                mode_paiement: mode,
+                reference_paiement: ref || null
+            })
+        });
+
+        if (resp.ok) {
+            fermerModalPaiement();
+            window.location.reload();
+        } else {
+            const err = await resp.json();
+            alert('Erreur: ' + (err.detail || 'Impossible d\'enregistrer'));
+        }
+    } catch (e) {
+        alert('Erreur réseau');
+    }
+}
+
+async function genererFactureAuto(demandeId, barcode) {
+    const typePE = prompt(`Type de prise en charge pour le dossier ${barcode} :\n1: Normal / Assurances (Taux x 1.36)\n2: CNSS (Taux x 1.10)\n3: CNOPS (Taux x 1.10)`, "1");
+    if (!typePE) return;
+
+    let pe = "Normal";
+    if (typePE === "2" || typePE.toLowerCase().includes("cnss")) pe = "CNSS";
+    else if (typePE === "3" || typePE.toLowerCase().includes("cnops")) pe = "CNOPS";
+
+    try {
+        const resp = await fetch(`/api/billing/factures/auto/${demandeId}?type_prise_en_charge=${pe}`, {
+            method: 'POST'
+        });
+        if (resp.ok) {
+            window.location.reload();
+        } else {
+            const err = await resp.json();
+            alert('Erreur: ' + (err.detail || 'Échec'));
+        }
+    } catch (e) {
+        alert('Erreur réseau');
+    }
+}
+</script>
+{% endblock %}

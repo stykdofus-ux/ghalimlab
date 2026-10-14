@@ -127,3 +127,149 @@ class TubeResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
+# --- Schémas de Facturation & Nomenclature ---
+
+class ActeBase(BaseModel):
+    code: str
+    nom: str
+    coefficient: float
+    categorie: Optional[str] = "Biochimie"
+    prix_cnss: Optional[float] = None
+    prix_normal: Optional[float] = None
+    actif: Optional[bool] = True
+
+
+class ActeCreate(ActeBase):
+    pass
+
+
+class ActeUpdate(BaseModel):
+    nom: Optional[str] = None
+    coefficient: Optional[float] = None
+    categorie: Optional[str] = None
+    prix_cnss: Optional[float] = None
+    prix_normal: Optional[float] = None
+    actif: Optional[bool] = None
+
+
+class ActeResponse(ActeBase):
+    id: int
+    prix_cnss: float
+    prix_normal: float
+    date_creation: Optional[datetime] = None
+    date_modification: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+class ParametresTarificationUpdate(BaseModel):
+    taux_cnss_cnops: Optional[float] = None
+    taux_normal_assurance: Optional[float] = None
+    devise: Optional[str] = None
+    tva_applicable: Optional[float] = None
+    frais_prelevement: Optional[float] = None
+    nom_laboratoire: Optional[str] = None
+    ice: Optional[str] = None
+    identifiant_fiscal: Optional[str] = None
+    patente: Optional[str] = None
+    cnss_affiliation: Optional[str] = None
+    mentions_legales: Optional[str] = None
+    recalculer_prix_actes: Optional[bool] = False  # Si True, recalcule les prix par défaut de tous les actes
+
+
+class ParametresTarificationResponse(BaseModel):
+    id: int
+    taux_cnss_cnops: float
+    taux_normal_assurance: float
+    devise: str
+    tva_applicable: float
+    frais_prelevement: float
+    nom_laboratoire: str
+    ice: Optional[str] = None
+    identifiant_fiscal: Optional[str] = None
+    patente: Optional[str] = None
+    cnss_affiliation: Optional[str] = None
+    mentions_legales: Optional[str] = None
+    date_modification: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+class FactureLigneItem(BaseModel):
+    acte_id: Optional[int] = None
+    code_acte: str
+    nom_acte: str
+    coefficient: float = 0.0
+    prix_unitaire: float = 0.0
+    quantite: int = 1
+
+
+class FactureCreate(BaseModel):
+    demande_id: Optional[int] = None
+    patient_id: int
+    type_prise_en_charge: str = "Normal"  # 'Normal', 'CNSS', 'CNOPS', 'Assurance Privée'
+    organisme_nom: Optional[str] = None
+    numero_prise_en_charge: Optional[str] = None
+    remise_pourcent: Optional[float] = 0.0
+    montant_paye: Optional[float] = 0.0
+    mode_paiement: Optional[str] = "Espèces"
+    reference_paiement: Optional[str] = None
+    lignes: Optional[List[FactureLigneItem]] = []
+    notes: Optional[str] = None
+
+
+class FactureUpdate(BaseModel):
+    type_prise_en_charge: Optional[str] = None
+    organisme_nom: Optional[str] = None
+    numero_prise_en_charge: Optional[str] = None
+    montant_paye: Optional[float] = None
+    statut_paiement: Optional[str] = None
+    mode_paiement: Optional[str] = None
+    reference_paiement: Optional[str] = None
+    remise_pourcent: Optional[float] = None
+    notes: Optional[str] = None
+
+
+class FactureLigneResponse(BaseModel):
+    id: int
+    code_acte: str
+    nom_acte: str
+    coefficient: float
+    prix_unitaire: float
+    quantite: int
+    total_ligne: float
+
+    model_config = {"from_attributes": True}
+
+
+class FactureResponse(BaseModel):
+    id: int
+    numero_facture: str
+    demande_id: Optional[int] = None
+    patient_id: int
+    date_facture: datetime
+    type_prise_en_charge: str
+    taux_applique: float
+    organisme_nom: Optional[str] = None
+    numero_prise_en_charge: Optional[str] = None
+    total_b: float
+    montant_brut: float
+    remise_pourcent: float
+    remise_montant: float
+    montant_net: float
+    part_organisme: float
+    part_patient: float
+    montant_paye: float
+    reste_a_payer: float
+    statut_paiement: str
+    mode_paiement: str
+    reference_paiement: Optional[str] = None
+    date_paiement: Optional[datetime] = None
+    cree_par: str
+    notes: Optional[str] = None
+    lignes: List[FactureLigneResponse] = []
+
+    model_config = {"from_attributes": True}
+
+
